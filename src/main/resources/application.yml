@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: yaak
+
+server:
+  port: 8888
+
+logging:
+  level:
+    web: debug
