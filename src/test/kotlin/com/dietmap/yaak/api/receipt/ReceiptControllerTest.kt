@@ -20,11 +20,11 @@ internal class ReceiptControllerTest : SupportController() {
 
     private val testResponseStatusOk: ReceiptResponse = ReceiptResponse(
             0, "sandbox", "receipt", "latestReceipt", "latestReceiptInfo",
-            "latestExpiredReceiptInfo" , "pendingRenewalInfo" , true )
+            "latestExpiredReceiptInfo" , false )
 
     private val testResponseStatusError: ReceiptResponse = ReceiptResponse(
-            21000, "sandbox", "receipt", "latestReceipt", "latestReceiptInfo",
-            "latestExpiredReceiptInfo" , "pendingRenewalInfo" , true )
+            21010, "sandbox", null, null, null,
+            null , true )
 
     private val testRequestOk: ReceiptRequest = ReceiptRequest(
             "receiptData","password",true)
@@ -51,7 +51,7 @@ internal class ReceiptControllerTest : SupportController() {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$.status").isNumber)
                 .andExpect(jsonPath("$.receipt").isString)
-                .andExpect(jsonPath("$.retryable").isBoolean)
+                .andExpect(jsonPath("$.is-retryable").isBoolean)
                 .andExpect(jsonPath("$.status", equalTo(testResponseStatusOk.status)))
                 .andExpect(jsonPath("$.latest_receipt", notNullValue()))
     }
@@ -64,13 +64,11 @@ internal class ReceiptControllerTest : SupportController() {
                         .content(asJsonString(testRequestError))
                         .accept(MediaType.APPLICATION_JSON_UTF8))
                 .andDo(print())
-                .andExpect(status().isOk)
+                .andExpect(status().isInternalServerError)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$.status").isNumber)
-                .andExpect(jsonPath("$.receipt").isString)
-                .andExpect(jsonPath("$.retryable").isBoolean)
+                .andExpect(jsonPath("$.is-retryable").isBoolean)
                 .andExpect(jsonPath("$.status", equalTo(testResponseStatusError.status)))
-                .andExpect(jsonPath("$.latest_receipt", notNullValue()))
                 .andExpect(jsonPath("$.status_info", notNullValue()))
     }
 
@@ -93,6 +91,6 @@ internal class ReceiptControllerTest : SupportController() {
                         .content(asJsonString(testRequestError))
                         .accept(MediaType.APPLICATION_JSON_UTF8))
                 .andDo(print())
-                .andExpect(status().isIAmATeapot)
+                .andExpect(status().isInternalServerError)
     }
 }

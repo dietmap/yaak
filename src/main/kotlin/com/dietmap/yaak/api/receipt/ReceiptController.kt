@@ -15,11 +15,14 @@ import javax.validation.Valid
 class ReceiptController(private val appStoreClient : AppStoreClient) {
 
     @PostMapping
-    fun verifyWithResponse(@RequestBody @Valid receiptRequest: ReceiptRequest) : ResponseEntity<ReceiptResponse>
-            = ResponseEntity.ok(appStoreClient.verifyReceipt(receiptRequest))
+    fun verifyWithResponse(@RequestBody @Valid receiptRequest: ReceiptRequest) : ResponseEntity<ReceiptResponse> {
+        val receiptResponse = appStoreClient.verifyReceipt(receiptRequest)
+        return if (receiptResponse.isValid()) ResponseEntity.ok(receiptResponse) else ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(receiptResponse)
+
+    }
 
     @PostMapping("/verify")
     fun verify(@RequestBody @Valid receiptRequest: ReceiptRequest) : ResponseEntity<Unit>
-            = if (appStoreClient.isVerified(receiptRequest)) ResponseEntity.ok().build() else ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).build()
+            = if (appStoreClient.isVerified(receiptRequest)) ResponseEntity.ok().build() else ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
 
 }

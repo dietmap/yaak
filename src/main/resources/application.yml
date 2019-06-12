@@ -11,4 +11,6 @@ server:
 
 logging:
   level:
-    web: trace
+    sun.net: DEBUG
+    org.springframework.web: INFO
+    com.dietmap: INFO

@@ -4,9 +4,14 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
 
+/**
+ * This class represents status codes as defined in https://developer.apple.com/documentation/appstorereceipts/status
+ **/
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 enum class ResponseStatusCode(private val code: Int,
                               private val description: String) : Serializable {
+
+    CODE_0(0, "The receipt is valid"),
 
     CODE_21000(21000, "The request to the App Store was not made using the HTTP POST request method"),
     CODE_21001(21001, "This status code is no longer sent by the App Store"),
@@ -25,13 +30,14 @@ enum class ResponseStatusCode(private val code: Int,
         fun getByCode(code: Int) : ResponseStatusCode? = values().firstOrNull { e -> e.code == code }
     }
 
-    override fun toString(): String {
-        return "(code=$code, description='$description')"
-    }
-
     @JsonProperty
     fun getDescription() : String = description
 
     @JsonProperty
     fun getCode() : Int = code
+
+    override fun toString(): String {
+        return "ResponseStatusCode(code=$code, description='$description')"
+    }
 }
+
