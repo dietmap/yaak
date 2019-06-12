@@ -2,9 +2,13 @@ spring:
   application:
     name: yaak
 
+  # default active profile
+  profiles:
+    active: sandbox
+
 server:
-  port: 8888
+  port: 8080
 
 logging:
   level:
-    web: debug
+    web: trace
