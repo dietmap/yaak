@@ -30,7 +30,7 @@ Once you run it you can access YAAK here: http://localhost:8080/
 
 
 ### Configuration
-There are two configuration files with profiles: [*sandbox*](./src/main/resources/application-sandbox.yml) 
+There are two configuration files with corresponding profiles: [*sandbox*](./src/main/resources/application-sandbox.yml) 
 and [*production*](./src/main/resources/application-production.yml)
 
 By default YAAK runs on *sandbox* profile so if would like to changed it do it as follows:
@@ -45,7 +45,6 @@ and then run
 $ ./gradlew bootRun
 ```
 
-
 ### Endpoints
 The following API endpoints are available:
 
@@ -53,7 +52,7 @@ The following API endpoints are available:
 
 * http://localhost:8080/api/receipt/verify - simply returns HTTP 200 if the receipt is valid or HTTP 500 in other cases
 
-Both of them accept HTTP POST method and require the following *Content-Type: application/json* [request body](https://developer.apple.com/documentation/appstorereceipts/requestbody):
+Both endpoints accept HTTP POST method and require *Content-Type: application/json* [request body](https://developer.apple.com/documentation/appstorereceipts/requestbody)
 
 Example request body:
 
@@ -89,9 +88,7 @@ Example response body for /api/receipt endpoint:
         "original_purchase_date_ms": "1375340400000",
         "original_purchase_date_pst": "2013-08-01 00:00:00 America/Los_Angeles",
         "original_application_version": "1.0",
-        "in_app": [
-            ...
-        ]
+        "in_app": []
     },
     "latest_receipt": "...",
     "latest_receipt_info": [
@@ -138,9 +135,10 @@ Example response body for /api/receipt endpoint:
 
 * https://developer.apple.com/documentation/appstorereceipts
 
-### Issues
+### Issues and contribution
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/dietmap/yaak
 
 ### License
+
 YAAK is Open Source software released under [MIT license](./LICENSE.txt).
