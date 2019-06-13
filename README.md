@@ -68,7 +68,7 @@ Example request body:
 }
 ```
 
-Example response body for /api/receipt endpoint:
+Example HTTP 200 response body for /api/receipt endpoint:
 
 ```json
 {
@@ -130,6 +130,21 @@ Example response body for /api/receipt endpoint:
         "description": "The receipt is valid"
     },
     "is-retryable": false
+}
+```
+
+Example HTTP 500 response body for /api/receipt endpoint:
+
+```json
+{
+  "status":21010,
+  "environment":"sandbox",
+  "status_info":
+    {
+      "code":21010,
+      "description":"Internal data access error. Try again later",
+    },
+  "is-retryable":true
 }
 ```
 

@@ -1,5 +1,6 @@
 package com.dietmap.yaak.api.receipt
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
@@ -20,8 +21,10 @@ data class ReceiptResponse(@get:JsonProperty("status") val status: Int,
     @JsonProperty("status_info")
     val responseStatusCode : ResponseStatusCode? = ResponseStatusCode.getByCode(status)
 
+    @JsonIgnore
     fun isValid() : Boolean = status == 0
 
+    @JsonIgnore
     fun shouldRetry() : Boolean = (status != 0 && isRetryable)
 
     override fun toString(): String {
