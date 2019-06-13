@@ -10,8 +10,9 @@ You should always validate receipts on the server, in [Apple's words](https://de
 
 ### Running YAAK locally
 
-YAAK is a [Spring Boot](https://github.com/spring-projects/spring-boot) application written in [Kotlin](https://github.com/kotlin) and built using [Gradle](https://github.com/gradle). 
-You can build a jar file and then run on your local machine as follows:
+YAAK is a [Spring Boot](https://spring.io/projects/spring-boot) application written in [Kotlin](https://kotlinlang.org/) and built using [Gradle](https://gradle.org/). 
+You can build a jar file and then run it on your local machine as follows:
+
 
 ```bash
 $ git clone https://github.com/dietmap/yaak.git
@@ -46,13 +47,16 @@ $ ./gradlew bootRun
 ```
 
 ### Endpoints
-The following API endpoints are available:
 
-* http://localhost:8080/api/receipt - returns HTTP 200 with the detailed receipt body from Apple or HTTP 500 in case of any errors
+The following API endpoints accept HTTP POST method and require *Content-Type: application/json* [request body](https://developer.apple.com/documentation/appstorereceipts/requestbody)
 
-* http://localhost:8080/api/receipt/verify - simply returns HTTP 200 if the receipt is valid or HTTP 500 in other cases
+* http://localhost:8080/api/receipt
 
-Both endpoints accept HTTP POST method and require *Content-Type: application/json* [request body](https://developer.apple.com/documentation/appstorereceipts/requestbody)
+Returns HTTP 200 with the detailed receipt body or HTTP 500 with error details in case of any errors
+
+* http://localhost:8080/api/receipt/verify 
+
+Simply returns HTTP code without response body. HTTP 200 if the receipt is valid or HTTP 500 in case of any errors
 
 Example request body:
 
