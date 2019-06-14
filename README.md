@@ -78,7 +78,7 @@ Example HTTP 200 response body for /api/receipt endpoint:
         "receipt_type": "ProductionSandbox",
         "adam_id": 0,
         "app_item_id": 0,
-        "bundle_id": "net.peater.PeaterDebug",
+        "bundle_id": "com.your.BundleId",
         "application_version": "201906111417",
         "download_id": 0,
         "version_external_identifier": 0,
@@ -98,7 +98,7 @@ Example HTTP 200 response body for /api/receipt endpoint:
     "latest_receipt_info": [
         {
             "quantity": "1",
-            "product_id": "net.peater.PeaterStaging.P1M",
+            "product_id": "com.your.ProductId",
             "transaction_id": "1000000536008625",
             "original_transaction_id": "1000000515833291",
             "purchase_date": "2019-06-11 14:10:37 Etc/GMT",
@@ -118,10 +118,10 @@ Example HTTP 200 response body for /api/receipt endpoint:
     "pending_renewal_info": [
         {
             "expiration_intent": "1",
-            "auto_renew_product_id": "net.peater.PeaterStaging.P1M",
+            "auto_renew_product_id": "com.your.ProductId",
             "original_transaction_id": "1000000515833291",
             "is_in_billing_retry_period": "0",
-            "product_id": "net.peater.PeaterStaging.P1M",
+            "product_id": "com.your.ProductId",
             "auto_renew_status": "0"
         }
     ],
