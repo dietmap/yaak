@@ -1,6 +1,6 @@
 package com.dietmap.yaak.api.subscription
 
-import com.dietmap.yaak.domain.receipt.UserAppClient
+import com.dietmap.yaak.domain.userapp.UserAppClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity

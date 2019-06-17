@@ -1,4 +1,4 @@
-package com.dietmap.yaak.domain.receipt
+package com.dietmap.yaak.domain.userapp
 
 import com.dietmap.yaak.api.receipt.ReceiptResponse
 import com.dietmap.yaak.api.subscription.StatusUpdateNotification

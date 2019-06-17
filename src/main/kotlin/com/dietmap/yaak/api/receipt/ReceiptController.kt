@@ -1,7 +1,7 @@
 package com.dietmap.yaak.api.receipt
 
-import com.dietmap.yaak.domain.receipt.AppStoreClient
-import com.dietmap.yaak.domain.receipt.UserAppClient
+import com.dietmap.yaak.domain.appstore.AppStoreClient
+import com.dietmap.yaak.domain.userapp.UserAppClient
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping

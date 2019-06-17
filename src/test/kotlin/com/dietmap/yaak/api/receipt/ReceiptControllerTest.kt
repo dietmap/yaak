@@ -1,8 +1,8 @@
 package com.dietmap.yaak.api.receipt
 
 import com.dietmap.yaak.SupportController
-import com.dietmap.yaak.domain.receipt.AppStoreClient
-import com.dietmap.yaak.domain.receipt.UserAppClient
+import com.dietmap.yaak.domain.appstore.AppStoreClient
+import com.dietmap.yaak.domain.userapp.UserAppClient
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.notNullValue
 import org.junit.jupiter.api.Test

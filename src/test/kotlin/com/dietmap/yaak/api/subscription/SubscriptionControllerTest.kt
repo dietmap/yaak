@@ -1,7 +1,7 @@
 package com.dietmap.yaak.api.subscription
 
 import com.dietmap.yaak.SupportController
-import com.dietmap.yaak.domain.receipt.UserAppClient
+import com.dietmap.yaak.domain.userapp.UserAppClient
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType

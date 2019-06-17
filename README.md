@@ -54,12 +54,25 @@ Both of them are REST endpoints accepting HTTP POST method, passing original req
 They are defined in *userapp.** properties. By default they do nothing and point to the localhost but you can change them accordingly if needed.
 
 ```yaml
-# is executed when the /api/receipt/verify endpoint is called
-handle-receipt-update-url: <YOUR_APP_REST_API_HANDLER>
+userapp:
+  # is executed when the /api/receipt/verify endpoint is called
+  handle-receipt-update-url: <YOUR_APP_REST_API_HANDLER>
 
-# is executed when the /api/subscription/statusUpdateNotification endpoint is called
-handle-subscription-update-url: <YOUR_APP_REST_API_HANDLER>
+  # is executed when the /api/subscription/statusUpdateNotification endpoint is called
+  handle-subscription-update-url: <YOUR_APP_REST_API_HANDLER>
 ```
+
+### Security
+
+All endpoints require to pass an API key defined in 
+ 
+```yaml
+yaakapp:
+  api-key: <APP_SECRET_API_KEY>
+```
+ 
+in the *Authorization* HTTP header. 
+
 
 ### API Endpoints
 
