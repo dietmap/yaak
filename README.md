@@ -64,14 +64,14 @@ userapp:
 
 ### Security
 
-All endpoints require to pass an API key defined in 
+Client is required to pass an API key defined in 
  
 ```yaml
 yaakapp:
   api-key: <APP_SECRET_API_KEY>
 ```
  
-in the *Authorization* HTTP header. 
+in the *Authorization* HTTP header in order to call any endpoint.
 
 
 ### API Endpoints
