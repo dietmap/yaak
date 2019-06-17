@@ -1,2 +1,8 @@
 appstore:
   base-url: https://sandbox.itunes.apple.com
+
+userapp:
+  # is called when the /api/receipt/verify endpoint is called
+  handle-receipt-update-url: http://localhost:8080/handle
+  # is called when the /api/subscription/statusUpdateNotification endpoint is called
+  handle-subscription-update-url: http://localhost:8080/handle

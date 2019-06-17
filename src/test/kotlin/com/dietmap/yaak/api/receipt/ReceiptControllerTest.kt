@@ -2,6 +2,7 @@ package com.dietmap.yaak.api.receipt
 
 import com.dietmap.yaak.SupportController
 import com.dietmap.yaak.domain.receipt.AppStoreClient
+import com.dietmap.yaak.domain.receipt.UserAppClient
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.notNullValue
 import org.junit.jupiter.api.Test
@@ -12,11 +13,12 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
-
 internal class ReceiptControllerTest : SupportController() {
 
     @MockBean
     private lateinit var appStoreClient: AppStoreClient
+    @MockBean
+    private lateinit var userAppClient: UserAppClient
 
     private val testResponseStatusOk: ReceiptResponse = ReceiptResponse(
             0, "sandbox", "receipt", "latestReceipt", "latestReceiptInfo",

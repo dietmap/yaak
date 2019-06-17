@@ -1,8 +1,6 @@
 spring:
   application:
     name: yaak
-
-  # default active profile
   profiles:
     active: sandbox
 
@@ -11,6 +9,6 @@ server:
 
 logging:
   level:
-    sun.net: DEBUG
+    sun.net: INFO
     org.springframework.web: INFO
     com.dietmap: INFO

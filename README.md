@@ -3,7 +3,7 @@ YAAK - Yet Another AppStore Kit
 
 [![Build Status](https://travis-ci.com/dietmap/yaak.svg?branch=master)](https://travis-ci.com/dietmap/yaak)
 
-#### YAAK is a simple server that by its API makes In-App Purchase receipt and Auto-Renewable subscription validation easy
+### YAAK is a simple server that by its API makes In-App Purchase receipt and Auto-Renewable subscription validation easy
 
 You should always validate receipts on the server, in [Apple's words](https://developer.apple.com/library/ios/releasenotes/General/ValidateAppStoreReceipt/Chapters/ValidateRemotely.html#//apple_ref/doc/uid/TP40010573-CH104-SW1):
 > Use a trusted server to communicate with the App Store. Using your own server lets you design your app to recognize and trust only your server, and lets you ensure that your server connects with the App Store server. It is not possible to build a trusted connection between a user’s device and the App Store directly because you don’t control either end of that connection.
@@ -46,7 +46,24 @@ and then run
 $ ./gradlew bootRun
 ```
 
-### Endpoints
+### Plugin your application logic
+
+There are two places where you can plugin your custom backend application logic.
+Both of them are REST endpoints accepting HTTP POST method, passing original request as payload and not returning a response.
+
+They are defined in *userapp.** properties. By default they do nothing and point to the localhost but you can change them accordingly if needed.
+
+```yaml
+# is executed when the /api/receipt/verify endpoint is called
+handle-receipt-update-url: <YOUR_APP_REST_API_HANDLER>
+
+# is executed when the /api/subscription/statusUpdateNotification endpoint is called
+handle-subscription-update-url: <YOUR_APP_REST_API_HANDLER>
+```
+
+### API Endpoints
+
+#### Receipt
 
 The following API endpoints accept HTTP POST method and require *Content-Type: application/json* [request body](https://developer.apple.com/documentation/appstorereceipts/requestbody)
 
@@ -56,7 +73,8 @@ Returns HTTP 200 with the detailed receipt body or HTTP 500 with error details i
 
 * http://localhost:8080/api/receipt/verify 
 
-Simply returns HTTP code without response body. HTTP 200 if the receipt is valid or HTTP 500 in case of any errors
+Simply returns HTTP code without response body. HTTP 200 if the receipt is valid or HTTP 500 in case of any errors.
+
 
 Example request body:
 
@@ -142,17 +160,24 @@ Example HTTP 500 response body for /api/receipt endpoint:
   "status_info":
     {
       "code":21010,
-      "description":"Internal data access error. Try again later",
+      "description":"Internal data access error. Try again later"
     },
   "is-retryable":true
 }
 ```
 
+#### Subscription
+
+The following API endpoint accept HTTP POST method and returns HTTP 200. 
+You should set it up as URL for subscription status updates notifications from the App Store.
+
+* http://localhost:8080/api/subscription/statusUpdateNotification
+
 ### Documentation
 
 * https://developer.apple.com/documentation/appstorereceipts/verifyreceipt
 
-* https://developer.apple.com/documentation/appstorereceipts
+* https://developer.apple.com/documentation/storekit/in-app_purchase/enabling_status_update_notifications
 
 ### Issues and contribution
 
