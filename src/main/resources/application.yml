@@ -1,11 +1,11 @@
 spring:
   application:
-    name: yaak
+    name: yaak-api
   profiles:
     active: sandbox
-
-server:
-  port: 8080
+  output:
+    ansi:
+      enabled: always
 
 logging:
   level:

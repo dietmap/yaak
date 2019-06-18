@@ -1,0 +1,9 @@
+spring:
+  application:
+      name: yaak-api
+  cloud:
+     config:
+       uri: http://localhost:8761/config
+       fail-fast: true
+  profiles:
+    active: sandbox
