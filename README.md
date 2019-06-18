@@ -64,14 +64,14 @@ userapp:
 
 ### Security
 
-Client is required to pass an API key defined in 
+Client is required to pass an API key configured in 
  
 ```yaml
 yaakapp:
   api-key: <APP_SECRET_API_KEY>
 ```
  
-in the *Authorization* HTTP header in order to call any endpoint.
+in the *Authorization* HTTP header in order to call /api/* endpoints.
 
 
 ### API Endpoints
@@ -181,8 +181,8 @@ Example HTTP 500 response body for /api/receipt endpoint:
 
 #### Subscription
 
-The following API endpoint accept HTTP POST method and returns HTTP 200. 
-You should set it up as URL for subscription status updates notifications from the App Store.
+The following API endpoint accepts HTTP POST method and returns HTTP 200. 
+You can set it up as URL for subscription status updates notifications in the App Store.
 
 * http://localhost:8080/api/subscription/statusUpdateNotification
 
