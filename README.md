@@ -30,8 +30,8 @@ $ ./gradlew bootRun
 Once you run it you can access YAAK here: http://localhost:8080/
 
 
-### Configuration
-There are two configuration files with corresponding profiles: [*sandbox*](./src/main/resources/application-sandbox.yml) 
+### Environments
+There are two configuration files with corresponding environments/profiles: [*sandbox*](./src/main/resources/application-sandbox.yml) 
 and [*production*](./src/main/resources/application-production.yml)
 
 By default YAAK runs on *sandbox* profile so if would like to changed it do it as follows:
@@ -65,7 +65,7 @@ subscription-update-webhook-url: http://localhost:8080/handle
 
 You have to generate your own **secure** API key and then set it up as *YAAK_API_KEY* environment variable:
  
-```yaml
+```bash
 export YAAK_API_KEY=MySuperApiKey123
 ```
  
