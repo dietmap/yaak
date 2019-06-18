@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: yaak-api
+  profiles:
+    active: sandbox
+  output:
+    ansi:
+      enabled: always
+
+logging:
+  level:
+    sun.net: DEBUG
+    org.springframework.web: INFO
+    com.dietmap: INFO
