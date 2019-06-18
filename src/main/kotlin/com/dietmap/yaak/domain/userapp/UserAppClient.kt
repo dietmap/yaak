@@ -19,8 +19,8 @@ class UserAppClient {
     val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     constructor(restTemplateBuilder: RestTemplateBuilder,
-                @Value("\${userapp.handle-receipt-update-url}") handleReceiptUpdateUrl: String,
-                @Value("\${userapp.handle-subscription-update-url}") handleSubscriptionUpdateUrl: String) {
+                @Value("\${userapp.receipt-validate-webhook-url}") handleReceiptUpdateUrl: String,
+                @Value("\${userapp.subscription-update-webhook-url}") handleSubscriptionUpdateUrl: String) {
         restTemplate = restTemplateBuilder.build()
         this.handleReceiptUpdateUrl = handleReceiptUpdateUrl
         this.handleSubscriptionUpdateUrl = handleSubscriptionUpdateUrl

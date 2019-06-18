@@ -46,33 +46,30 @@ and then run
 $ ./gradlew bootRun
 ```
 
-### Plugin your application logic
+### Adding custom callbacks
 
-There are two places where you can plugin your custom backend application logic.
+There are two places (webhooks) where you can plugin your custom backend application logic.
 Both of them are REST endpoints accepting HTTP POST method, passing original request as payload and not returning a response.
 
-They are defined in *userapp.** properties. By default they do nothing and point to the localhost but you can change them accordingly if needed.
+The default implementation does nothing and point to the localhost mock endpoint. You can change them accordingly if needed.
 
 ```yaml
-userapp:
-  # is executed when the /api/receipt/verify endpoint is called
-  handle-receipt-update-url: <YOUR_APP_REST_API_HANDLER>
-
-  # is executed when the /api/subscription/statusUpdateNotification endpoint is called
-  handle-subscription-update-url: <YOUR_APP_REST_API_HANDLER>
+# called when the /api/receipt/verify endpoint is called
+receipt-validate-webhook-url: http://localhost:8080/handle
+  
+# called when the /api/subscription/statusUpdateNotification endpoint is called
+subscription-update-webhook-url: http://localhost:8080/handle
 ```
 
 ### Security
 
-Client is required to pass the API key configured in 
+You have to generate your own **secure** API key and then set it up as *YAAK_API_KEY* environment variable:
  
 ```yaml
-yaakapp:
-  api-key: <APP_SECRET_API_KEY>
+export YAAK_API_KEY=MySuperApiKey123
 ```
  
-as the *Authorization* HTTP header value in order to call any of /api/* endpoints.
-
+Client is required to pass the configured API key as *Authorization* HTTP header value in order to call any of /api/* endpoints.
 
 ### API Endpoints
 

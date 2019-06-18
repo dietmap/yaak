@@ -1,11 +1,8 @@
 appstore:
   base-url: https://sandbox.itunes.apple.com
 
-yaakapp:
-  api-key: nIa2g2vXA9rMJ8JRM2cgyeEHkOoJmh2J
-
 userapp:
-  # is called when the /api/receipt/verify endpoint is called
-  handle-receipt-update-url: http://localhost:8080/handle
-  # is called when the /api/subscription/statusUpdateNotification endpoint is called
-  handle-subscription-update-url: http://localhost:8080/handle
+  # called when the /api/receipt/verify endpoint is called
+  receipt-validate-webhook-url: http://localhost:8080/handle
+  # called when the /api/subscription/statusUpdateNotification endpoint is called
+  subscription-update-webhook-url: http://localhost:8080/handle
