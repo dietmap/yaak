@@ -191,11 +191,11 @@ You can set it up as URL for subscription status updates notifications in the Ap
 
 ### Docker
 
-The docker image is stored in the Docker Hub under [dietmap/yaak](https://cloud.docker.com/repository/docker/dietmap/yaak) repo.
+The docker image is stored in Docker Hub [dietmap/yaak](https://cloud.docker.com/repository/docker/dietmap/yaak) repo.
 
 #### Running
 
-You can pass environment variables when starting the container using -e parameter:
+You should pass environment variables when starting the container using -e parameter:
 
 ```bash
 $ doceker run ...
