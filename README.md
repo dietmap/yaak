@@ -198,7 +198,7 @@ The docker image is stored in Docker Hub [dietmap/yaak](https://cloud.docker.com
 You should pass environment variables when starting the container using -e parameter:
 
 ```bash
-$ doceker run ...
+$ docker run ...
 $ -e YAAK_API_KEY='foo' \
 $ -e YAAK_APPSTORE_BASE_URL='bar1' \
 $ -e YAAK_RECEIPT_VALIDATE_WBEHOOK_URL='bar3' \
