@@ -15,7 +15,7 @@ import org.springframework.security.config.http.SessionCreationPolicy
 @Order(1)
 class ApiSecurityConfig : WebSecurityConfigurerAdapter() {
 
-    @Value("\${YAAK_API_KEY}")
+    @Value("\${yaak.api-key}")
     private val apiKey: String? = null
 
     @Throws(Exception::class)

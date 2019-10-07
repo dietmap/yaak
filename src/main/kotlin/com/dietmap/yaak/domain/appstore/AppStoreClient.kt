@@ -24,7 +24,7 @@ class AppStoreClient {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
-    constructor(restTemplateBuilder: RestTemplateBuilder, @Value("\${appstore.base-url}") verifyReceiptUrlIn: String) {
+    constructor(restTemplateBuilder: RestTemplateBuilder, @Value("\${yaak.appstore-base-url}") verifyReceiptUrlIn: String) {
         restTemplate = restTemplateBuilder.rootUri(verifyReceiptUrlIn).build()
         verifyReceiptUrl = verifyReceiptUrlIn
 

@@ -31,16 +31,16 @@ Once you run it you can access YAAK here: http://localhost:8080/
 
 
 ### Environments
-There are two configuration files with corresponding environments/profiles: [*sandbox*](./src/main/resources/application-sandbox.yml) 
-and [*production*](./src/main/resources/application-production.yml)
-
-By default YAAK runs on *sandbox* profile so if would like to changed it do it as follows:
+By default YAAK runs with [*sandbox*](./src/main/resources/application.yml) settings, if would like to changed them 
+do it via YAAK_* environment variables follows:
 
 ```bash
-export SPRING_PROFILES_ACTIVE=production
+$ export YAAK_APPSTORE_BASE_URL=foo
+$ export YAAK_RECEIPT_VALIDATE_WBEHOOK_URL=bar1
+$ export YAAK_SUBSCRIPTION_UPDATE_WBEHOOK_URL=bar2
 ```
 
-and then run
+and then run the app
 
 ```bash
 $ ./gradlew bootRun
@@ -55,10 +55,10 @@ The default implementation does nothing and point to the localhost mock endpoint
 
 ```yaml
 # called when the /api/receipt/verify endpoint is called
-receipt-validate-webhook-url: http://localhost:8080/handle
+http://localhost:8080/receipt/handle
   
 # called when the /api/subscription/statusUpdateNotification endpoint is called
-subscription-update-webhook-url: http://localhost:8080/handle
+http://localhost:8080/subscription/handle
 ```
 
 ### Security
@@ -66,7 +66,7 @@ subscription-update-webhook-url: http://localhost:8080/handle
 You have to generate your own **secure** API key and then set it up as *YAAK_API_KEY* environment variable:
  
 ```bash
-export YAAK_API_KEY=MySuperApiKey123
+$ export YAAK_API_KEY=MySuperApiKey123
 ```
  
 Client is required to pass the configured API key as *Authorization* HTTP header value in order to call any of /api/* endpoints.
@@ -188,6 +188,22 @@ You can set it up as URL for subscription status updates notifications in the Ap
 * https://developer.apple.com/documentation/appstorereceipts/verifyreceipt
 
 * https://developer.apple.com/documentation/storekit/in-app_purchase/enabling_status_update_notifications
+
+### Docker
+
+The docker image is stored in the Docker Hub under [dietmap/yaak](https://cloud.docker.com/repository/docker/dietmap/yaak) repo.
+
+#### Running
+
+You can pass environment variables when starting the container using -e parameter:
+
+```bash
+$ doceker run ...
+$ -e YAAK_API_KEY='foo' \
+$ -e YAAK_APPSTORE_BASE_URL='bar1' \
+$ -e YAAK_RECEIPT_VALIDATE_WBEHOOK_URL='bar3' \
+$ -e YAAK_SUBSCRIPTION_UPDATE_WBEHOOK_URL='bar4' \
+```
 
 ### Issues and contribution
 

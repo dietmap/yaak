@@ -12,3 +12,11 @@ logging:
     sun.net: INFO
     org.springframework.web: INFO
     com.dietmap: INFO
+
+yaak:
+  api-key: ${YAAK_API_KEY}
+  appstore-base-url: ${YAAK_APPSTORE_BASE_URL:https://sandbox.itunes.apple.com}
+  # called when the /api/receipt/verify endpoint is called
+  receipt-validate-webhook-url: ${YAAK_RECEIPT_VALIDATE_WBEHOOK_URL:http://localhost:8080/receipt/handle}
+  # called when the /api/subscription/statusUpdateNotification endpoint is called
+  subscription-update-webhook-url: ${YAAK_SUBSCRIPTION_UPDATE_WBEHOOK_URL:http://localhost:8080/subscription/handle}

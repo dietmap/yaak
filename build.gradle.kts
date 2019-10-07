@@ -5,6 +5,7 @@ plugins {
 	id("io.spring.dependency-management") version "1.0.7.RELEASE"
 	kotlin("jvm") version "1.3.31"
 	kotlin("plugin.spring") version "1.3.31"
+	id("com.google.cloud.tools.jib") version "1.6.1"
 }
 
 group = "com.dietmap"
@@ -44,4 +45,22 @@ tasks.withType<KotlinCompile> {
 tasks.withType<Test> {
 	useJUnitPlatform()
 	failFast = true
+}
+
+jib {
+	to {
+		image = "dietmap/yaak"
+		auth {
+			username = System.getenv("DOCKERHUB_USERNAME")
+			password = System.getenv("DOCKERHUB_PASSWORD")
+		}
+	}
+	container {
+		labels = mapOf(
+				"maintainer" to "Krzysztof Koziol"
+		)
+		jvmFlags = listOf("-Xms512m", "-Djava.awt.headless=true")
+		mainClass = "com.dietmap.yaak.YaakApplication"
+		ports = listOf("8080")
+	}
 }
