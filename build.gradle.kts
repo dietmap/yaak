@@ -50,6 +50,7 @@ tasks.withType<Test> {
 jib {
 	to {
 		image = "dietmap/yaak"
+		tags = setOf(project.version.toString(), "latest")
 		auth {
 			username = System.getenv("DOCKERHUB_USERNAME")
 			password = System.getenv("DOCKERHUB_PASSWORD")
@@ -60,7 +61,7 @@ jib {
 				"maintainer" to "Krzysztof Koziol"
 		)
 		jvmFlags = listOf("-Xms512m", "-Djava.awt.headless=true")
-		mainClass = "com.dietmap.yaak.YaakApplication"
+		mainClass = "com.dietmap.yaak.YaakApplicationKt"
 		ports = listOf("8080")
 	}
 }
