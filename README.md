@@ -46,6 +46,22 @@ and then run the app
 $ ./gradlew bootRun
 ```
 
+### Security
+
+You have to generate your own **secure** API key and then set it up as *YAAK_API_KEY* environment variable:
+ 
+```bash
+$ export YAAK_API_KEY=MySuperApiKey123
+```
+
+### Health check
+
+Once the YAAK is started you can hit this endpoint in order to verify whether the service is up and running:
+ 
+```bash
+$ curl http://localhost:8080/actuator/health --header "Authorization: MySuperApiKey123"
+```
+
 ### Adding custom callbacks
 
 There are two places (webhooks) where you can plugin your custom backend application logic.
@@ -59,14 +75,6 @@ http://localhost:8080/receipt/handle
   
 # called when the /api/subscription/statusUpdateNotification endpoint is called
 http://localhost:8080/subscription/handle
-```
-
-### Security
-
-You have to generate your own **secure** API key and then set it up as *YAAK_API_KEY* environment variable:
- 
-```bash
-$ export YAAK_API_KEY=MySuperApiKey123
 ```
  
 Client is required to pass the configured API key as *Authorization* HTTP header value in order to call any of /api/* endpoints.
