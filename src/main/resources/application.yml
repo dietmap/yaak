@@ -14,7 +14,7 @@ logging:
     com.dietmap: INFO
 
 yaak:
-  api-key: ${YAAK_API_KEY}
+  api-key: ${YAAK_API_KEY:MySuperApiKey123}
   appstore-base-url: ${YAAK_APPSTORE_BASE_URL:https://sandbox.itunes.apple.com}
   # called when the /api/receipt/verify endpoint is called
   receipt-validate-webhook-url: ${YAAK_RECEIPT_VALIDATE_WBEHOOK_URL:http://localhost:8080/receipt/handle}
