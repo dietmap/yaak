@@ -48,7 +48,8 @@ $ ./gradlew bootRun
 
 ### Security
 
-You have to generate your own **secure** API key and then set it up as *YAAK_API_KEY* environment variable:
+By default YAAK runs with [*sandbox*](./src/main/resources/application.yml) settings. 
+You should to generate your own **secure** API key and set it up as *YAAK_API_KEY* environment variable:
  
 ```bash
 $ export YAAK_API_KEY=MySuperApiKey123
