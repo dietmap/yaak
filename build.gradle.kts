@@ -7,12 +7,21 @@ plugins {
 	kotlin("plugin.spring") version "1.3.31"
 	id("com.google.cloud.tools.jib") version "1.6.1"
 	id("pl.allegro.tech.build.axion-release") version "1.10.2"
+	id("com.gorylenko.gradle-git-properties") version "1.4.21"
+}
+
+apply(plugin = "com.gorylenko.gradle-git-properties")
+apply(plugin = "pl.allegro.tech.build.axion-release")
+
+scmVersion {
+	versionIncrementer ("incrementPatch")
+	versionCreator ("versionWithBranch")
+
 }
 
 group = "com.dietmap"
-version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
-project.version = scmVersion.version
+version = scmVersion.version
 
 repositories {
 	mavenCentral()
