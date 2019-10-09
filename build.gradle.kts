@@ -6,11 +6,13 @@ plugins {
 	kotlin("jvm") version "1.3.31"
 	kotlin("plugin.spring") version "1.3.31"
 	id("com.google.cloud.tools.jib") version "1.6.1"
+	id("pl.allegro.tech.build.axion-release") version "1.10.2"
 }
 
 group = "com.dietmap"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
+project.version = scmVersion.version
 
 repositories {
 	mavenCentral()
