@@ -12,4 +12,7 @@ jobs:
         with:
           java-version: 1.8
       - name: Build & push docker image
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKERHUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: ./gradlew jib
