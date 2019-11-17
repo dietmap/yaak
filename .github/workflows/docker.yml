@@ -1,6 +1,9 @@
 name: Build docker image
 
-on: [push]
+on:
+  push:
+    tags:
+      - release-*
 
 jobs:
   build:
