@@ -23,4 +23,4 @@ jobs:
       - name: Call webhook
         run: |
           IMAGE_TAG=$(./gradlew cV -q -Prelease.quiet)
-          echo $IMAGE)TAG
+          echo $IMAGE_TAG
