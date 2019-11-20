@@ -21,6 +21,6 @@ jobs:
 #          DOCKERHUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 #        run: ./gradlew jib
         - name: Call webhook
-            run: |
-              IMAGE_TAG=$(./gradlew cV -q -Prelease.quiet)
-              echo $IMAGE)TAG
+          run: |
+            IMAGE_TAG=$(./gradlew cV -q -Prelease.quiet)
+            echo $IMAGE)TAG
