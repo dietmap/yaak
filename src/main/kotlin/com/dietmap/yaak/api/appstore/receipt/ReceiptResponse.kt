@@ -1,4 +1,4 @@
-package com.dietmap.yaak.api.receipt
+package com.dietmap.yaak.api.appstore.receipt
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude

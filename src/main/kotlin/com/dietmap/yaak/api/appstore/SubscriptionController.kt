@@ -1,4 +1,4 @@
-package com.dietmap.yaak.api.subscription
+package com.dietmap.yaak.api.appstore
 
 import com.dietmap.yaak.domain.userapp.UserAppClient
 import org.slf4j.Logger
@@ -21,7 +21,8 @@ class SubscriptionController(private val userAppClient: UserAppClient) {
 
         logger.debug("StatusUpdateNotification {}", statusUpdateNotification)
 
-        userAppClient.handleSubscriptionUpdate(statusUpdateNotification)
+            //TODO send subscription notification
+//        userAppClient.sendSubscriptionNotification(statusUpdateNotification)
 
         return ResponseEntity.ok().build()
     }
