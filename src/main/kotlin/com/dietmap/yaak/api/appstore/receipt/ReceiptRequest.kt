@@ -1,4 +1,4 @@
-package com.dietmap.yaak.api.receipt
+package com.dietmap.yaak.api.appstore.receipt
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable

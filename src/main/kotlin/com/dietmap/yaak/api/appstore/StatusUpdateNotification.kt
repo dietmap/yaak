@@ -1,4 +1,4 @@
-package com.dietmap.yaak.api.subscription
+package com.dietmap.yaak.api.appstore
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable

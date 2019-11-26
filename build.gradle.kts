@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	id("org.springframework.boot") version "2.1.9.RELEASE"
+	id("org.springframework.boot") version "2.2.1.RELEASE"
 	id("io.spring.dependency-management") version "1.0.8.RELEASE"
 	kotlin("jvm") version "1.3.31"
-	kotlin("plugin.spring") version "1.3.31"
+	kotlin("plugin.spring") version "1.3.60"
 	id("com.google.cloud.tools.jib") version "1.6.1"
 	id("pl.allegro.tech.build.axion-release") version "1.10.2"
 	id("com.gorylenko.gradle-git-properties") version "1.4.21"
@@ -28,15 +28,22 @@ repositories {
 }
 
 dependencies {
+	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-aop")
 	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+	implementation("org.springframework.boot:spring-boot-starter-webflux")
+	implementation("org.springframework:spring-webflux")
 	implementation("org.springframework.retry:spring-retry:1.2.4.RELEASE")
 
+	implementation("org.projectreactor:reactor-spring:1.0.1.RELEASE")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+	implementation("com.google.apis:google-api-services-androidpublisher:v3-rev130-1.25.0")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(module = "junit")

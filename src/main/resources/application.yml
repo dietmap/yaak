@@ -6,6 +6,21 @@ spring:
   output:
     ansi:
       enabled: always
+  security:
+    oauth2:
+      client:
+        registration:
+          user-app-client-password:
+            provider: oauth-provider
+            client-id: client_id
+            client-secret: client_secret
+            authorization-grant-type: password
+            #            scope: message.read,message.write
+            username: username
+            password: password
+        provider:
+          oauth-provider:
+            token-uri: https://your-oauth-provider.com/oauth/token
 
 logging:
   level:
@@ -16,7 +31,13 @@ logging:
 yaak:
   api-key: ${YAAK_API_KEY:MySuperApiKey123}
   appstore-base-url: ${YAAK_APPSTORE_BASE_URL:https://sandbox.itunes.apple.com}
-  # called when the /api/receipt/verify endpoint is called
-  receipt-validate-webhook-url: ${YAAK_RECEIPT_VALIDATE_WBEHOOK_URL:http://localhost:8080/receipt/handle}
   # called when the /api/subscription/statusUpdateNotification endpoint is called
-  subscription-update-webhook-url: ${YAAK_SUBSCRIPTION_UPDATE_WBEHOOK_URL:http://localhost:8080/subscription/handle}
+  subscription-webhook-url: ${YAAK_SUBSCRIPTION_WBEHOOK_URL:http://localhost:8080/subscriptions/notifications/yaak}
+
+  google-play:
+    enabled: false
+    #base64 encoded google service account api key allowing access to the Google Play Developer Publishing API on behalf of the application
+    service-account-api-key-base64: e30K
+    service-account-email: account@account.iam.gserviceaccount.com
+    application-name: "App name in Google Play"
+

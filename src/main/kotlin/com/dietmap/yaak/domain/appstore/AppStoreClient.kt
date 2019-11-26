@@ -1,7 +1,7 @@
 package com.dietmap.yaak.domain.appstore
 
-import com.dietmap.yaak.api.receipt.ReceiptRequest
-import com.dietmap.yaak.api.receipt.ReceiptResponse
+import com.dietmap.yaak.api.appstore.receipt.ReceiptRequest
+import com.dietmap.yaak.api.appstore.receipt.ReceiptResponse
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value

@@ -1,4 +1,4 @@
-package com.dietmap.yaak.config
+package com.dietmap.yaak.api.appstore.config
 
 import com.dietmap.yaak.api.ApiCommons
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter

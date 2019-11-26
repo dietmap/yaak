@@ -1,6 +1,7 @@
-package com.dietmap.yaak.api.subscription
+package com.dietmap.yaak.api.appstore
 
 import com.dietmap.yaak.SupportController
+import com.dietmap.yaak.api.googleplay.GooglePlaySubscriptionService
 import com.dietmap.yaak.domain.userapp.UserAppClient
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.mock.mockito.MockBean
