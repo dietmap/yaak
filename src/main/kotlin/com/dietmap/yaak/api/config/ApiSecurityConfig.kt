@@ -1,4 +1,4 @@
-package com.dietmap.yaak.api.appstore.config
+package com.dietmap.yaak.api.config
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration

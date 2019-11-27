@@ -46,13 +46,13 @@ internal class ReceiptControllerTest : SupportController() {
     @Test
     fun `should return receipt response for a valid request`() {
         this.mockMvc.perform(
-                post("/api/receipt")
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                post("/api/appstore/receipt")
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testRequestOk))
-                        .accept(MediaType.APPLICATION_JSON_UTF8))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status").isNumber)
                 .andExpect(jsonPath("$.receipt").isString)
                 .andExpect(jsonPath("$.is-retryable").isBoolean)
@@ -63,38 +63,16 @@ internal class ReceiptControllerTest : SupportController() {
     @Test
     fun `should return receipt response with status info for a valid request`() {
         this.mockMvc.perform(
-                post("/api/receipt")
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                post("api/appstore/receipt")
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testRequestError))
-                        .accept(MediaType.APPLICATION_JSON_UTF8))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isInternalServerError)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status").isNumber)
                 .andExpect(jsonPath("$.is-retryable").isBoolean)
                 .andExpect(jsonPath("$.status", equalTo(testResponseStatusError.status)))
                 .andExpect(jsonPath("$.status_info", notNullValue()))
-    }
-
-    @Test
-    fun `should successfully verify receipt for a valid request`() {
-        this.mockMvc.perform(
-                post("/api/receipt/verify")
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
-                        .content(asJsonString(testRequestOk))
-                        .accept(MediaType.APPLICATION_JSON_UTF8))
-                .andDo(print())
-                .andExpect(status().isOk)
-    }
-
-    @Test
-    fun `should unsuccessfully verify receipt for a valid request`() {
-        this.mockMvc.perform(
-                post("/api/receipt/verify")
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
-                        .content(asJsonString(testRequestError))
-                        .accept(MediaType.APPLICATION_JSON_UTF8))
-                .andDo(print())
-                .andExpect(status().isInternalServerError)
     }
 }
