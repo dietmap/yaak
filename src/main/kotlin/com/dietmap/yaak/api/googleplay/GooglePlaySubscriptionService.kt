@@ -1,6 +1,7 @@
 package com.dietmap.yaak.api.googleplay
 
 import com.dietmap.yaak.api.googleplay.GooglePlayNotificationType.*
+import com.dietmap.yaak.domain.userapp.AppMarketplace
 import com.dietmap.yaak.domain.userapp.NotificationType
 import com.dietmap.yaak.domain.userapp.UserAppClient
 import com.dietmap.yaak.domain.userapp.UserAppSubscriptionNotification
@@ -36,12 +37,12 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
         try {
             val notificationResponse = userAppClient.sendSubscriptionNotification(UserAppSubscriptionNotification(
                     notificationType = NotificationType.INITIAL_BUY,
-                    appMarketplace = "Google Play",
+                    appMarketplace = AppMarketplace.GOOGLE_PLAY,
                     countryCode = subscriptionPurchase.countryCode,
                     price = BigDecimal(subscriptionPurchase.priceAmountMicros).divide(BigDecimal(1000 * 1000)),
                     currencyCode = subscriptionPurchase.priceCurrencyCode,
                     transactionId = subscriptionPurchase.orderId,
-                    productId = subscriptionPurchase.kind,
+                    productId = subscriptionId,
                     orderingUserInternalId = Integer.valueOf(subscriptionPurchase.developerPayload),
                     description = "Google Play initial subscription order"
             ))

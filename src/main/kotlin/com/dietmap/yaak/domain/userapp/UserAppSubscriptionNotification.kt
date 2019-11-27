@@ -20,7 +20,7 @@ data class UserAppSubscriptionNotification(
         @NotNull
         var transactionId: String,
         @NotNull
-        var appMarketplace: String
+        var appMarketplace: AppMarketplace
 )
 
 enum class NotificationType {
@@ -57,6 +57,9 @@ enum class NotificationType {
     DID_CHANGE_RENEWAL_STATUS
 }
 
+enum class AppMarketplace {
+    GOOGLE_PLAY, APP_STORE
+}
 
 data class UserAppSubscriptionOrder(
         val orderId: String,

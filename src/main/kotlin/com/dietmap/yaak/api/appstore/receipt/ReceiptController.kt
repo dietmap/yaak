@@ -1,6 +1,7 @@
 package com.dietmap.yaak.api.appstore.receipt
 
 import com.dietmap.yaak.domain.appstore.AppStoreClient
+import com.dietmap.yaak.domain.userapp.AppMarketplace
 import com.dietmap.yaak.domain.userapp.NotificationType
 import com.dietmap.yaak.domain.userapp.UserAppClient
 import com.dietmap.yaak.domain.userapp.UserAppSubscriptionNotification
@@ -38,7 +39,7 @@ class ReceiptController(private val appStoreClient : AppStoreClient, private val
                     price = BigDecimal.ONE,
                     countryCode = "PL",
                     currencyCode = "PLN",
-                    appMarketplace = "AppStore",
+                    appMarketplace = AppMarketplace.APP_STORE,
                     description = "Recipe update from AppStore"
             )
             userAppClient.sendSubscriptionNotification(notification)

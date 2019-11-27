@@ -21,7 +21,7 @@ internal class UserAppClientTest {
                 countryCode = "PL",
                 price = BigDecimal.TEN,
                 transactionId = "testTransactionID",
-                appMarketplace = "GooglePlay",
+                appMarketplace = AppMarketplace.GOOGLE_PLAY,
                 productId = "oneMonthSubscription",
                 orderingUserInternalId = 1
         ))
