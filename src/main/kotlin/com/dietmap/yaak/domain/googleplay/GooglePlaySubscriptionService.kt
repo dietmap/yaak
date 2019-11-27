@@ -1,6 +1,8 @@
-package com.dietmap.yaak.api.googleplay
+package com.dietmap.yaak.domain.googleplay
 
+import com.dietmap.yaak.domain.userapp.AppMarketplace
 import com.dietmap.yaak.api.googleplay.GooglePlayNotificationType.*
+import com.dietmap.yaak.api.googleplay.PubSubDeveloperNotification
 import com.dietmap.yaak.domain.userapp.NotificationType
 import com.dietmap.yaak.domain.userapp.UserAppClient
 import com.dietmap.yaak.domain.userapp.UserAppSubscriptionNotification
@@ -21,8 +23,8 @@ import java.math.BigDecimal
 @Service
 class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublisher, val userAppClient: UserAppClient) {
     companion object {
-        private val PAYMENT_RECEIVED_CODE = 1
-        private val PAYMENT_FREE_TRIAL_CODE = 2
+        private const val PAYMENT_RECEIVED_CODE = 1
+        private const val PAYMENT_FREE_TRIAL_CODE = 2
         private val logger: Logger = LoggerFactory.getLogger(GooglePlaySubscriptionService::class.java)
     }
 
@@ -36,12 +38,12 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
         try {
             val notificationResponse = userAppClient.sendSubscriptionNotification(UserAppSubscriptionNotification(
                     notificationType = NotificationType.INITIAL_BUY,
-                    appMarketplace = "Google Play",
+                    appMarketplace = AppMarketplace.GOOGLE_PLAY,
                     countryCode = subscriptionPurchase.countryCode,
                     price = BigDecimal(subscriptionPurchase.priceAmountMicros).divide(BigDecimal(1000 * 1000)),
                     currencyCode = subscriptionPurchase.priceCurrencyCode,
                     transactionId = subscriptionPurchase.orderId,
-                    productId = subscriptionPurchase.kind,
+                    productId = subscriptionId,
                     orderingUserInternalId = Integer.valueOf(subscriptionPurchase.developerPayload),
                     description = "Google Play initial subscription order"
             ))

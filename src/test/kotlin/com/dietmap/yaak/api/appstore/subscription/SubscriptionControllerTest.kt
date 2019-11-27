@@ -1,7 +1,6 @@
-package com.dietmap.yaak.api.appstore
+package com.dietmap.yaak.api.appstore.subscription
 
 import com.dietmap.yaak.SupportController
-import com.dietmap.yaak.api.googleplay.GooglePlaySubscriptionService
 import com.dietmap.yaak.domain.userapp.UserAppClient
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -17,7 +16,7 @@ internal class SubscriptionControllerTest : SupportController() {
 
     private val testStatusUpdateNotification: StatusUpdateNotification = StatusUpdateNotification(
             "sandbox", NotificationStatus.CANCEL, "password", "cancellationDate", "cancellationDatePst",
-            "cancellationDateMs", "webOrderLineItemId", "latestReceipt" , "latestReceiptInfo",
+            "cancellationDateMs", "webOrderLineItemId", "latestReceipt", "latestReceiptInfo",
             "latestExpiredReceipt", "latestExpiredReceiptInfo", true, "autoRenewProductId",
             "autoRenewStatusChangeDate", "autoRenewStatusChangeDatePst", "autoRenewStatusChangeDateMs")
 
@@ -27,10 +26,10 @@ internal class SubscriptionControllerTest : SupportController() {
     @Test
     fun `simulate subscription status update notification`() {
         this.mockMvc.perform(
-                MockMvcRequestBuilders.post("/api/subscription/statusUpdateNotification")
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                MockMvcRequestBuilders.post("/api/appstore/subscriptions/statusUpdateNotification")
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(testStatusUpdateNotification))
-                        .accept(MediaType.APPLICATION_JSON_UTF8))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isOk)
     }

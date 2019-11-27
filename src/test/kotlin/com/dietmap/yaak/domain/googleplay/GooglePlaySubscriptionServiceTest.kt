@@ -1,5 +1,6 @@
-package com.dietmap.yaak.api.googleplay
+package com.dietmap.yaak.domain.googleplay
 
+import com.dietmap.yaak.domain.googleplay.GooglePlaySubscriptionService
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

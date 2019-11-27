@@ -1,12 +1,12 @@
 package com.dietmap.yaak.api.googleplay
 
+import com.dietmap.yaak.domain.googleplay.GooglePlaySubscriptionService
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.api.services.androidpublisher.model.SubscriptionPurchase
-import com.sun.org.apache.xml.internal.security.utils.Base64
+import org.apache.commons.codec.binary.Base64
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -57,7 +57,7 @@ class PubSubMessage(private val messageId: String, data: String) {
     val developerNotification: PubSubDeveloperNotification
 
     init {
-        val dataDecoded = Base64.decode(data)
+        val dataDecoded = Base64.decodeBase64(data)
         logger.info("Decoded PubSub message: $dataDecoded");
         val mapper = ObjectMapper()
         this.developerNotification = mapper.readValue(dataDecoded, PubSubDeveloperNotification::class.java)

@@ -1,4 +1,4 @@
-package com.dietmap.yaak.api.googleplay
+package com.dietmap.yaak.domain.googleplay
 
 import com.google.api.client.auth.oauth2.Credential
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential

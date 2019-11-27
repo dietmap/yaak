@@ -41,3 +41,6 @@ yaak:
     service-account-email: account@account.iam.gserviceaccount.com
     application-name: "App name in Google Play"
 
+  app-store:
+      enabled: true
+

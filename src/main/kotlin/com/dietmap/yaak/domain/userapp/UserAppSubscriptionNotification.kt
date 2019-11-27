@@ -20,7 +20,7 @@ data class UserAppSubscriptionNotification(
         @NotNull
         var transactionId: String,
         @NotNull
-        var appMarketplace: String
+        var appMarketplace: AppMarketplace
 )
 
 enum class NotificationType {
@@ -66,4 +66,8 @@ data class UserAppSubscriptionOrder(
 
 enum class UserAppSubscriptionStatus {
     WAITING_FOR_PAYMENT, PROCESSING_PAYMENT, PAYMENT_FAILED, COMPLETED, CANCELED, REFUNDED
+}
+
+enum class AppMarketplace {
+    GOOGLE_PLAY, APP_STORE
 }
