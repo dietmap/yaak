@@ -5,10 +5,10 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.http.HttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
-import com.google.api.client.repackaged.com.google.common.base.Preconditions
-import com.google.api.client.repackaged.com.google.common.base.Strings
+import com.google.api.client.util.Preconditions
 import com.google.api.services.androidpublisher.AndroidPublisher
 import com.google.api.services.androidpublisher.AndroidPublisherScopes
+import com.google.common.base.Strings
 import org.apache.commons.logging.LogFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
@@ -24,7 +24,7 @@ import java.util.*
 
 @Component
 @ConfigurationProperties(prefix = "yaak.googleplay")
-class AndroidPublisherApiClientProperties {
+class GoogleDeveloperApiClientProperties {
     lateinit var serviceAccountApiKeyBase64: String
     lateinit var serviceAccountEmail: String
     lateinit var applicationName: String;
@@ -47,7 +47,7 @@ class AndroidPublisherApiClientProperties {
  */
 @ConditionalOnProperty("yaak.google-play.enabled", havingValue = "true")
 @Configuration
-class AndroidPublisherClientConfiguration(val properties: AndroidPublisherApiClientProperties) {
+class AndroidPublisherClientConfiguration(val properties: GoogleDeveloperApiClientProperties) {
     private val log = LogFactory.getLog(AndroidPublisherClientConfiguration::class.java)
 
     /** Global instance of the JSON factory.  */
