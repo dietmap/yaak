@@ -19,18 +19,20 @@ import javax.validation.constraints.NotBlank
 
 @ConditionalOnProperty("yaak.google-play.enabled", havingValue = "true")
 @RestController
-@RequestMapping("/api/googleplay/subscriptions")
 class GooglePlaySubscriptionController(val subscriptionService: GooglePlaySubscriptionService) {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
-    @PostMapping("purchase")
+    @PostMapping("/api/googleplay/subscriptions/purchases")
     fun purchase(@RequestBody @Valid purchaseRequest: PurchaseRequest): SubscriptionPurchase? {
         logger.info("Received purchase request from Google Play: {}", purchaseRequest)
         return subscriptionService.handlePurchase(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken, purchaseRequest.userEmail)
     }
 
-    @PostMapping("notification")
+    /**
+     * Publicly accessible PubSub notification webhook
+     */
+    @PostMapping("/public/api/googleplay/subscriptions/notifications")
     fun update(@RequestBody pubsubRequest: PubSubRequest) {
         logger.info("Received Google PubSub subscription notification: {}", pubsubRequest)
         subscriptionService.handleSubscriptionNotification(pubsubRequest.message.developerNotification)
