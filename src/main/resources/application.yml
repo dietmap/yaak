@@ -1,3 +1,5 @@
+server:
+  port: 8080
 spring:
   application:
     name: yaak-api
@@ -8,6 +10,11 @@ spring:
       enabled: always
   security:
     oauth2:
+       # Only required for yaak.security.type=OAUTH
+#      resourceserver:
+#        jwt:
+          # Note the trailing slash is important!
+#          issuer-uri: https://oauth-priovider.com/
       client:
         registration:
           user-app-client-password:
@@ -29,14 +36,18 @@ logging:
     com.dietmap: INFO
 
 yaak:
-  api-key: ${YAAK_API_KEY:MySuperApiKey123}
+  security:
+    # Possible values: API_KEY, OAUTH, NONE
+    type: API_KEY
+    api-key: ${YAAK_API_KEY:MySuperApiKey123}
+
   appstore-base-url: ${YAAK_APPSTORE_BASE_URL:https://sandbox.itunes.apple.com}
-  # called when the /api/subscription/statusUpdateNotification endpoint is called
+  # Called when the /api/subscription/statusUpdateNotification endpoint is called
   subscription-webhook-url: ${YAAK_SUBSCRIPTION_WBEHOOK_URL:http://localhost:8080/subscriptions/notifications/yaak}
 
   google-play:
     enabled: false
-    #base64 encoded google service account api key allowing access to the Google Play Developer Publishing API on behalf of the application
+    # Base64 encoded google service account api key allowing access to the Google Play Developer Publishing API and PubSub app subscriptions topic on behalf of the application
     service-account-api-key-base64: e30K
     service-account-email: account@account.iam.gserviceaccount.com
     application-name: "App name in Google Play"

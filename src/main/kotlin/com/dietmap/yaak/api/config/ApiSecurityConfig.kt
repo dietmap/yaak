@@ -1,6 +1,11 @@
 package com.dietmap.yaak.api.config
 
-import org.springframework.beans.factory.annotation.Value
+import com.dietmap.yaak.api.config.YaakSecurityType.*
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
 import org.springframework.security.authentication.BadCredentialsException
@@ -8,39 +13,68 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.stereotype.Component
 
 
 @Configuration
 @EnableWebSecurity
 @Order(1)
-class ApiSecurityConfig : WebSecurityConfigurerAdapter() {
-
-    @Value("\${yaak.api-key}")
-    private val apiKey: String? = null
+class ApiSecurityConfig(val securityProperties: YaakSecurityProperties) : WebSecurityConfigurerAdapter() {
 
     @Throws(Exception::class)
     override fun configure(httpSecurity: HttpSecurity) {
+        val securityConfigurer = httpSecurity
+                .antMatcher("/api/**")
+                .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+
+        logger.info("YAAK security type is: ${securityProperties.type}")
+         when(securityProperties.type) {
+             API_KEY -> securityConfigurer
+                     .and()
+                     .addFilter(securityProperties.apiKeyAuthFilter())
+                     .authorizeRequests()
+                     .anyRequest()
+                     .authenticated()
+             OAUTH -> securityConfigurer
+                     .and()
+                     .authorizeRequests()
+                     .anyRequest()
+                     .authenticated()
+                     .and()
+                     .oauth2ResourceServer().jwt()
+             NONE -> logger.info("Communication with YAAK is not secured, ${API_KEY} or ${OAUTH} YAAK security is recommended")
+         }
+    }
+
+    companion object {
+        private val logger: Logger = LoggerFactory.getLogger(ApiSecurityConfig::class.java)
+    }
+}
+
+@Component
+@ConfigurationProperties(prefix = "yaak.security")
+class YaakSecurityProperties {
+    lateinit var type: YaakSecurityType
+    lateinit var apiKey: String
+
+    fun apiKeyAuthFilter(): ApiKeyAuthFilter {
         val filter = ApiKeyAuthFilter()
 
         filter.setAuthenticationManager { authentication ->
             val principal = authentication.principal as String
 
-            if (!apiKey.equals(principal)) {
-                throw BadCredentialsException("The API key was not found or not the expected value.")
+            if (apiKey != principal) {
+                throw BadCredentialsException("The API key was not found or is not the expected value.")
             }
 
             authentication.isAuthenticated = true
             authentication
         }
-
-        httpSecurity
-                .antMatcher("/api/**")
-                .csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and().addFilter(filter)
-                .authorizeRequests()
-                .anyRequest()
-                .authenticated()
+        return filter
     }
+}
 
+enum class YaakSecurityType {
+    API_KEY, OAUTH, NONE
 }
