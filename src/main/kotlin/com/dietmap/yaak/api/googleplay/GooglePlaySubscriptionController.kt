@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController
 import javax.validation.Valid
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+
 
 
 @ConditionalOnProperty("yaak.google-play.enabled", havingValue = "true")
@@ -55,13 +57,13 @@ data class PubSubRequest(
         val message: PubSubMessage
 )
 
-class PubSubMessage(private val messageId: String, data: String) {
+data class PubSubMessage(val messageId: String, val data: String) {
     val developerNotification: PubSubDeveloperNotification
 
     init {
         val dataDecoded = Base64.decodeBase64(data)
         logger.info("Decoded PubSub message: $dataDecoded");
-        val mapper = ObjectMapper()
+        val mapper = jacksonObjectMapper()
         this.developerNotification = mapper.readValue(dataDecoded, PubSubDeveloperNotification::class.java)
     }
 
@@ -69,6 +71,9 @@ class PubSubMessage(private val messageId: String, data: String) {
         private val logger: Logger = LoggerFactory.getLogger(this::class.java)
     }
 
+    override fun toString(): String {
+        return "PubSubMessage(messageId='$messageId', developerNotification=$developerNotification)"
+    }
 }
 
 data class PubSubDeveloperNotification(

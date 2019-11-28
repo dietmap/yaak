@@ -1,6 +1,7 @@
 package com.dietmap.yaak
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -28,7 +29,8 @@ abstract class SupportController {
         setup()
     }
 
-    abstract fun setup()
+    fun setup() {
+    }
 
     protected fun asJsonString(obj: Any): String {
         return objectMapper.writeValueAsString(obj)
