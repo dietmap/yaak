@@ -42,7 +42,8 @@ class SubscriptionController(private val userAppClient: UserAppClient, private v
                     countryCode = "PL",
                     currencyCode = "PLN",
                     appMarketplace = AppMarketplace.APP_STORE,
-                    description = "Recipe update from AppStore"
+                    description = "Recipe update from AppStore",
+                    expiryTimeMillis = null
             )
             userAppClient.sendSubscriptionNotification(notification)
 

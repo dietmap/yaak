@@ -20,9 +20,6 @@ internal class SubscriptionControllerTest : SupportController() {
             "latestExpiredReceipt", "latestExpiredReceiptInfo", true, "autoRenewProductId",
             "autoRenewStatusChangeDate", "autoRenewStatusChangeDatePst", "autoRenewStatusChangeDateMs")
 
-    override fun setup() {
-    }
-
     @Test
     fun `simulate subscription status update notification`() {
         this.mockMvc.perform(

@@ -20,7 +20,8 @@ data class UserAppSubscriptionNotification(
         @NotNull
         var transactionId: String,
         @NotNull
-        var appMarketplace: AppMarketplace
+        var appMarketplace: AppMarketplace,
+        var expiryTimeMillis: Long?
 )
 
 enum class NotificationType {

@@ -28,7 +28,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
         private val logger: Logger = LoggerFactory.getLogger(GooglePlaySubscriptionService::class.java)
     }
 
-    fun handlePurchase(packageName: String, subscriptionId: String, purchaseToken: String, userEmail: String?): SubscriptionPurchase? {
+    fun handlePurchase(packageName: String, subscriptionId: String, purchaseToken: String, userEmail: String?, initalBuy: Boolean = true): SubscriptionPurchase? {
         val subscriptionPurchase = androidPublisherApiClient.Purchases().Subscriptions().get(packageName, subscriptionId, purchaseToken).execute()
         //TODO translate into domain exceptions
         userEmail.apply {
@@ -37,7 +37,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
         Preconditions.checkState(subscriptionPurchase.paymentState in listOf(PAYMENT_RECEIVED_CODE, PAYMENT_FREE_TRIAL_CODE), "Subscription has not been paid yet, paymentState=${subscriptionPurchase.paymentState}")
         try {
             val notificationResponse = userAppClient.sendSubscriptionNotification(UserAppSubscriptionNotification(
-                    notificationType = NotificationType.INITIAL_BUY,
+                    notificationType = if (initalBuy) NotificationType.INITIAL_BUY else NotificationType.RENEWAL,
                     appMarketplace = AppMarketplace.GOOGLE_PLAY,
                     countryCode = subscriptionPurchase.countryCode,
                     price = BigDecimal(subscriptionPurchase.priceAmountMicros).divide(BigDecimal(1000 * 1000)),
@@ -45,7 +45,8 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
                     transactionId = subscriptionPurchase.orderId,
                     productId = subscriptionId,
                     orderingUserInternalId = Integer.valueOf(subscriptionPurchase.developerPayload),
-                    description = "Google Play initial subscription order"
+                    description = "Google Play initial subscription order",
+                    expiryTimeMillis = subscriptionPurchase.expiryTimeMillis
             ))
             if (subscriptionPurchase.acknowledgementState == 0) {
                 logger.info("Acknowledging Google Play subscription purchase of id=${subscriptionPurchase.orderId}, email=$userEmail")
@@ -63,18 +64,18 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
         pubsubNotification.subscriptionNotification?.let {
             when(it.notificationType) {
                 SUBSCRIPTION_PURCHASED -> handlePurchase(pubsubNotification.packageName, it.subscriptionId, it.purchaseToken, null)
-                SUBSCRIPTION_RECOVERED -> TODO()
-                SUBSCRIPTION_RENEWED -> TODO()
-                SUBSCRIPTION_CANCELED -> TODO()
-                SUBSCRIPTION_ON_HOLD -> TODO()
-                SUBSCRIPTION_IN_GRACE_PERIOD -> TODO()
-                SUBSCRIPTION_RESTARTED -> TODO()
-                SUBSCRIPTION_PRICE_CHANGE_CONFIRMED -> TODO()
-                SUBSCRIPTION_DEFERRED -> TODO()
-                SUBSCRIPTION_PAUSED -> TODO()
-                SUBSCRIPTION_PAUSE_SCHEDULE_CHANGED -> TODO()
-                SUBSCRIPTION_REVOKED -> TODO()
-                SUBSCRIPTION_EXPIRED -> TODO()
+                SUBSCRIPTION_RENEWED -> handlePurchase(pubsubNotification.packageName, it.subscriptionId, it.purchaseToken, null, false)
+                SUBSCRIPTION_CANCELED -> logger.info("Subscription notification type: ${it.notificationType} is not handled")
+                SUBSCRIPTION_RECOVERED -> logger.info("Subscription notification type: ${it.notificationType} is not handled")
+                SUBSCRIPTION_ON_HOLD -> logger.info("Subscription notification type: ${it.notificationType} is not handled")
+                SUBSCRIPTION_IN_GRACE_PERIOD -> logger.info("Subscription notification type: ${it.notificationType} is not handled\"")
+                SUBSCRIPTION_RESTARTED -> logger.info("Subscription notification type: ${it.notificationType} is not handled\"")
+                SUBSCRIPTION_PRICE_CHANGE_CONFIRMED -> logger.info("Subscription notification type: ${it.notificationType} is not handled\"")
+                SUBSCRIPTION_DEFERRED -> logger.info("Subscription notification type: ${it.notificationType} is not handled\"")
+                SUBSCRIPTION_PAUSED -> logger.info("Subscription notification type: ${it.notificationType} is not handled\"")
+                SUBSCRIPTION_PAUSE_SCHEDULE_CHANGED -> logger.info("Subscription notification type: ${it.notificationType} is not handled\"")
+                SUBSCRIPTION_REVOKED -> logger.info("Subscription notification type: ${it.notificationType} is not handled\"")
+                SUBSCRIPTION_EXPIRED -> logger.info("Subscription notification type: ${it.notificationType} is not handled\"")
             }
         }
     }
