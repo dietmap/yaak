@@ -60,26 +60,27 @@ class UserAppClientConfiguration {
         val oauth2Client = ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager)
         return WebClient.builder()
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .apply(if(securityProperties.type == YaakSecurityType.OAUTH) TokenRelayingFilterFunction(oauth2Client).oauth2Configuration() else oauth2Client.oauth2Configuration())
+                .apply(if (securityProperties.type == YaakSecurityType.OAUTH) TokenRelayingFilterFunction(oauth2Client).oauth2Configuration() else oauth2Client.oauth2Configuration())
                 .build()
     }
 
-    class TokenRelayingFilterFunction(val oauth2FilterFunction: ServletOAuth2AuthorizedClientExchangeFilterFunction): ExchangeFilterFunction {
+    class TokenRelayingFilterFunction(val oauth2FilterFunction: ServletOAuth2AuthorizedClientExchangeFilterFunction) : ExchangeFilterFunction {
         private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
         override fun filter(clientRequest: ClientRequest, next: ExchangeFunction): Mono<ClientResponse> {
-            return if (RequestContextHolder.getRequestAttributes() != null) {
+            if (RequestContextHolder.getRequestAttributes() != null) {
                 val attr = RequestContextHolder.currentRequestAttributes() as ServletRequestAttributes
                 val request = attr.request
                 val accessToken = request.getHeader(HttpHeaders.AUTHORIZATION)
-                val authorizedClientRequest = ClientRequest.from(clientRequest)
-                        .headers { headers: HttpHeaders -> headers.set(HttpHeaders.AUTHORIZATION, accessToken) }
-                        .build()
-                logger.debug("Relaying access token to user app")
-                Mono.defer { next.exchange(authorizedClientRequest) }
-            } else {
-                oauth2FilterFunction.filter(clientRequest, next)
+                if (StringUtils.hasText(accessToken)) {
+                    val authorizedClientRequest = ClientRequest.from(clientRequest)
+                            .headers { headers: HttpHeaders -> headers.set(HttpHeaders.AUTHORIZATION, accessToken) }
+                            .build()
+                    logger.debug("Relaying access token to user app")
+                    return Mono.defer { next.exchange(authorizedClientRequest) }
+                }
             }
+            return oauth2FilterFunction.filter(clientRequest, next)
         }
 
         fun oauth2Configuration(): Consumer<WebClient.Builder> {
