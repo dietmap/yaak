@@ -58,6 +58,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
 
     fun handleSubscriptionNotification(pubsubNotification: PubSubDeveloperNotification) {
         pubsubNotification.subscriptionNotification?.let {
+            logger.info("Handling PubSub notification of type: ${it.notificationType}")
             when (it.notificationType) {
                 SUBSCRIPTION_PURCHASED -> handlePurchase(pubsubNotification.packageName, it.subscriptionId, it.purchaseToken)
                 SUBSCRIPTION_RENEWED -> handlePurchase(pubsubNotification.packageName, it.subscriptionId, it.purchaseToken, false)
@@ -68,6 +69,8 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
 
     private fun handleStatusUpdate(packageName: String, notification: GooglePlaySubscriptionNotification) {
         val subscription = androidPublisherApiClient.Purchases().Subscriptions().get(packageName, notification.subscriptionId, notification.purchaseToken).execute()
+        subscription.cancelReason?.let { logger.info("Subscription cancel reason: $it") }
+        subscription.cancelSurveyResult?.let { logger.info("Subscription cancel survey result: $it") }
         try {
             val subscriptionUpdate = UserAppSubscriptionNotification(
                     notificationType = NotificationType.valueOf(notification.notificationType.name),
@@ -81,8 +84,9 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
                     expiryTimeMillis = subscription.expiryTimeMillis
             )
             userAppClient.sendSubscriptionNotification(subscriptionUpdate)
-            logger.info("Google Play subscription notification has been passed to user app: $subscriptionUpdate")
+            logger.info("Google Play subscription notification has been sent to user app: $subscriptionUpdate")
         } catch (e: WebClientResponseException) {
+            logger.error("Error when sending notification to user app", e)
             throw ResponseStatusException(e.statusCode, "Error communicating with user app", e)
         }
     }
