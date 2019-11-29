@@ -13,7 +13,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter
 import org.springframework.stereotype.Component
+import javax.servlet.http.HttpServletRequest
 
 
 @Configuration
@@ -77,4 +79,16 @@ class YaakSecurityProperties {
 
 enum class YaakSecurityType {
     API_KEY, OAUTH, NONE
+}
+
+class ApiKeyAuthFilter : AbstractPreAuthenticatedProcessingFilter() {
+
+    override fun getPreAuthenticatedPrincipal(request: HttpServletRequest): Any {
+        return request.getHeader(ApiCommons.API_KEY_HEADER)
+    }
+
+    override fun getPreAuthenticatedCredentials(request: HttpServletRequest): Any {
+        return "N/A"
+    }
+
 }
