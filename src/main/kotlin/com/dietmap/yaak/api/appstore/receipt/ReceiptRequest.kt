@@ -12,5 +12,5 @@ import javax.validation.constraints.NotNull
 data class ReceiptRequest(
         @get:JsonProperty("receipt-data") @param:NotBlank val receiptData: String,
         @get:JsonProperty("password") @param:NotBlank val password: String,
-        @get:JsonProperty("exclude-old-transactions") @param:NotNull val excludeOldTransactions : Boolean? = false
+        @get:JsonProperty("exclude-old-transactions") @param:NotNull val excludeOldTransactions : Boolean? = true
 ): Serializable
