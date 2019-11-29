@@ -75,7 +75,7 @@ class UserAppClientConfiguration {
                 val authorizedClientRequest = ClientRequest.from(clientRequest)
                         .headers { headers: HttpHeaders -> headers.set(HttpHeaders.AUTHORIZATION, accessToken) }
                         .build()
-                logger.info("Relaying access_token to user app")
+                logger.debug("Relaying access token to user app")
                 Mono.defer { next.exchange(authorizedClientRequest) }
             } else {
                 oauth2FilterFunction.filter(clientRequest, next)
