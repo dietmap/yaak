@@ -70,7 +70,7 @@ data class PubSubMessage(val messageId: String, val data: String) {
     }
 
     override fun toString(): String {
-        return "PubSubMessage(messageId='$messageId', developerNotification=$developerNotification)"
+        return "PubSubMessage(messageId='$messageId', developerNotification=$developerNotification, data='$data')"
     }
 }
 
