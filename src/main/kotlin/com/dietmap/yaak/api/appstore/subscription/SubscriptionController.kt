@@ -34,9 +34,8 @@ class SubscriptionController(private val userAppClient: UserAppClient, private v
 
             //TODO fill in with proper data and handle errors
             val notification = UserAppSubscriptionNotification(
-                    notificationType = NotificationType.RENEWAL,
+                    notificationType = NotificationType.SUBSCRIPTION_RENEWED,
                     productId = "",
-                    orderingUserInternalId = 1,
                     transactionId = "",
                     price = BigDecimal.ONE,
                     countryCode = "PL",

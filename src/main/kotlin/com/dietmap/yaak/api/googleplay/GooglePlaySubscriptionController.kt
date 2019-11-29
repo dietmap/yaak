@@ -28,7 +28,7 @@ class GooglePlaySubscriptionController(val subscriptionService: GooglePlaySubscr
     @PostMapping("/api/googleplay/subscriptions/purchases")
     fun purchase(@RequestBody @Valid purchaseRequest: PurchaseRequest): SubscriptionPurchase? {
         logger.info("Received purchase request from Google Play: {}", purchaseRequest)
-        return subscriptionService.handlePurchase(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken, purchaseRequest.userEmail)
+        return subscriptionService.handlePurchase(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken)
     }
 
     /**
@@ -47,9 +47,7 @@ data class PurchaseRequest(
         @NotBlank
         val subscriptionId: String,
         @NotBlank
-        val purchaseToken: String,
-        @NotBlank @Email
-        val userEmail: String
+        val purchaseToken: String
 )
 
 data class PubSubRequest(

@@ -8,8 +8,6 @@ data class UserAppSubscriptionNotification(
         val notificationType: NotificationType,
         var description: String?,
         @NotNull
-        var orderingUserInternalId: Int,
-        @NotNull
         var productId: String,
         @NotNull
         var countryCode: String,
@@ -26,36 +24,57 @@ data class UserAppSubscriptionNotification(
 
 enum class NotificationType {
     /**
-     * Occurs at the initial purchase of the subscription. Store the latest_receipt on your server
+     * A subscription was recovered from account hold.
      */
-    INITIAL_BUY,
+    SUBSCRIPTION_RECOVERED,
     /**
-     * Indicates that the subscription was canceled either by Apple customer support or by the
-     * App Store when the user upgraded their subscription.
-     * The cancellation_date key contains the date and time when the subscription was canceled or upgraded.
+     * An active subscription was renewed.
      */
-    CANCEL,
+    SUBSCRIPTION_RENEWED,
     /**
-     * Indicates successful automatic renewal of an expired subscription that failed to renew in the past.
-     * Check expires_date to determine the next renewal date and time.
+     * A subscription was either voluntarily or involuntarily cancelled. For voluntary cancellation, sent when the user cancels.
      */
-    RENEWAL,
+    SUBSCRIPTION_CANCELED,
     /**
-     * Indicates the customer renewed a subscription interactively
-     * either by using your app’s interface, or on the App Store in account settings. Make service available immediately.
+     * A new subscription was purchased.
      */
-    INTERACTIVE_RENEWAL,
+    SUBSCRIPTION_PURCHASED,
     /**
-     * Indicates the customer made a change in their subscription plan that
-     * "takes effect at the next renewal. The currently active plan is not affected.
+     * A subscription has entered account hold (if enabled).
      */
-    DID_CHANGE_RENEWAL_PREF,
+    SUBSCRIPTION_ON_HOLD,
     /**
-     * Indicates a change in the subscription renewal status. Check the
-     * auto_renew_status_change_date_ms and the auto_renew_status in the JSON to know the date and time
-     * when the status was last updated and the current renewal status.
+     * A subscription has entered grace period (if enabled).
      */
-    DID_CHANGE_RENEWAL_STATUS
+    SUBSCRIPTION_IN_GRACE_PERIOD,
+    /**
+     * User has reactivated their subscription from Play > Account > Subscriptions (requires opt-in for subscription restoration)
+     */
+    SUBSCRIPTION_RESTARTED,
+    /**
+     * A subscription price change has successfully been confirmed by the user.
+     */
+    SUBSCRIPTION_PRICE_CHANGE_CONFIRMED,
+    /**
+     * A subscription's recurrence time has been extended.
+     */
+    SUBSCRIPTION_DEFERRED,
+    /**
+     * A subscription has been paused.
+     */
+    SUBSCRIPTION_PAUSED,
+    /**
+     * A subscription pause schedule has been changed.
+     */
+    SUBSCRIPTION_PAUSE_SCHEDULE_CHANGED,
+    /**
+     * A subscription has been revoked from the user before the expiration time.
+     */
+    SUBSCRIPTION_REVOKED,
+    /**
+     * A subscription has expired.
+     */
+    SUBSCRIPTION_EXPIRED
 }
 
 
