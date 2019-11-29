@@ -4,6 +4,7 @@ import com.dietmap.yaak.api.googleplay.GooglePlayNotificationType.SUBSCRIPTION_P
 import com.dietmap.yaak.api.googleplay.GooglePlayNotificationType.SUBSCRIPTION_RENEWED
 import com.dietmap.yaak.api.googleplay.GooglePlaySubscriptionNotification
 import com.dietmap.yaak.api.googleplay.PubSubDeveloperNotification
+import com.dietmap.yaak.domain.checkArgument
 import com.dietmap.yaak.domain.userapp.AppMarketplace
 import com.dietmap.yaak.domain.userapp.NotificationType
 import com.dietmap.yaak.domain.userapp.UserAppClient
@@ -31,7 +32,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
 
     fun handlePurchase(packageName: String, subscriptionId: String, purchaseToken: String, initalBuy: Boolean = true): SubscriptionPurchase? {
         val subscription = androidPublisherApiClient.Purchases().Subscriptions().get(packageName, subscriptionId, purchaseToken).execute()
-//        checkArgument(subscription.paymentState in listOf(PAYMENT_RECEIVED_CODE, PAYMENT_FREE_TRIAL_CODE)) { "Subscription has not been paid yet, paymentState=${subscription.paymentState}" }
+        checkArgument(subscription.paymentState in listOf(PAYMENT_RECEIVED_CODE, PAYMENT_FREE_TRIAL_CODE)) { "Subscription has not been paid yet, paymentState=${subscription.paymentState}" }
         try {
             val notificationResponse = userAppClient.sendSubscriptionNotification(UserAppSubscriptionNotification(
                     notificationType = if (initalBuy) NotificationType.SUBSCRIPTION_PURCHASED else NotificationType.SUBSCRIPTION_RENEWED,
