@@ -1,7 +1,7 @@
 package com.dietmap.yaak.domain.appstore
 
 import com.dietmap.yaak.api.appstore.receipt.ReceiptRequest
-import com.dietmap.yaak.api.appstore.subscription.NotificationStatus
+import com.dietmap.yaak.api.appstore.subscription.AppStoreNotificationType
 import com.dietmap.yaak.api.appstore.subscription.StatusUpdateNotification
 import com.dietmap.yaak.domain.userapp.*
 import org.slf4j.Logger
@@ -39,17 +39,18 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
         logger.debug("Processing notification: ${statusUpdateNotification.notificationType}")
 
         when (statusUpdateNotification.notificationType) {
-            NotificationStatus.INITIAL_BUY -> {}
-            NotificationStatus.CANCEL -> {}
-            NotificationStatus.RENEWAL -> {}
-            NotificationStatus.INTERACTIVE_RENEWAL -> {}
-            NotificationStatus.DID_CHANGE_RENEWAL_PREF -> {}
-            NotificationStatus.DID_CHANGE_RENEWAL_STATUS -> {}
+            AppStoreNotificationType.CANCEL -> {}
+            AppStoreNotificationType.DID_CHANGE_RENEWAL_PREF -> {}
+            AppStoreNotificationType.DID_FAIL_TO_RENEW -> {}
+            AppStoreNotificationType.DID_RECOVER -> {}
+            AppStoreNotificationType.DID_CHANGE_RENEWAL_STATUS -> {}
+            AppStoreNotificationType.INITIAL_BUY -> {}
+            AppStoreNotificationType.INTERACTIVE_RENEWAL -> {}
         }
 
         // verify the latest receipt against the iTunes server
         val receiptResponse = appStoreClient.verifyReceipt(
-                ReceiptRequest(statusUpdateNotification.latestReceipt, "passsword", true))
+                ReceiptRequest(statusUpdateNotification.unifiedReceipt.latestReceipt.toString(), "passsword", true))
 
         val notification = UserAppSubscriptionNotification(
                 // TODO match all fields in here

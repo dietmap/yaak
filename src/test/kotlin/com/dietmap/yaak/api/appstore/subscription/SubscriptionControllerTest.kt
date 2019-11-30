@@ -21,11 +21,14 @@ internal class SubscriptionControllerTest : SupportController() {
     @Mock
     private lateinit var latestReceiptInfo: LatestReceiptInfo
 
+    @Mock
+    private lateinit var unifiedReceipt: UnifiedReceipt
+
+
     private val testStatusUpdateNotification: StatusUpdateNotification = StatusUpdateNotification(
-            "sandbox", NotificationStatus.CANCEL, "password", "cancellationDate", "cancellationDatePst",
-            "cancellationDateMs", "webOrderLineItemId", "latestReceipt", latestReceiptInfo,
-            "latestExpiredReceipt", "latestExpiredReceiptInfo", true, "autoRenewProductId",
-            "autoRenewStatusChangeDate", "autoRenewStatusChangeDatePst", "autoRenewStatusChangeDateMs")
+            "sandbox", AppStoreNotificationType.CANCEL, "password", "cancellationDate", latestReceiptInfo, "",
+            listOf(), "expirationIntent", "latestExpiredReceipt", true, "", "autoRenewProductId",
+            "autoRenewStatusChangeDate", "", unifiedReceipt)
 
     @Test
     fun `simulate subscription status update notification`() {
