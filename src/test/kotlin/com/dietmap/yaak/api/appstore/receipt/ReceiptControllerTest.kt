@@ -7,6 +7,7 @@ import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.notNullValue
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
@@ -19,16 +20,26 @@ internal class ReceiptControllerTest : SupportController() {
 
     @MockBean
     private lateinit var appStoreClient: AppStoreClient
+
     @MockBean
     private lateinit var userAppClient: UserAppClient
 
+    @Mock
+    private lateinit var latestReceiptInfo: LatestReceiptInfo
+
+    @Mock
+    private lateinit var receipt: Receipt
+
+    @Mock
+    private lateinit var pendingRenewalInfo: PendingRenewalInfo
+
     private val testResponseStatusOk: ReceiptResponse = ReceiptResponse(
-            0, "sandbox", "receipt", "latestReceipt", "latestReceiptInfo",
-            "latestExpiredReceiptInfo" , false )
+            0, "sandbox", receipt, "latestReceipt", latestReceiptInfo,
+            pendingRenewalInfo , false )
 
     private val testResponseStatusError: ReceiptResponse = ReceiptResponse(
-            21010, "sandbox", null, null, null,
-            null , true )
+            21010, "sandbox", receipt, null, latestReceiptInfo,
+            pendingRenewalInfo , true )
 
     private val testRequestOk: ReceiptRequest = ReceiptRequest(
             "receiptData","password",true)
