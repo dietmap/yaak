@@ -41,9 +41,8 @@ yaak:
     type: API_KEY
     api-key: ${YAAK_API_KEY:MySuperApiKey123}
 
-  appstore-base-url: ${YAAK_APPSTORE_BASE_URL:https://sandbox.itunes.apple.com}
-  # Called when the /api/subscription/statusUpdateNotification endpoint is called
-  subscription-webhook-url: ${YAAK_SUBSCRIPTION_WBEHOOK_URL:http://localhost:8080/subscriptions/notifications/yaak}
+  user-app:
+    subscription-webhook-url: ${YAAK_SUBSCRIPTION_WEBHOOK_URL:http://localhost:8080/subscriptions/notifications/yaak}
 
   google-play:
     enabled: false
@@ -54,4 +53,5 @@ yaak:
 
   app-store:
       enabled: true
+      base-url: ${YAAK_APPSTORE_BASE_URL:https://sandbox.itunes.apple.com}
 

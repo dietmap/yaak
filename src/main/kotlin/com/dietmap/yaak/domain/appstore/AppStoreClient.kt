@@ -24,7 +24,7 @@ class AppStoreClient {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
-    constructor(restTemplateBuilder: RestTemplateBuilder, @Value("\${yaak.appstore-base-url}") verifyReceiptUrlIn: String) {
+    constructor(restTemplateBuilder: RestTemplateBuilder, @Value("\${yaak.app-store.base-url}") verifyReceiptUrlIn: String) {
         restTemplate = restTemplateBuilder.rootUri(verifyReceiptUrlIn).build()
         verifyReceiptUrl = verifyReceiptUrlIn
 
@@ -55,7 +55,7 @@ class AppStoreClient {
 
         if (receiptResponse.shouldRetry()) {
             logger.warn("Retrying due to ${receiptResponse.responseStatusCode} status code")
-            throw RuntimeException("Processing failed with ${receiptResponse.responseStatusCode}")
+            throw RuntimeException("Retrying due to ${receiptResponse.responseStatusCode}")
         }
         return receiptResponse
     }

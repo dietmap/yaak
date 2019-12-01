@@ -91,4 +91,8 @@ enum class AppStoreNotificationType(private val code: Int) {
         @JsonCreator
         fun from(value: Int) = codes[value]
     }
+
+    override fun toString(): String {
+        return "AppStoreNotificationType(code=$code, value=${from(code)})"
+    }
 }
