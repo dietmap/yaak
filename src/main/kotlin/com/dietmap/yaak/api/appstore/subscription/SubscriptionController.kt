@@ -26,18 +26,18 @@ class SubscriptionController(private val subscriptionService: AppStoreSubscripti
 
         val subscriptionOrder = subscriptionService.handleInitialPurchase(subscriptionPurchaseRequest)
 
-        logger.debug("handleStatusUpdateNotification $subscriptionOrder")
+        logger.debug("handleInitialPurchase: $subscriptionOrder")
 
         return ResponseEntity.ok(subscriptionOrder !!)
     }
 
     @PostMapping("/renew")
-    fun handleAutoRenewal(@RequestBody @Valid subscriptionPurchaseRequest: SubscriptionPurchaseRequest): ResponseEntity<UserAppSubscriptionOrder?> {
-        logger.debug("handleAutoRenewal: $subscriptionPurchaseRequest")
+    fun handleAutoRenewal(@RequestBody @Valid subscriptionRenewRequest: SubscriptionRenewRequest): ResponseEntity<UserAppSubscriptionOrder?> {
+        logger.debug("handleAutoRenewal: $subscriptionRenewRequest")
 
-        val subscriptionOrder = subscriptionService.handleAutoRenewal(subscriptionPurchaseRequest)
+        val subscriptionOrder = subscriptionService.handleAutoRenewal(subscriptionRenewRequest)
 
-        logger.debug("handleStatusUpdateNotification $subscriptionOrder")
+        logger.debug("handleAutoRenewal: $subscriptionOrder")
 
         return ResponseEntity.ok(subscriptionOrder !!)
     }
@@ -51,7 +51,7 @@ class SubscriptionController(private val subscriptionService: AppStoreSubscripti
 
         val subscriptionOrder = subscriptionService.handleSubscriptionNotification(statusUpdateNotification)
 
-        logger.debug("handleStatusUpdateNotification $subscriptionOrder")
+        logger.debug("handleStatusUpdateNotification: $subscriptionOrder")
 
         // Send HTTP 50x or 40x to have the App Store retry the notification if the post was not successful.
         return ResponseEntity.ok().build()

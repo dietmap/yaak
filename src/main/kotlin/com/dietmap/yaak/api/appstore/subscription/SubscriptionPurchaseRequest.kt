@@ -11,3 +11,8 @@ data class SubscriptionPurchaseRequest(
         @get:JsonProperty("currencyCode") @param:NotBlank val currencyCode: String,
         @get:JsonProperty("countryCode") @param:NotBlank val countryCode: String
 ): Serializable
+
+
+data class SubscriptionRenewRequest(
+        @get:JsonProperty("receipt") @param:NotBlank val receipt: String
+): Serializable

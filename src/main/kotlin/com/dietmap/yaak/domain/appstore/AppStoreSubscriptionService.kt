@@ -4,6 +4,7 @@ import com.dietmap.yaak.api.appstore.receipt.ReceiptRequest
 import com.dietmap.yaak.api.appstore.subscription.AppStoreNotificationType
 import com.dietmap.yaak.api.appstore.subscription.StatusUpdateNotification
 import com.dietmap.yaak.api.appstore.subscription.SubscriptionPurchaseRequest
+import com.dietmap.yaak.api.appstore.subscription.SubscriptionRenewRequest
 import com.dietmap.yaak.domain.userapp.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -16,7 +17,6 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
     private val logger: Logger = LoggerFactory.getLogger(AppStoreSubscriptionService::class.java)
 
     fun handleInitialPurchase(subscriptionPurchaseRequest: SubscriptionPurchaseRequest) : UserAppSubscriptionOrder? {
-
         val receiptResponse = appStoreClient.verifyReceipt(ReceiptRequest(subscriptionPurchaseRequest.receipt, "password"))
 
         if (receiptResponse.isValid()) {
@@ -43,9 +43,8 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
         }
     }
 
-    fun handleAutoRenewal(subscriptionPurchaseRequest: SubscriptionPurchaseRequest) : UserAppSubscriptionOrder? {
-
-        val receiptResponse = appStoreClient.verifyReceipt(ReceiptRequest(subscriptionPurchaseRequest.receipt, "password"))
+    fun handleAutoRenewal(subscriptionRenewRequest: SubscriptionRenewRequest) : UserAppSubscriptionOrder? {
+        val receiptResponse = appStoreClient.verifyReceipt(ReceiptRequest(subscriptionRenewRequest.receipt, "password"))
 
         if (receiptResponse.isValid()) {
 
@@ -70,16 +69,16 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
     }
 
     fun handleSubscriptionNotification(statusUpdateNotification: StatusUpdateNotification) : UserAppSubscriptionOrder? {
-
         logger.debug("Processing notification: ${statusUpdateNotification.notificationType}")
 
         var notificationType = NotificationType.SUBSCRIPTION_PURCHASED
+        val latestReceiptInfo = statusUpdateNotification.latestReceiptInfo
 
         when (statusUpdateNotification.notificationType) {
 
             // A subscription is first purchased
             AppStoreNotificationType.INITIAL_BUY -> {
-                // skipp it, it's handled in handleInitialPurchase()
+                // skipping it, this is handled in handleInitialPurchase()
             }
 
             // a subscription is renewed manually in the foreground
@@ -137,30 +136,24 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
             }
 
             AppStoreNotificationType.DID_CHANGE_RENEWAL_STATUS -> {
-                // turning on or off auto renewal
+                // skipping it
             }
 
             AppStoreNotificationType.PRICE_INCREASE_CONSENT -> {
-                // ignore
+                // skipping it
             }
         }
 
-        val latestReceiptInfo = statusUpdateNotification.latestReceiptInfo
-
-            val notification = UserAppSubscriptionNotification(
-                    notificationType = notificationType,
-                    productId = latestReceiptInfo.productId,
-                    transactionId = latestReceiptInfo.originalTransactionId,
-                    appMarketplace = AppMarketplace.APP_STORE,
-                    description = "Subscription update from AppStore",
-                    expiryTimeMillis = latestReceiptInfo.expiresDateMs.toLong()
-            )
+        val notification = UserAppSubscriptionNotification(
+                notificationType = notificationType,
+                productId = latestReceiptInfo.productId,
+                transactionId = latestReceiptInfo.originalTransactionId,
+                appMarketplace = AppMarketplace.APP_STORE,
+                description = "Subscription update from AppStore",
+                expiryTimeMillis = latestReceiptInfo.expiresDateMs.toLong()
+        )
 
         return userAppClient.sendSubscriptionNotification(notification)
 
-    }
-
-    fun isReceiptVerified(receiptRequest: ReceiptRequest) : Boolean {
-        return appStoreClient.isVerified(receiptRequest)
     }
 }
