@@ -2,7 +2,7 @@ package com.dietmap.yaak.api.googleplay
 
 import com.dietmap.yaak.domain.googleplay.GooglePlaySubscriptionService
 import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.api.services.androidpublisher.model.SubscriptionPurchase
 import org.apache.commons.codec.binary.Base64
 import org.slf4j.Logger
@@ -10,13 +10,11 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.server.ResponseStatusException
 import javax.validation.Valid
-import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-
 
 
 @ConditionalOnProperty("yaak.google-play.enabled", havingValue = "true")
@@ -28,7 +26,12 @@ class GooglePlaySubscriptionController(val subscriptionService: GooglePlaySubscr
     @PostMapping("/api/googleplay/subscriptions/purchases")
     fun purchase(@RequestBody @Valid purchaseRequest: PurchaseRequest): SubscriptionPurchase? {
         logger.info("Received purchase request from Google Play: {}", purchaseRequest)
-        return subscriptionService.handlePurchase(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken)
+        try {
+            return subscriptionService.handlePurchase(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken, purchaseRequest.orderingUserId)
+        } catch (e: WebClientResponseException) {
+            logger.error("Error sending notification to user app", e)
+            throw ResponseStatusException(e.statusCode, "Error sending notification to user app", e)
+        }
     }
 
     /**
@@ -47,7 +50,8 @@ data class PurchaseRequest(
         @NotBlank
         val subscriptionId: String,
         @NotBlank
-        val purchaseToken: String
+        val purchaseToken: String,
+        val orderingUserId: String?
 )
 
 data class PubSubRequest(

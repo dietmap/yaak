@@ -23,7 +23,8 @@ internal class UserAppClientTest {
                 transactionId = "testTransactionID",
                 appMarketplace = AppMarketplace.GOOGLE_PLAY,
                 productId = "oneMonthSubscription",
-                expiryTimeMillis = 1
+                expiryTimeMillis = 1,
+                orderingUserId = null
         ))
         print(notificationResponse)
     }

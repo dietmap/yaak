@@ -27,7 +27,7 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
             val notification = UserAppSubscriptionNotification(
                     notificationType = NotificationType.SUBSCRIPTION_PURCHASED,
                     productId = latestReceiptInfo.productId,
-                    transactionId = latestReceiptInfo.originalTransactionId,
+                    transactionId = latestReceiptInfo.transactionId,
                     price = subscriptionPurchaseRequest.price,
                     countryCode = subscriptionPurchaseRequest.countryCode,
                     currencyCode = subscriptionPurchaseRequest.currencyCode,
@@ -55,7 +55,8 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
             val notification = UserAppSubscriptionNotification(
                     notificationType = NotificationType.SUBSCRIPTION_RENEWED,
                     productId = latestReceiptInfo.productId,
-                    transactionId = latestReceiptInfo.originalTransactionId,
+                    transactionId = latestReceiptInfo.transactionId,
+                    originalTransactionId = latestReceiptInfo.originalTransactionId,
                     appMarketplace = AppMarketplace.APP_STORE,
                     description = "Subscription update from AppStore",
                     expiryTimeMillis = latestReceiptInfo.expiresDateMs.toLong()
@@ -78,7 +79,7 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
 
             // A subscription is first purchased
             AppStoreNotificationType.INITIAL_BUY -> {
-                // ignore
+                // skipp it, it's handled in handleInitialPurchase()
             }
 
             // a subscription is renewed manually in the foreground
@@ -155,7 +156,7 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
                     expiryTimeMillis = latestReceiptInfo.expiresDateMs.toLong()
             )
 
-            return userAppClient.sendSubscriptionNotification(notification)
+        return userAppClient.sendSubscriptionNotification(notification)
 
     }
 

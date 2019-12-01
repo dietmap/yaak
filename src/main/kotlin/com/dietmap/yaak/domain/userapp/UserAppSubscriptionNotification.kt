@@ -6,9 +6,9 @@ import javax.validation.constraints.NotNull
 data class UserAppSubscriptionNotification(
         @NotNull
         val notificationType: NotificationType,
-        var description: String?,
+        val description: String? = String(),
         @NotNull
-        var productId: String,
+        val productId: String,
         @NotNull
         var countryCode: String = String(),
         @NotNull
@@ -16,10 +16,13 @@ data class UserAppSubscriptionNotification(
         @NotNull
         val currencyCode: String = String(),
         @NotNull
-        var transactionId: String,
+        val transactionId: String,
         @NotNull
-        var appMarketplace: AppMarketplace,
-        var expiryTimeMillis: Long?
+        val originalTransactionId: String? = String(),
+        @NotNull
+        val appMarketplace: AppMarketplace,
+        val expiryTimeMillis: Long? = 0,
+        val orderingUserId: String? = String()
 )
 
 enum class NotificationType {
