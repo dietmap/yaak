@@ -5,7 +5,10 @@ import com.dietmap.yaak.api.googleplay.GooglePlayNotificationType.SUBSCRIPTION_R
 import com.dietmap.yaak.api.googleplay.GooglePlaySubscriptionNotification
 import com.dietmap.yaak.api.googleplay.PubSubDeveloperNotification
 import com.dietmap.yaak.domain.checkArgument
-import com.dietmap.yaak.domain.userapp.*
+import com.dietmap.yaak.domain.userapp.AppMarketplace
+import com.dietmap.yaak.domain.userapp.NotificationType
+import com.dietmap.yaak.domain.userapp.UserAppClient
+import com.dietmap.yaak.domain.userapp.UserAppSubscriptionNotification
 import com.google.api.services.androidpublisher.AndroidPublisher
 import com.google.api.services.androidpublisher.model.SubscriptionPurchase
 import com.google.api.services.androidpublisher.model.SubscriptionPurchasesAcknowledgeRequest
@@ -13,8 +16,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.client.WebClientResponseException
-import org.springframework.web.server.ResponseStatusException
 import java.math.BigDecimal
 
 
@@ -37,6 +38,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
                 price = BigDecimal(subscription.priceAmountMicros).divide(BigDecimal(1000 * 1000)),
                 currencyCode = subscription.priceCurrencyCode,
                 transactionId = subscription.orderId,
+                originalTransactionId = toInitialOrderId(subscription.orderId),
                 productId = subscriptionId,
                 description = "Google Play ${if (initalBuy) "initial" else "renewal"} subscription order",
                 orderingUserId = orderingUserId,
@@ -51,6 +53,13 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
             androidPublisherApiClient.Purchases().Subscriptions().acknowledge(packageName, subscriptionId, purchaseToken, content)
         }
         return subscription;
+    }
+
+    private fun toInitialOrderId(orderId: String?): String {
+        return if (orderId != null) {
+            val split = orderId.split("..")
+            return "${split[0]}..0"
+        } else ""
     }
 
     fun handleSubscriptionNotification(pubsubNotification: PubSubDeveloperNotification) {
@@ -76,6 +85,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
                 price = BigDecimal(subscription.priceAmountMicros).divide(BigDecimal(1000 * 1000)),
                 currencyCode = subscription.priceCurrencyCode,
                 transactionId = subscription.orderId,
+                originalTransactionId = toInitialOrderId(subscription.orderId),
                 productId = notification.subscriptionId,
                 description = "Google Play subscription update: " + notification.notificationType,
                 expiryTimeMillis = subscription.expiryTimeMillis
