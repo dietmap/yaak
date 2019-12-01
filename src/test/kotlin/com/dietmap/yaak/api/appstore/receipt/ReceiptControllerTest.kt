@@ -34,12 +34,12 @@ internal class ReceiptControllerTest : SupportController() {
     private lateinit var pendingRenewalInfo: PendingRenewalInfo
 
     private val testResponseStatusOk: ReceiptResponse = ReceiptResponse(
-            0, "sandbox", receipt, "latestReceipt", latestReceiptInfo,
-            pendingRenewalInfo , false )
+            0, "sandbox", receipt, "latestReceipt", listOf(latestReceiptInfo),
+            listOf(pendingRenewalInfo) , false )
 
     private val testResponseStatusError: ReceiptResponse = ReceiptResponse(
-            21010, "sandbox", receipt, null, latestReceiptInfo,
-            pendingRenewalInfo , true )
+            21010, "sandbox", receipt, "latestReceipt", listOf(latestReceiptInfo),
+            listOf(pendingRenewalInfo) , true )
 
     private val testRequestOk: ReceiptRequest = ReceiptRequest(
             "receiptData","password",true)

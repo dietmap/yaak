@@ -1,6 +1,5 @@
 package com.dietmap.yaak.api.appstore.subscription
 
-import com.dietmap.yaak.api.appstore.receipt.ReceiptRequest
 import com.dietmap.yaak.domain.appstore.AppStoreSubscriptionService
 import com.dietmap.yaak.domain.userapp.UserAppSubscriptionOrder
 import org.slf4j.Logger
@@ -22,23 +21,40 @@ class SubscriptionController(private val subscriptionService: AppStoreSubscripti
     val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     @PostMapping("/purchase")
-    fun handlePurchase(@RequestBody @Valid receiptRequest: ReceiptRequest): ResponseEntity<UserAppSubscriptionOrder?> {
-        logger.debug("handlePurchase: $receiptRequest")
+    fun handleInitialPurchase(@RequestBody @Valid subscriptionPurchaseRequest: SubscriptionPurchaseRequest): ResponseEntity<UserAppSubscriptionOrder?> {
+        logger.debug("handleInitialPurchase: $subscriptionPurchaseRequest")
 
-        val subscriptionOrder = subscriptionService.handlePurchase(receiptRequest)
+        val subscriptionOrder = subscriptionService.handleInitialPurchase(subscriptionPurchaseRequest)
+
+        logger.debug("handleStatusUpdateNotification $subscriptionOrder")
 
         return ResponseEntity.ok(subscriptionOrder !!)
     }
 
+    @PostMapping("/renew")
+    fun handleAutoRenewal(@RequestBody @Valid subscriptionPurchaseRequest: SubscriptionPurchaseRequest): ResponseEntity<UserAppSubscriptionOrder?> {
+        logger.debug("handleAutoRenewal: $subscriptionPurchaseRequest")
+
+        val subscriptionOrder = subscriptionService.handleAutoRenewal(subscriptionPurchaseRequest)
+
+        logger.debug("handleStatusUpdateNotification $subscriptionOrder")
+
+        return ResponseEntity.ok(subscriptionOrder !!)
+    }
+
+    /**
+     * Handler for Server to server notifications
+     */
     @PostMapping("/statusUpdateNotification")
-    fun handleStatusUpdateNotification(@Valid @RequestBody statusUpdateNotification: StatusUpdateNotification): Any {
-        logger.debug("handleStatusUpdateNotification $statusUpdateNotification")
+    fun handleStatusUpdateNotification(@Valid @RequestBody statusUpdateNotification: StatusUpdateNotification): ResponseEntity<Any> {
+        logger.debug("handleStatusUpdateNotification: $statusUpdateNotification")
 
         val subscriptionOrder = subscriptionService.handleSubscriptionNotification(statusUpdateNotification)
 
         logger.debug("handleStatusUpdateNotification $subscriptionOrder")
 
-        return ResponseEntity.ok()
+        // Send HTTP 50x or 40x to have the App Store retry the notification if the post was not successful.
+        return ResponseEntity.ok().build()
     }
 
 }

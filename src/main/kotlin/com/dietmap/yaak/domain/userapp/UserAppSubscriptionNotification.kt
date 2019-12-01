@@ -10,11 +10,11 @@ data class UserAppSubscriptionNotification(
         @NotNull
         var productId: String,
         @NotNull
-        var countryCode: String,
+        var countryCode: String = String(),
         @NotNull
-        var price: BigDecimal,
+        var price: BigDecimal = BigDecimal.ZERO,
         @NotNull
-        val currencyCode: String,
+        val currencyCode: String = String(),
         @NotNull
         var transactionId: String,
         @NotNull
@@ -74,7 +74,11 @@ enum class NotificationType {
     /**
      * A subscription has expired.
      */
-    SUBSCRIPTION_EXPIRED
+    SUBSCRIPTION_EXPIRED,
+    /**
+     * A subscription renewal failed due to payment issue
+     */
+    SUBSCRIPTION_RENEW_FAILED
 }
 
 
