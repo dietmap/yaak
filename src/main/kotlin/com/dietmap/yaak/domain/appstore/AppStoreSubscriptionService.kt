@@ -28,7 +28,8 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
                 currencyCode = "PLN",
                 appMarketplace = AppMarketplace.APP_STORE,
                 description = "Subscription purchase from AppStore",
-                expiryTimeMillis = receiptResponse.receipt.expirationDateMs.toLong()
+                expiryTimeMillis = receiptResponse.receipt.expirationDateMs.toLong(),
+                orderingUserId = null
         )
 
         return userAppClient.sendSubscriptionNotification(notification)
@@ -62,7 +63,8 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
                 currencyCode = "PLN",
                 appMarketplace = AppMarketplace.APP_STORE,
                 description = "Subscription update from AppStore",
-                expiryTimeMillis = receiptResponse.receipt.expirationDateMs.toLong()
+                expiryTimeMillis = receiptResponse.receipt.expirationDateMs.toLong(),
+                orderingUserId = null
         )
 
         return userAppClient.sendSubscriptionNotification(notification)

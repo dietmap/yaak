@@ -18,7 +18,8 @@ internal class GooglePlaySubscriptionServiceTest {
         val purchase = service.handlePurchase(
                 "net.app.staging.selfsigned",
                 "app.billing.month.1",
-                "dkcphkndppjfgombblmYr6a8T9fh_aT93YKvPaem3r-_cRpaI-v0NfQVJrHPQAd2XeMrwo59KQuQ"
+                "dkcphkndppjfgombblmYr6a8T9fh_aT93YKvPaem3r-_cRpaI-v0NfQVJrHPQAd2XeMrwo59KQuQ",
+                null
         )
         print(purchase)
     }

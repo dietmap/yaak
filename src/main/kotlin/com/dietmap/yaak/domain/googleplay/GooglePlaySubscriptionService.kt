@@ -5,10 +5,7 @@ import com.dietmap.yaak.api.googleplay.GooglePlayNotificationType.SUBSCRIPTION_R
 import com.dietmap.yaak.api.googleplay.GooglePlaySubscriptionNotification
 import com.dietmap.yaak.api.googleplay.PubSubDeveloperNotification
 import com.dietmap.yaak.domain.checkArgument
-import com.dietmap.yaak.domain.userapp.AppMarketplace
-import com.dietmap.yaak.domain.userapp.NotificationType
-import com.dietmap.yaak.domain.userapp.UserAppClient
-import com.dietmap.yaak.domain.userapp.UserAppSubscriptionNotification
+import com.dietmap.yaak.domain.userapp.*
 import com.google.api.services.androidpublisher.AndroidPublisher
 import com.google.api.services.androidpublisher.model.SubscriptionPurchase
 import com.google.api.services.androidpublisher.model.SubscriptionPurchasesAcknowledgeRequest
@@ -30,7 +27,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
         private val logger: Logger = LoggerFactory.getLogger(GooglePlaySubscriptionService::class.java)
     }
 
-    fun handlePurchase(packageName: String, subscriptionId: String, purchaseToken: String, initalBuy: Boolean = true): SubscriptionPurchase? {
+    fun handlePurchase(packageName: String, subscriptionId: String, purchaseToken: String, orderingUserId: String?, initalBuy: Boolean = true): SubscriptionPurchase? {
         val subscription = androidPublisherApiClient.Purchases().Subscriptions().get(packageName, subscriptionId, purchaseToken).execute()
         checkArgument(subscription.paymentState in listOf(PAYMENT_RECEIVED_CODE, PAYMENT_FREE_TRIAL_CODE)) { "Subscription has not been paid yet, paymentState=${subscription.paymentState}" }
         try {
@@ -43,11 +40,15 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
                     transactionId = subscription.orderId,
                     productId = subscriptionId,
                     description = "Google Play ${if (initalBuy) "initial" else "renewal"} subscription order",
+                    orderingUserId = orderingUserId,
                     expiryTimeMillis = subscription.expiryTimeMillis
             ))
+
+            checkArgument(notificationResponse != null) {"Could not create subscription order ${subscription.orderId} in user app"}
+
             if (subscription.acknowledgementState == 0) {
                 logger.info("Acknowledging Google Play subscription purchase of id=${subscription.orderId}, purchaseToken=$purchaseToken")
-                val content = SubscriptionPurchasesAcknowledgeRequest().setDeveloperPayload("applicationOrderId: ${notificationResponse?.orderId}")
+                val content = SubscriptionPurchasesAcknowledgeRequest().setDeveloperPayload("{ applicationOrderId: ${notificationResponse?.orderId}, orderingUserId: $orderingUserId }")
                 androidPublisherApiClient.Purchases().Subscriptions().acknowledge(packageName, subscriptionId, purchaseToken, content)
             }
             return subscription;
@@ -60,8 +61,8 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
         pubsubNotification.subscriptionNotification?.let {
             logger.info("Handling PubSub notification of type: ${it.notificationType}")
             when (it.notificationType) {
-                SUBSCRIPTION_PURCHASED -> handlePurchase(pubsubNotification.packageName, it.subscriptionId, it.purchaseToken)
-                SUBSCRIPTION_RENEWED -> handlePurchase(pubsubNotification.packageName, it.subscriptionId, it.purchaseToken, false)
+                SUBSCRIPTION_PURCHASED -> handlePurchase(pubsubNotification.packageName, it.subscriptionId, it.purchaseToken, null)
+                SUBSCRIPTION_RENEWED -> handlePurchase(pubsubNotification.packageName, it.subscriptionId, it.purchaseToken, null, false)
                 else -> handleStatusUpdate(pubsubNotification.packageName, it)
             }
         }
@@ -81,7 +82,8 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
                     transactionId = subscription.orderId,
                     productId = notification.subscriptionId,
                     description = "Google Play subscription update: " + notification.notificationType,
-                    expiryTimeMillis = subscription.expiryTimeMillis
+                    expiryTimeMillis = subscription.expiryTimeMillis,
+                    orderingUserId = null
             )
             userAppClient.sendSubscriptionNotification(subscriptionUpdate)
             logger.info("Google Play subscription notification has been sent to user app: $subscriptionUpdate")
