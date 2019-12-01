@@ -23,14 +23,13 @@ import org.springframework.util.StringUtils
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 import org.springframework.web.reactive.function.client.*
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
 import java.util.function.Consumer
 
 
 @Component
-class UserAppClient(val webClient: WebClient, @Value("\${yaak.subscription-webhook-url}") handleSubscriptionUpdateUrl: String) {
+class UserAppClient(val webClient: WebClient, @Value("\${yaak.user-app.subscription-webhook-url}") handleSubscriptionUpdateUrl: String) {
 
     private val subscriptionNotificationUrl: String = handleSubscriptionUpdateUrl
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)

@@ -78,13 +78,21 @@ enum class AppStoreNotificationType(private val code: Int) {
      * Indicates the customer renewed a subscription interactively, either by using your app’s interface,
      * or on the App Store in the account's Subscriptions settings. Make service available immediately.
      */
-    INTERACTIVE_RENEWAL(7);
+    INTERACTIVE_RENEWAL(7),
 
+    /**
+     * User has entered a price increase flow
+     */
+    PRICE_INCREASE_CONSENT(8);
 
     companion object {
         private val codes = values().associateBy(AppStoreNotificationType::code)
         @JvmStatic
         @JsonCreator
         fun from(value: Int) = codes[value]
+    }
+
+    override fun toString(): String {
+        return "AppStoreNotificationType(code=$code, value=${from(code)})"
     }
 }

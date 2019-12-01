@@ -13,9 +13,9 @@ import java.io.Serializable
 data class ReceiptResponse(@get:JsonProperty("status") val status: Int,
                            @get:JsonProperty("environment") val environment: String,
                            @get:JsonProperty("receipt") val receipt: Receipt,
-                           @get:JsonProperty("latest_receipt") val latestReceipt: Any?,
-                           @get:JsonProperty("latest_receipt_info") val latestReceiptInfo: LatestReceiptInfo,
-                           @get:JsonProperty("pending_renewal_info") val pendingRenewalInfo: PendingRenewalInfo,
+                           @get:JsonProperty("latest_receipt") val latestReceipt: String,
+                           @get:JsonProperty("latest_receipt_info") val latestReceiptInfo: Collection<LatestReceiptInfo>,
+                           @get:JsonProperty("pending_renewal_info") val pendingRenewalInfo: Collection<PendingRenewalInfo>,
                            @get:JsonProperty("is-retryable") val isRetryable: Boolean = false
 ): Serializable {
 
@@ -46,7 +46,7 @@ data class Receipt (
         @get:JsonProperty("expiration_date") val expirationDate: String,
         @get:JsonProperty("expiration_date_ms") val expirationDateMs: String,
         @get:JsonProperty("expiration_date_pst") val expirationDatePst: String,
-        @get:JsonProperty("in_app") val inApp: Any?,
+        @get:JsonProperty("in_app") val inApp: Collection<String>,
         @get:JsonProperty("original_application_version") val originalApplicationVersion: String,
         @get:JsonProperty("original_purchase_date") val originalPurchaseDate: String,
         @get:JsonProperty("original_purchase_date_ms") val originalPurchaseDateMs: String,
@@ -111,7 +111,7 @@ data class PendingRenewalInfo (
         @get:JsonProperty("grace_period_expires_date_pst") val gracePeriodExpiresDatePst: String,
         @get:JsonProperty("original_transaction_id") val originalTransactionId: String,
         @get:JsonProperty("is_in_billing_retry_period") val isInBillingRetryPeriod: Int,
-        @get:JsonProperty("price_consent_status") val priceConsentStatus: String?,
+        @get:JsonProperty("price_consent_status") val priceConsentStatus: String,
         @get:JsonProperty("product_id") val productId: String
 ): Serializable {
 
@@ -152,4 +152,15 @@ enum class ResponseStatusCode(private val code: Int,
     override fun toString(): String {
         return "ResponseStatusCode(code=$code, description='$description')"
     }
+}
+
+/**
+ * This class represents receipt as defined in https://developer.apple.com/documentation/appstorereceipts/responsebody/receipt
+ **/
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class ReceiptValidationResponse (
+        @get:JsonProperty("receipt") val receipt: ReceiptResponse,
+        @get:JsonProperty("status") val status: String
+): Serializable {
+
 }

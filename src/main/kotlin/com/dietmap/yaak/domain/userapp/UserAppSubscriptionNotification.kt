@@ -6,23 +6,23 @@ import javax.validation.constraints.NotNull
 data class UserAppSubscriptionNotification(
         @NotNull
         val notificationType: NotificationType,
-        val description: String? = "",
+        val description: String? = String(),
         @NotNull
         val productId: String,
         @NotNull
-        val countryCode: String? = "",
+        var countryCode: String = String(),
         @NotNull
-        val price: BigDecimal = BigDecimal.ZERO,
+        var price: BigDecimal = BigDecimal.ZERO,
         @NotNull
-        val currencyCode: String? = "",
+        val currencyCode: String = String(),
         @NotNull
         val transactionId: String,
         @NotNull
-        val originalTransactionId: String? = "",
+        val originalTransactionId: String? = String(),
         @NotNull
         val appMarketplace: AppMarketplace,
         val expiryTimeMillis: Long? = 0,
-        val orderingUserId: String? = ""
+        val orderingUserId: String? = String()
 )
 
 enum class NotificationType {
@@ -77,7 +77,11 @@ enum class NotificationType {
     /**
      * A subscription has expired.
      */
-    SUBSCRIPTION_EXPIRED
+    SUBSCRIPTION_EXPIRED,
+    /**
+     * A subscription renewal failed due to payment issue
+     */
+    SUBSCRIPTION_RENEW_FAILED
 }
 
 

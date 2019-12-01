@@ -4,22 +4,17 @@ import com.dietmap.yaak.SupportController
 import com.dietmap.yaak.domain.googleplay.AndroidPublisherClientConfiguration
 import com.dietmap.yaak.domain.googleplay.GooglePlaySubscriptionService
 import com.nimbusds.jose.util.Base64
-import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.anyBoolean
 import org.mockito.ArgumentMatchers.anyString
-import org.mockito.BDDMockito.*
-import org.mockito.Mockito
-import org.mockito.Mockito.doThrow
+import org.mockito.BDDMockito.`when`
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.context.TestPropertySource
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.server.ResponseStatusException
 
 @TestPropertySource(properties = ["yaak.google-play.enabled = true"])
