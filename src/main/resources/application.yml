@@ -17,7 +17,7 @@ spring:
 #          issuer-uri: https://oauth-priovider.com/
       client:
         registration:
-          user-app-client-password:
+          user-app-client:
             provider: oauth-provider
             client-id: client_id
             client-secret: client_secret

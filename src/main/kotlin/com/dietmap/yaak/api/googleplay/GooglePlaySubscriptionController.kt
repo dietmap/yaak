@@ -11,6 +11,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.server.ResponseStatusException
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 
@@ -24,7 +26,12 @@ class GooglePlaySubscriptionController(val subscriptionService: GooglePlaySubscr
     @PostMapping("/api/googleplay/subscriptions/purchases")
     fun purchase(@RequestBody @Valid purchaseRequest: PurchaseRequest): SubscriptionPurchase? {
         logger.info("Received purchase request from Google Play: {}", purchaseRequest)
-        return subscriptionService.handlePurchase(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken, purchaseRequest.orderingUserId)
+        try {
+            return subscriptionService.handlePurchase(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken, purchaseRequest.orderingUserId)
+        } catch (e: WebClientResponseException) {
+            logger.error("Error sending notification to user app", e)
+            throw ResponseStatusException(e.statusCode, "Error sending notification to user app", e)
+        }
     }
 
     /**

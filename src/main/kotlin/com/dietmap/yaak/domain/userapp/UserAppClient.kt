@@ -40,7 +40,8 @@ class UserAppClient(val webClient: WebClient, @Value("\${yaak.subscription-webho
         return webClient.post()
                 .uri(subscriptionNotificationUrl)
                 .bodyValue(notification)
-                .attributes(clientRegistrationId("user-app-client-password"))
+                //TODO get rid of fixed authorization type
+                .attributes(clientRegistrationId("user-app-client"))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToFlux(UserAppSubscriptionOrder::class.java)
@@ -50,9 +51,9 @@ class UserAppClient(val webClient: WebClient, @Value("\${yaak.subscription-webho
 
 @Configuration
 class UserAppClientConfiguration {
-    @Value("\${spring.security.oauth2.client.registration.user-app-client-password.username}")
+    @Value("\${spring.security.oauth2.client.registration.user-app-client-password.username:''}")
     lateinit var username: String;
-    @Value("\${spring.security.oauth2.client.registration.user-app-client-password.password}")
+    @Value("\${spring.security.oauth2.client.registration.user-app-client-password.password:''}")
     lateinit var password: String;
 
 
