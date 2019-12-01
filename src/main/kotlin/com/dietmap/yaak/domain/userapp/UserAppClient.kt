@@ -23,6 +23,7 @@ import org.springframework.util.StringUtils
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 import org.springframework.web.reactive.function.client.*
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
 import java.util.function.Consumer
@@ -42,8 +43,8 @@ class UserAppClient(val webClient: WebClient, @Value("\${yaak.subscription-webho
                 .attributes(clientRegistrationId("user-app-client-password"))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(UserAppSubscriptionOrder::class.java)
-                .block()
+                .bodyToFlux(UserAppSubscriptionOrder::class.java)
+                .blockFirst()
     }
 }
 

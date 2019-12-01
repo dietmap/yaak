@@ -56,9 +56,10 @@ internal class GooglePlaySubscriptionControllerTest : SupportController() {
         val request = PurchaseRequest(
                 packageName = "app.package",
                 subscriptionId = "app.subscription.id",
-                purchaseToken = "purchase.token"
+                purchaseToken = "purchase.token",
+                orderingUserId = "1"
         )
-        `when`(subscriptionService.handlePurchase(anyString(), anyString(), anyString(), anyBoolean())).thenThrow(ResponseStatusException(HttpStatus.BAD_REQUEST, "Error communicating with user app"))
+        `when`(subscriptionService.handlePurchase(anyString(), anyString(), anyString(), anyString(), anyBoolean())).thenThrow(ResponseStatusException(HttpStatus.BAD_REQUEST, "Error communicating with user app"))
 
         mockMvc.perform(
                 post("/api/googleplay/subscriptions/purchases")
