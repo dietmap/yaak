@@ -39,6 +39,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation("org.springframework:spring-webflux")
 	implementation("org.springframework.retry:spring-retry:1.2.4.RELEASE")
+	implementation("net.logstash.logback:logstash-logback-encoder:6.2")
 
 	implementation("org.projectreactor:reactor-spring:1.0.1.RELEASE")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
