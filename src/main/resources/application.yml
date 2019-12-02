@@ -54,4 +54,5 @@ yaak:
   app-store:
       enabled: true
       base-url: ${YAAK_APPSTORE_BASE_URL:https://sandbox.itunes.apple.com}
+      password: ${YAAK_APPSTORE_PASSWORD:MySecredPassword123}
 
