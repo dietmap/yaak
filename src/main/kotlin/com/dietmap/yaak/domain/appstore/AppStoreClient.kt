@@ -5,6 +5,7 @@ import com.dietmap.yaak.api.appstore.receipt.ReceiptResponse
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -14,22 +15,27 @@ import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
-import java.util.*
+
 
 @Component
+@ConditionalOnProperty("yaak.app-store.enabled", havingValue = "true")
 class AppStoreClient {
 
     private val restTemplate: RestTemplate
     private val verifyReceiptUrl: String
+    private val password: String
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
-    constructor(restTemplateBuilder: RestTemplateBuilder, @Value("\${yaak.app-store.base-url}") verifyReceiptUrlIn: String) {
+    constructor(restTemplateBuilder: RestTemplateBuilder,
+                @Value("\${yaak.app-store.base-url}") verifyReceiptUrlIn: String,
+                @Value("\${yaak.app-store.password}") passwordIn: String) {
         restTemplate = restTemplateBuilder.rootUri(verifyReceiptUrlIn).build()
         verifyReceiptUrl = verifyReceiptUrlIn
+        password = passwordIn
 
         val converter = MappingJackson2HttpMessageConverter()
-        converter.supportedMediaTypes = Arrays.asList(
+        converter.supportedMediaTypes = listOf(
                 MediaType.APPLICATION_JSON,
                 MediaType.APPLICATION_OCTET_STREAM)
         restTemplate.messageConverters.add(converter)
@@ -46,6 +52,8 @@ class AppStoreClient {
     }
 
     private fun processRequest(receiptRequest: ReceiptRequest): ReceiptResponse {
+        receiptRequest.password = password
+
         logger.debug("Processing ReceiptRequest {}", receiptRequest)
 
         val receiptResponse: ReceiptResponse =

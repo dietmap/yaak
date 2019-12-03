@@ -22,7 +22,7 @@ spring:
             client-id: client_id
             client-secret: client_secret
             authorization-grant-type: password
-            #            scope: message.read,message.write
+            #       scope: message.read,message.write
             username: username
             password: password
         provider:
@@ -33,16 +33,16 @@ logging:
   level:
     sun.net: INFO
     org.springframework.web: INFO
-    com.dietmap: INFO
+    com.dietmap: DEBUG
 
 yaak:
   security:
     # Possible values: API_KEY, OAUTH, NONE
     type: API_KEY
-    api-key: ${YAAK_API_KEY:MySuperApiKey123}
+    api-key: MyApiKey123
 
   user-app:
-    subscription-webhook-url: ${YAAK_SUBSCRIPTION_WEBHOOK_URL:http://localhost:8080/subscriptions/notifications/yaak}
+    subscription-webhook-url: http://localhost:8080/subscriptions/notifications/yaak
 
   google-play:
     enabled: false
@@ -53,5 +53,6 @@ yaak:
 
   app-store:
       enabled: true
-      base-url: ${YAAK_APPSTORE_BASE_URL:https://sandbox.itunes.apple.com}
+      base-url: https://sandbox.itunes.apple.com
+      password: MyPassword123
 
