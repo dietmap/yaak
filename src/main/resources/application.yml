@@ -22,7 +22,7 @@ spring:
             client-id: client_id
             client-secret: client_secret
             authorization-grant-type: password
-            #            scope: message.read,message.write
+            #       scope: message.read,message.write
             username: username
             password: password
         provider:
@@ -33,7 +33,7 @@ logging:
   level:
     sun.net: INFO
     org.springframework.web: INFO
-    com.dietmap: INFO
+    com.dietmap: DEBUG
 
 yaak:
   security:
