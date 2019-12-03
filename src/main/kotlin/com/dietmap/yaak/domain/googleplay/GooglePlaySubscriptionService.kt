@@ -65,10 +65,15 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
     fun handleSubscriptionNotification(pubsubNotification: PubSubDeveloperNotification) {
         pubsubNotification.subscriptionNotification?.let {
             logger.info("Handling PubSub notification of type: ${it.notificationType}")
-            when (it.notificationType) {
-                SUBSCRIPTION_PURCHASED -> handlePurchase(pubsubNotification.packageName, it.subscriptionId, it.purchaseToken, null)
-                SUBSCRIPTION_RENEWED -> handlePurchase(pubsubNotification.packageName, it.subscriptionId, it.purchaseToken, null, false)
-                else -> handleStatusUpdate(pubsubNotification.packageName, it)
+            try {
+                when (it.notificationType) {
+                    SUBSCRIPTION_PURCHASED -> handlePurchase(pubsubNotification.packageName, it.subscriptionId, it.purchaseToken, null)
+                    SUBSCRIPTION_RENEWED -> handlePurchase(pubsubNotification.packageName, it.subscriptionId, it.purchaseToken, null, false)
+                    else -> handleStatusUpdate(pubsubNotification.packageName, it)
+                }
+            } catch (e: Exception) {
+                logger.error("Error handling PubSub notification", e)
+                throw e
             }
         }
     }
