@@ -39,10 +39,10 @@ yaak:
   security:
     # Possible values: API_KEY, OAUTH, NONE
     type: API_KEY
-    api-key: ${YAAK_API_KEY:MySuperApiKey123}
+    api-key: MyApiKey123
 
   user-app:
-    subscription-webhook-url: ${YAAK_SUBSCRIPTION_WEBHOOK_URL:http://localhost:8080/subscriptions/notifications/yaak}
+    subscription-webhook-url: http://localhost:8080/subscriptions/notifications/yaak
 
   google-play:
     enabled: false
@@ -53,6 +53,6 @@ yaak:
 
   app-store:
       enabled: true
-      base-url: ${YAAK_APPSTORE_BASE_URL:https://sandbox.itunes.apple.com}
-      password: ${YAAK_APPSTORE_PASSWORD:MySecredPassword123}
+      base-url: https://sandbox.itunes.apple.com
+      password: MyPassword123
 

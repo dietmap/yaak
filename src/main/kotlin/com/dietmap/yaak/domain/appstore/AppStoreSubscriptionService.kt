@@ -85,7 +85,6 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
             // a subscription is renewed manually in the foreground
             AppStoreNotificationType.INTERACTIVE_RENEWAL -> {
 
-
                 notificationType = NotificationType.SUBSCRIPTION_RENEWED
 
                 // latest_receipt_info.purchase_date - resubscribe
