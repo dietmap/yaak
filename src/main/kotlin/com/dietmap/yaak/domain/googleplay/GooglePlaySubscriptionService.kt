@@ -50,7 +50,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
         if (subscription.acknowledgementState == 0) {
             logger.info("Acknowledging Google Play subscription purchase of id=${subscription.orderId}, purchaseToken=$purchaseToken")
             val content = SubscriptionPurchasesAcknowledgeRequest().setDeveloperPayload("{ applicationOrderId: ${notificationResponse?.orderId}, orderingUserId: $orderingUserId }")
-            androidPublisherApiClient.Purchases().Subscriptions().acknowledge(packageName, subscriptionId, purchaseToken, content)
+            androidPublisherApiClient.Purchases().Subscriptions().acknowledge(packageName, subscriptionId, purchaseToken, content).execute()
         }
         return subscription;
     }
