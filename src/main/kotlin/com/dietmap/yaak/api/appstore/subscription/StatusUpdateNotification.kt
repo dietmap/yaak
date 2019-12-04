@@ -27,9 +27,9 @@ data class StatusUpdateNotification(
 
 data class UnifiedReceipt(
         @get:JsonProperty("environment") val environment: String,
-        @get:JsonProperty("latest_receipt") val latestReceipt: String,
-        @get:JsonProperty("latest_receipt_info") val latestReceiptInfo: List<LatestReceiptInfo>,
-        @get:JsonProperty("pending_renewal_info") val pendingRenewalInfo: List<PendingRenewalInfo>,
+        @get:JsonProperty("latest_receipt") val latestReceipt: String?,
+        @get:JsonProperty("latest_receipt_info") val latestReceiptInfo: List<LatestReceiptInfo>?,
+        @get:JsonProperty("pending_renewal_info") val pendingRenewalInfo: List<PendingRenewalInfo>?,
         @get:JsonProperty("status") val latestExpiredReceiptInfo: Int
 ) : Serializable
 

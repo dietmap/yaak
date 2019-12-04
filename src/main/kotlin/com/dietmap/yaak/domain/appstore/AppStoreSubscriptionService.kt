@@ -23,18 +23,19 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
         if (receiptResponse.isValid()) {
 
             // TODO find out which one of latestReceiptInfo
-            val latestReceiptInfo = receiptResponse.latestReceiptInfo.stream().findFirst().get()
+            val latestReceiptInfo = receiptResponse.latestReceiptInfo!!.stream().findFirst().get()
 
             val notification = UserAppSubscriptionNotification(
                     notificationType = NotificationType.SUBSCRIPTION_PURCHASED,
                     productId = latestReceiptInfo.productId,
                     transactionId = latestReceiptInfo.transactionId,
+                    originalTransactionId = latestReceiptInfo.originalTransactionId,
                     price = subscriptionPurchaseRequest.price,
                     countryCode = subscriptionPurchaseRequest.countryCode,
                     currencyCode = subscriptionPurchaseRequest.currencyCode,
                     appMarketplace = AppMarketplace.APP_STORE,
                     description = "Subscription purchase from AppStore",
-                    expiryTimeMillis = latestReceiptInfo.expiresDateMs.toLong()
+                    expiryTimeMillis = latestReceiptInfo.expiresDateMs
             )
 
             return userAppClient.sendSubscriptionNotification(notification)
@@ -50,7 +51,7 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
         if (receiptResponse.isValid()) {
 
             // TODO find out which one of latestReceiptInfo
-            val latestReceiptInfo = receiptResponse.latestReceiptInfo.stream().findFirst().get()
+            val latestReceiptInfo = receiptResponse.latestReceiptInfo!!.stream().findFirst().get()
 
             val notification = UserAppSubscriptionNotification(
                     notificationType = NotificationType.SUBSCRIPTION_RENEWED,
@@ -59,7 +60,7 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
                     originalTransactionId = latestReceiptInfo.originalTransactionId,
                     appMarketplace = AppMarketplace.APP_STORE,
                     description = "Subscription renewal from AppStore",
-                    expiryTimeMillis = latestReceiptInfo.expiresDateMs.toLong()
+                    expiryTimeMillis = latestReceiptInfo.expiresDateMs
             )
 
             return userAppClient.sendSubscriptionNotification(notification)
@@ -79,7 +80,7 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
 
             // A subscription is first purchased
             AppStoreNotificationType.INITIAL_BUY -> {
-                // skipping it, this is handled in handleInitialPurchase()
+                // skipping it
             }
 
             // a subscription is renewed manually in the foreground
@@ -147,10 +148,11 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
         val notification = UserAppSubscriptionNotification(
                 notificationType = notificationType,
                 productId = latestReceiptInfo.productId,
-                transactionId = latestReceiptInfo.originalTransactionId,
+                transactionId = latestReceiptInfo.transactionId,
+                originalTransactionId = latestReceiptInfo.originalTransactionId,
                 appMarketplace = AppMarketplace.APP_STORE,
                 description = "Subscription update from AppStore: ${statusUpdateNotification.notificationType}",
-                expiryTimeMillis = latestReceiptInfo.expiresDateMs.toLong()
+                expiryTimeMillis = latestReceiptInfo.expiresDateMs
         )
 
         return userAppClient.sendSubscriptionNotification(notification)
