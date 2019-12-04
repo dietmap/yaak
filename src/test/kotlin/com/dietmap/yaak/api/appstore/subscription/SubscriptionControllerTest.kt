@@ -26,9 +26,9 @@ internal class SubscriptionControllerTest : SupportController() {
 
 
     private val testStatusUpdateNotification: StatusUpdateNotification = StatusUpdateNotification(
-            "sandbox", AppStoreNotificationType.CANCEL, "password", "cancellationDate", latestReceiptInfo, "",
+            "sandbox", AppStoreNotificationType.CANCEL, "cancellationDate", latestReceiptInfo, "",
             listOf(), "expirationIntent", "latestExpiredReceipt", true, "", "autoRenewProductId",
-            "autoRenewStatusChangeDate", "", unifiedReceipt)
+            "autoRenewStatusChangeDate", 12323230, unifiedReceipt)
 
     @Test
     fun `simulate subscription status update notification`() {
