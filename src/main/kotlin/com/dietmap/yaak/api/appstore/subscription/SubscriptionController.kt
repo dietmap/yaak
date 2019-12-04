@@ -5,6 +5,7 @@ import com.dietmap.yaak.domain.userapp.UserAppSubscriptionOrder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -43,17 +44,23 @@ class SubscriptionController(private val subscriptionService: AppStoreSubscripti
     }
 
     /**
-     * Handler for Server to server notifications
+     * Handler for Server 2 Server notifications
      */
     @PostMapping("/statusUpdateNotification")
     fun handleStatusUpdateNotification(@Valid @RequestBody statusUpdateNotification: StatusUpdateNotification): ResponseEntity<Any> {
         logger.debug("handleStatusUpdateNotification: $statusUpdateNotification")
 
-        val subscriptionOrder = subscriptionService.handleSubscriptionNotification(statusUpdateNotification)
+        try {
+            val subscriptionOrder = subscriptionService.handleSubscriptionNotification(statusUpdateNotification)
 
-        logger.debug("handleStatusUpdateNotification: $subscriptionOrder")
+            logger.debug("handleStatusUpdateNotification: $subscriptionOrder")
+        } catch (ex : Exception) {
 
-        // Send HTTP 50x or 40x to have the App Store retry the notification if the post was not successful.
+            // Send HTTP 50x or 40x to have the App Store retry the notification
+            logger.error("There was an error during handling server-2-server notification", ex)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+
         return ResponseEntity.ok().build()
     }
 

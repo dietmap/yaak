@@ -3,13 +3,12 @@ package com.dietmap.yaak.api.config
 import com.dietmap.yaak.api.config.YaakSecurityType.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -22,6 +21,10 @@ import javax.servlet.http.HttpServletRequest
 @EnableWebSecurity
 @Order(1)
 class ApiSecurityConfig(val securityProperties: YaakSecurityProperties) : WebSecurityConfigurerAdapter() {
+
+    override fun configure(web: WebSecurity) {
+        web.ignoring().antMatchers("/api/appstore/subscriptions/statusUpdateNotification");
+    }
 
     @Throws(Exception::class)
     override fun configure(httpSecurity: HttpSecurity) {

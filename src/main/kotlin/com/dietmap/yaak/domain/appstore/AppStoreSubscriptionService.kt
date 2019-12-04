@@ -71,7 +71,7 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
     }
 
     fun handleSubscriptionNotification(statusUpdateNotification: StatusUpdateNotification) : UserAppSubscriptionOrder? {
-        logger.debug("Processing notification: ${statusUpdateNotification.notificationType}")
+        logger.debug("Processing StatusUpdateNotification: ${statusUpdateNotification.notificationType}")
 
         var notificationType = NotificationType.SUBSCRIPTION_PURCHASED
         val latestReceiptInfo = statusUpdateNotification.latestReceiptInfo
