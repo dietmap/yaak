@@ -23,6 +23,6 @@ data class SubscriptionRenewRequest(
 ): Serializable {
 
     override fun toString(): String {
-        return "SubscriptionPurchaseRequest(receipt=${receipt.substring(IntRange(0,100))}"
+        return "SubscriptionRenewRequest(receipt=${receipt.substring(IntRange(0,100))}"
     }
 }
