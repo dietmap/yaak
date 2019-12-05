@@ -27,7 +27,7 @@ class GooglePlaySubscriptionController(val subscriptionService: GooglePlaySubscr
     fun purchase(@RequestBody @Valid purchaseRequest: PurchaseRequest): SubscriptionPurchase? {
         logger.info("Received purchase request from Google Play: {}", purchaseRequest)
         try {
-            return subscriptionService.handlePurchase(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken, purchaseRequest.orderingUserId)
+            return subscriptionService.handlePurchase(purchaseRequest)
         } catch (e: WebClientResponseException) {
             logger.error("Error sending notification to user app", e)
             throw ResponseStatusException(e.statusCode, "Error sending notification to user app", e)
@@ -51,7 +51,8 @@ data class PurchaseRequest(
         val subscriptionId: String,
         @NotBlank
         val purchaseToken: String,
-        val orderingUserId: String?
+        val orderingUserId: String? = null,
+        val discountCode: String? = null
 )
 
 data class PubSubRequest(

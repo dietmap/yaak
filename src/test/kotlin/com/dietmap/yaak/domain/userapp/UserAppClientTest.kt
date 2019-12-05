@@ -17,12 +17,12 @@ internal class UserAppClientTest {
         val notificationResponse = client.sendSubscriptionNotification(UserAppSubscriptionNotification(
                 notificationType = NotificationType.SUBSCRIPTION_PURCHASED,
                 description = "Yaak integration test call",
-                currencyCode = "PLN",
+                productId = "oneMonthSubscription",
                 countryCode = "PL",
                 price = BigDecimal.TEN,
+                currencyCode = "PLN",
                 transactionId = "testTransactionID",
                 appMarketplace = AppMarketplace.GOOGLE_PLAY,
-                productId = "oneMonthSubscription",
                 expiryTimeMillis = 1,
                 orderingUserId = null
         ))
