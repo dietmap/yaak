@@ -27,14 +27,14 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
 
             val notification = UserAppSubscriptionNotification(
                     notificationType = NotificationType.SUBSCRIPTION_PURCHASED,
+                    description = "Subscription purchase from AppStore",
                     productId = latestReceiptInfo.productId,
+                    countryCode = subscriptionPurchaseRequest.countryCode,
+                    price = subscriptionPurchaseRequest.price,
+                    currencyCode = subscriptionPurchaseRequest.currencyCode,
                     transactionId = latestReceiptInfo.transactionId,
                     originalTransactionId = latestReceiptInfo.originalTransactionId,
-                    price = subscriptionPurchaseRequest.price,
-                    countryCode = subscriptionPurchaseRequest.countryCode,
-                    currencyCode = subscriptionPurchaseRequest.currencyCode,
                     appMarketplace = AppMarketplace.APP_STORE,
-                    description = "Subscription purchase from AppStore",
                     expiryTimeMillis = latestReceiptInfo.expiresDateMs
             )
 
@@ -55,11 +55,11 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
 
             val notification = UserAppSubscriptionNotification(
                     notificationType = NotificationType.SUBSCRIPTION_RENEWED,
+                    description = "Subscription renewal from AppStore",
                     productId = latestReceiptInfo.productId,
                     transactionId = latestReceiptInfo.transactionId,
                     originalTransactionId = latestReceiptInfo.originalTransactionId,
                     appMarketplace = AppMarketplace.APP_STORE,
-                    description = "Subscription renewal from AppStore",
                     expiryTimeMillis = latestReceiptInfo.expiresDateMs
             )
 
@@ -147,11 +147,11 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
 
         val notification = UserAppSubscriptionNotification(
                 notificationType = notificationType,
+                description = "Subscription update from AppStore: ${statusUpdateNotification.notificationType}",
                 productId = latestReceiptInfo.productId,
                 transactionId = latestReceiptInfo.transactionId,
                 originalTransactionId = latestReceiptInfo.originalTransactionId,
                 appMarketplace = AppMarketplace.APP_STORE,
-                description = "Subscription update from AppStore: ${statusUpdateNotification.notificationType}",
                 expiryTimeMillis = latestReceiptInfo.expiresDateMs
         )
 

@@ -5,8 +5,8 @@ import com.dietmap.yaak.domain.googleplay.AndroidPublisherClientConfiguration
 import com.dietmap.yaak.domain.googleplay.GooglePlaySubscriptionService
 import com.nimbusds.jose.util.Base64
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.anyBoolean
-import org.mockito.ArgumentMatchers.anyString
+import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.*
 import org.mockito.BDDMockito.`when`
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpStatus
@@ -52,9 +52,10 @@ internal class GooglePlaySubscriptionControllerTest : SupportController() {
                 packageName = "app.package",
                 subscriptionId = "app.subscription.id",
                 purchaseToken = "purchase.token",
-                orderingUserId = "1"
+                orderingUserId = "1",
+                discountCode = "234"
         )
-        `when`(subscriptionService.handlePurchase(anyString(), anyString(), anyString(), anyString(), anyBoolean())).thenThrow(ResponseStatusException(HttpStatus.BAD_REQUEST, "Error communicating with user app"))
+        `when`(subscriptionService.handlePurchase(request, true)).thenThrow(ResponseStatusException(HttpStatus.BAD_REQUEST, "Error communicating with user app"))
 
         mockMvc.perform(
                 post("/api/googleplay/subscriptions/purchases")

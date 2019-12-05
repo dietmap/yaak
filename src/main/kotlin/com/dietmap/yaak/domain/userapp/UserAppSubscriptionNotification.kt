@@ -22,7 +22,8 @@ data class UserAppSubscriptionNotification(
         @NotNull
         val appMarketplace: AppMarketplace,
         val expiryTimeMillis: Long? = 0,
-        val orderingUserId: String? = String()
+        val orderingUserId: String? = String(),
+        val discountCode: String? = String()
 )
 
 enum class NotificationType {

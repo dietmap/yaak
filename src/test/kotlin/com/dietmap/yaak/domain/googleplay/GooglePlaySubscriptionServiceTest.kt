@@ -1,5 +1,6 @@
 package com.dietmap.yaak.domain.googleplay
 
+import com.dietmap.yaak.api.googleplay.PurchaseRequest
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -14,12 +15,11 @@ internal class GooglePlaySubscriptionServiceTest {
 
     @Test
     fun handlePurchase() {
-        val purchase = service.handlePurchase(
+        val purchase = service.handlePurchase(PurchaseRequest(
                 "net.app.staging.selfsigned",
                 "app.billing.month.1",
-                "dkcphkndppjfgombblmYr6a8T9fh_aT93YKvPaem3r-_cRpaI-v0NfQVJrHPQAd2XeMrwo59KQuQ",
-                null
-        )
+                "dkcphkndppjfgombblmYr6a8T9fh_aT93YKvPaem3r-_cRpaI-v0NfQVJrHPQAd2XeMrwo59KQuQ"
+        ))
         print(purchase)
     }
 }
