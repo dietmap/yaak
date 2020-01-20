@@ -46,6 +46,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("com.google.apis:google-api-services-androidpublisher:v3-rev130-1.25.0")
+	implementation("io.github.microutils:kotlin-logging:1.7.8")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(module = "junit")

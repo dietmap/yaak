@@ -4,9 +4,8 @@ import com.dietmap.yaak.domain.googleplay.GooglePlaySubscriptionService
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.api.services.androidpublisher.model.SubscriptionPurchase
+import mu.KotlinLogging
 import org.apache.commons.codec.binary.Base64
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -21,15 +20,15 @@ import javax.validation.constraints.NotBlank
 @RestController
 class GooglePlaySubscriptionController(val subscriptionService: GooglePlaySubscriptionService) {
 
-    val logger: Logger = LoggerFactory.getLogger(this.javaClass)
+    private val logger = KotlinLogging.logger { }
 
     @PostMapping("/api/googleplay/subscriptions/purchases")
     fun purchase(@RequestBody @Valid purchaseRequest: PurchaseRequest): SubscriptionPurchase? {
-        logger.info("Received purchase request from Google Play: {}", purchaseRequest)
+        logger.info { "Received purchase request from Google Play: $purchaseRequest" }
         try {
             return subscriptionService.handlePurchase(purchaseRequest)
         } catch (e: WebClientResponseException) {
-            logger.error("Error sending notification to user app", e)
+            logger.error(e) { "Error sending notification to user app" }
             throw ResponseStatusException(e.statusCode, "Error sending notification to user app", e)
         }
     }
@@ -39,7 +38,7 @@ class GooglePlaySubscriptionController(val subscriptionService: GooglePlaySubscr
      */
     @PostMapping("/public/api/googleplay/subscriptions/notifications")
     fun update(@RequestBody pubsubRequest: PubSubRequest) {
-        logger.info("Received Google PubSub subscription notification: {}", pubsubRequest)
+        logger.info { "Received Google PubSub subscription notification: $pubsubRequest" }
         subscriptionService.handleSubscriptionNotification(pubsubRequest.message.developerNotification)
     }
 }
@@ -63,15 +62,13 @@ data class PubSubRequest(
 data class PubSubMessage(val messageId: String, val data: String) {
     val developerNotification: PubSubDeveloperNotification
 
+    private val logger = KotlinLogging.logger { }
+
     init {
         val dataDecoded = Base64.decodeBase64(data)
-        logger.info("Decoded PubSub message: $dataDecoded");
+        logger.info { "Decoded PubSub message: $dataDecoded" };
         val mapper = jacksonObjectMapper()
         this.developerNotification = mapper.readValue(dataDecoded, PubSubDeveloperNotification::class.java)
-    }
-
-    companion object {
-        private val logger: Logger = LoggerFactory.getLogger(this::class.java)
     }
 
     override fun toString(): String {

@@ -2,8 +2,7 @@ package com.dietmap.yaak.domain.userapp
 
 import com.dietmap.yaak.api.config.YaakSecurityProperties
 import com.dietmap.yaak.api.config.YaakSecurityType
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -32,10 +31,10 @@ import java.util.function.Consumer
 class UserAppClient(val webClient: WebClient, @Value("\${yaak.user-app.subscription-webhook-url}") handleSubscriptionUpdateUrl: String) {
 
     private val subscriptionNotificationUrl: String = handleSubscriptionUpdateUrl
-    private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
+    private val logger = KotlinLogging.logger { }
 
     fun sendSubscriptionNotification(notification: UserAppSubscriptionNotification): UserAppSubscriptionOrder? {
-        logger.debug("Processing UserAppSubscriptionNotification {}", notification)
+        logger.debug { "Processing UserAppSubscriptionNotification $notification" }
         return webClient.post()
                 .uri(subscriptionNotificationUrl)
                 .bodyValue(notification)
@@ -66,7 +65,7 @@ class UserAppClientConfiguration {
     }
 
     class TokenRelayingFilterFunction(val oauth2FilterFunction: ServletOAuth2AuthorizedClientExchangeFilterFunction) : ExchangeFilterFunction {
-        private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
+        private val logger = KotlinLogging.logger { }
 
         override fun filter(clientRequest: ClientRequest, next: ExchangeFunction): Mono<ClientResponse> {
             if (RequestContextHolder.getRequestAttributes() != null) {
@@ -77,7 +76,7 @@ class UserAppClientConfiguration {
                     val authorizedClientRequest = ClientRequest.from(clientRequest)
                             .headers { headers: HttpHeaders -> headers.set(HttpHeaders.AUTHORIZATION, accessToken) }
                             .build()
-                    logger.debug("Relaying access token to user app")
+                    logger.debug { "Relaying access token to user app" }
                     return Mono.defer { next.exchange(authorizedClientRequest) }
                 }
             }

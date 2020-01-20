@@ -9,7 +9,7 @@ import com.google.api.client.util.Preconditions
 import com.google.api.services.androidpublisher.AndroidPublisher
 import com.google.api.services.androidpublisher.AndroidPublisherScopes
 import com.google.common.base.Strings
-import org.apache.commons.logging.LogFactory
+import mu.KotlinLogging
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -48,7 +48,7 @@ class GoogleDeveloperApiClientProperties {
 @ConditionalOnProperty("yaak.google-play.enabled", havingValue = "true")
 @Configuration
 class AndroidPublisherClientConfiguration(val properties: GoogleDeveloperApiClientProperties) {
-    private val log = LogFactory.getLog(AndroidPublisherClientConfiguration::class.java)
+    private val logger = KotlinLogging.logger { }
 
     /** Global instance of the JSON factory.  */
     private val JSON_FACTORY = JacksonFactory.getDefaultInstance()
@@ -73,7 +73,7 @@ class AndroidPublisherClientConfiguration(val properties: GoogleDeveloperApiClie
 
     @Throws(GeneralSecurityException::class, IOException::class)
     private fun authorizeWithServiceAccount(serviceAccountEmail: String): Credential {
-        log.info(String.format("Authorizing using Service Account: %s", serviceAccountEmail))
+        logger.info { "Authorizing using Service Account: $serviceAccountEmail" }
         // Build service account credential.
         return GoogleCredential.fromStream(properties.getServiceAccountApiKeyInputStream(), HTTP_TRANSPORT, JSON_FACTORY)
         .createScoped(Collections.singleton(AndroidPublisherScopes.ANDROIDPUBLISHER))

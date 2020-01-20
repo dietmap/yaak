@@ -2,8 +2,7 @@ package com.dietmap.yaak.domain.appstore
 
 import com.dietmap.yaak.api.appstore.receipt.ReceiptRequest
 import com.dietmap.yaak.api.appstore.receipt.ReceiptResponse
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.web.client.RestTemplateBuilder
@@ -25,7 +24,7 @@ class AppStoreClient {
     private val verifyReceiptUrl: String
     private val password: String
 
-    val logger: Logger = LoggerFactory.getLogger(this.javaClass)
+    private val logger = KotlinLogging.logger { }
 
     constructor(restTemplateBuilder: RestTemplateBuilder,
                 @Value("\${yaak.app-store.base-url}") verifyReceiptUrlIn: String,
@@ -42,27 +41,27 @@ class AppStoreClient {
     }
 
     @Retryable(value = [RuntimeException::class], maxAttempts = 3, backoff = Backoff(delay = 2000))
-    fun verifyReceipt(receiptRequest : ReceiptRequest): ReceiptResponse {
+    fun verifyReceipt(receiptRequest: ReceiptRequest): ReceiptResponse {
         return processRequest(receiptRequest)
     }
 
     @Retryable(value = [RuntimeException::class], maxAttempts = 3, backoff = Backoff(delay = 2000))
-    fun isVerified(receiptRequest : ReceiptRequest): Boolean {
+    fun isVerified(receiptRequest: ReceiptRequest): Boolean {
         return processRequest(receiptRequest).status == 0
     }
 
     private fun processRequest(receiptRequest: ReceiptRequest): ReceiptResponse {
         receiptRequest.password = password
 
-        logger.debug("Processing ReceiptRequest {}", receiptRequest)
+        logger.debug { "Processing ReceiptRequest $receiptRequest" }
 
         val receiptResponse: ReceiptResponse =
                 restTemplate.postForObject("/verifyReceipt", prepareHttpHeaders(receiptRequest), ReceiptResponse::class.java)!!
 
-        logger.debug("Getting ReceiptResponse {}", receiptResponse)
+        logger.debug { "Getting ReceiptResponse $receiptResponse" }
 
         if (receiptResponse.shouldRetry()) {
-            logger.warn("Retrying due to ${receiptResponse.responseStatusCode} status code")
+            logger.warn { "Retrying due to ${receiptResponse.responseStatusCode} status code" }
             throw RuntimeException("Retrying due to ${receiptResponse.responseStatusCode}")
         }
         return receiptResponse
