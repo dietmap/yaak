@@ -155,6 +155,8 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
                 expiryTimeMillis = latestReceiptInfo.expiresDateMs
         )
 
+        logger.debug("Sending UserAppSubscriptionNotification: $notification")
+
         return userAppClient.sendSubscriptionNotification(notification)
 
     }
