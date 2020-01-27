@@ -86,12 +86,21 @@ enum class AppStoreNotificationType(private val code: Int) {
 
     companion object {
         private val codes = values().associateBy(AppStoreNotificationType::code)
+        private val names = values().associateBy(AppStoreNotificationType::name)
+
         @JvmStatic
         @JsonCreator
-        fun from(value: Int) = codes[value]
+        fun fromName(value: String) = names[value.toUpperCase()]
+
+        @JvmStatic
+        fun fromCode(value: Int) = codes[value]
+    }
+
+    fun getCode() : Int{
+        return code;
     }
 
     override fun toString(): String {
-        return "AppStoreNotificationType(code=$code, value=${from(code)})"
+        return "AppStoreNotificationType(code=$code, value=${fromCode(code)})"
     }
 }
