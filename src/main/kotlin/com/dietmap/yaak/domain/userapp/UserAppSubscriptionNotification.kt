@@ -86,9 +86,10 @@ enum class NotificationType {
 }
 
 
-data class UserAppSubscriptionOrder(
+data class UserAppSubscriptionOrder (
         val orderId: String,
-        val transactionId: String
+        val transactionId: String,
+        val status: String
 )
 
 enum class AppMarketplace {
