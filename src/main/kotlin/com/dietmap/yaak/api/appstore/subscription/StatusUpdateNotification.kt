@@ -99,8 +99,4 @@ enum class AppStoreNotificationType(private val code: Int) {
     fun getCode() : Int{
         return code;
     }
-
-    override fun toString(): String {
-        return "AppStoreNotificationType(code=$code, value=${fromCode(code)})"
-    }
 }
