@@ -20,7 +20,7 @@ data class StatusUpdateNotification(
         @get:JsonProperty("auto_renew_status_change_date") val autoRenewStatusChangeDate: String?,
         @get:JsonProperty("auto_renew_status_change_date_pst") val autoRenewStatusChangeDatePst: String?,
         @get:JsonProperty("auto_renew_status_change_date_ms") val autoRenewStatusChangeDateMs: Long?,
-        @get:JsonProperty("unified_receipt") val unifiedReceipt: UnifiedReceipt
+        @get:JsonProperty("unified_receipt") val unifiedReceipt: UnifiedReceipt?
 ) : Serializable
 
 
@@ -29,7 +29,7 @@ data class UnifiedReceipt(
         @get:JsonProperty("latest_receipt") val latestReceipt: String?,
         @get:JsonProperty("latest_receipt_info") val latestReceiptInfo: Collection<LatestReceiptInfo>?,
         @get:JsonProperty("pending_renewal_info") val pendingRenewalInfo: Collection<PendingRenewalInfo>?,
-        @get:JsonProperty("status") val latestExpiredReceiptInfo: Int
+        @get:JsonProperty("status") val latestExpiredReceiptInfo: String?
 ) : Serializable
 
 
