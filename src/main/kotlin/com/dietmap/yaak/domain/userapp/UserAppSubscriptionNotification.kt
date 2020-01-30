@@ -10,11 +10,11 @@ data class UserAppSubscriptionNotification(
         @NotNull
         val productId: String,
         @NotNull
-        var countryCode: String = String(),
+        var countryCode: String? = String(),
         @NotNull
-        var price: BigDecimal = BigDecimal.ZERO,
+        var price: BigDecimal? = BigDecimal.ZERO,
         @NotNull
-        val currencyCode: String = String(),
+        val currencyCode: String? = String(),
         @NotNull
         val transactionId: String,
         @NotNull
