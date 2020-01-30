@@ -12,7 +12,7 @@ data class StatusUpdateNotification(
         @get:JsonProperty("latest_receipt") val latestReceipt: String?,
         @get:JsonProperty("latest_receipt_info") val latestReceiptInfo: LatestReceiptInfo,
         @get:JsonProperty("latest_expired_receipt") val latestExpiredReceipt: String?,
-        @get:JsonProperty("latest_expired_receipt_info") val latestExpiredReceiptInfo: Collection<String>?,
+        @get:JsonProperty("latest_expired_receipt_info") val latestExpiredReceiptInfo: String?,
         @get:JsonProperty("expiration_intent") val expirationIntent: String?,
         @get:JsonProperty("auto_renew_adam_id") val autoRenewAdamId: String?,
         @get:JsonProperty("auto_renew_status") val autoRenewStatus: Boolean?,
