@@ -6,8 +6,7 @@ import com.dietmap.yaak.api.appstore.subscription.StatusUpdateNotification
 import com.dietmap.yaak.api.appstore.subscription.SubscriptionPurchaseRequest
 import com.dietmap.yaak.api.appstore.subscription.SubscriptionRenewRequest
 import com.dietmap.yaak.domain.userapp.*
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Service
 @ConditionalOnProperty("yaak.app-store.enabled", havingValue = "true")
 class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStoreClient: AppStoreClient) {
 
-    private val logger: Logger = LoggerFactory.getLogger(AppStoreSubscriptionService::class.java)
+    private val logger = KotlinLogging.logger { }
 
     fun handleInitialPurchase(subscriptionPurchaseRequest: SubscriptionPurchaseRequest) : UserAppSubscriptionOrder? {
         val receiptResponse = appStoreClient.verifyReceipt(ReceiptRequest(subscriptionPurchaseRequest.receipt))
@@ -73,7 +72,7 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
     }
 
     fun handleSubscriptionNotification(statusUpdateNotification: StatusUpdateNotification) : UserAppSubscriptionOrder? {
-        logger.debug("Processing StatusUpdateNotification: ${statusUpdateNotification.notificationType}")
+        logger.debug { "Processing StatusUpdateNotification: ${statusUpdateNotification.notificationType}" }
 
         var notificationType = NotificationType.SUBSCRIPTION_PURCHASED
         val latestReceiptInfo = statusUpdateNotification.latestReceiptInfo

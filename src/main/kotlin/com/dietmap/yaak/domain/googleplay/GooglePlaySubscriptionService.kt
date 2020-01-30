@@ -13,8 +13,7 @@ import com.dietmap.yaak.domain.userapp.UserAppSubscriptionNotification
 import com.google.api.services.androidpublisher.AndroidPublisher
 import com.google.api.services.androidpublisher.model.SubscriptionPurchase
 import com.google.api.services.androidpublisher.model.SubscriptionPurchasesAcknowledgeRequest
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
@@ -23,11 +22,9 @@ import java.math.BigDecimal
 @ConditionalOnBean(AndroidPublisher::class)
 @Service
 class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublisher, val userAppClient: UserAppClient) {
-    companion object {
-        private const val PAYMENT_RECEIVED_CODE = 1
-        private const val PAYMENT_FREE_TRIAL_CODE = 2
-        private val logger: Logger = LoggerFactory.getLogger(GooglePlaySubscriptionService::class.java)
-    }
+    private val PAYMENT_RECEIVED_CODE = 1
+    private val PAYMENT_FREE_TRIAL_CODE = 2
+    private val logger = KotlinLogging.logger { }
 
     fun handlePurchase(purchaseRequest: PurchaseRequest, initalBuy: Boolean = true): SubscriptionPurchase? {
         val subscription = androidPublisherApiClient.Purchases().Subscriptions().get(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken).execute()
@@ -50,7 +47,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
         checkArgument(notificationResponse != null) { "Could not create subscription order ${subscription.orderId} in user app" }
 
         if (subscription.acknowledgementState == 0) {
-            logger.info("Acknowledging Google Play subscription purchase of id=${subscription.orderId}, purchaseToken=${purchaseRequest.purchaseToken}")
+            logger.info { "Acknowledging Google Play subscription purchase of id=${subscription.orderId}, purchaseToken=${purchaseRequest.purchaseToken}" }
             val content = SubscriptionPurchasesAcknowledgeRequest().setDeveloperPayload("{ applicationOrderId: ${notificationResponse?.orderId}, orderingUserId: ${purchaseRequest.orderingUserId} }")
             androidPublisherApiClient.Purchases().Subscriptions().acknowledge(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken, content).execute()
         }
@@ -66,7 +63,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
 
     fun handleSubscriptionNotification(pubsubNotification: PubSubDeveloperNotification) {
         pubsubNotification.subscriptionNotification?.let {
-            logger.info("Handling PubSub notification of type: ${it.notificationType}")
+            logger.info { "Handling PubSub notification of type: ${it.notificationType}" }
             try {
                 when (it.notificationType) {
                     SUBSCRIPTION_PURCHASED -> handlePurchase(PurchaseRequest(pubsubNotification.packageName, it.subscriptionId, it.purchaseToken))
@@ -74,7 +71,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
                     else -> handleStatusUpdate(pubsubNotification.packageName, it)
                 }
             } catch (e: Exception) {
-                logger.error("Error handling PubSub notification", e)
+                logger.error(e) { "Error handling PubSub notification" }
                 throw e
             }
         }
@@ -82,9 +79,9 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
 
     private fun handleStatusUpdate(packageName: String, notification: GooglePlaySubscriptionNotification) {
         val subscription = androidPublisherApiClient.Purchases().Subscriptions().get(packageName, notification.subscriptionId, notification.purchaseToken).execute()
-        logger.debug("Google Play subscription details: {}", subscription)
-        subscription.cancelReason?.let { logger.info("Subscription cancel reason: $it") }
-        subscription.cancelSurveyResult?.let { logger.info("Subscription cancel survey result: $it") }
+        logger.debug { "Google Play subscription details: $subscription" }
+        subscription.cancelReason?.let { logger.info { "Subscription cancel reason: $it" } }
+        subscription.cancelSurveyResult?.let { logger.info { "Subscription cancel survey result: $it" } }
         val subscriptionUpdate = UserAppSubscriptionNotification(
                 notificationType = NotificationType.valueOf(notification.notificationType.name),
                 description = "Google Play subscription update: " + notification.notificationType,
@@ -98,6 +95,6 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
                 expiryTimeMillis = subscription.expiryTimeMillis
         )
         userAppClient.sendSubscriptionNotification(subscriptionUpdate)
-        logger.info("Google Play subscription notification has been sent to user app: $subscriptionUpdate")
+        logger.info { "Google Play subscription notification has been sent to user app: $subscriptionUpdate" }
     }
 }

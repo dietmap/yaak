@@ -1,8 +1,7 @@
 package com.dietmap.yaak.api.config
 
 import com.dietmap.yaak.api.config.YaakSecurityType.*
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
@@ -22,6 +21,8 @@ import javax.servlet.http.HttpServletRequest
 @Order(1)
 class ApiSecurityConfig(val securityProperties: YaakSecurityProperties) : WebSecurityConfigurerAdapter() {
 
+    private val logger = KotlinLogging.logger { }
+
     override fun configure(web: WebSecurity) {
         web.ignoring().antMatchers("/api/appstore/subscriptions/statusUpdateNotification");
     }
@@ -33,7 +34,7 @@ class ApiSecurityConfig(val securityProperties: YaakSecurityProperties) : WebSec
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
-        logger.info("YAAK security type is: ${securityProperties.type}")
+        logger.info { "YAAK security type is: ${securityProperties.type}" }
          when(securityProperties.type) {
              API_KEY -> securityConfigurer
                      .and()
@@ -48,12 +49,8 @@ class ApiSecurityConfig(val securityProperties: YaakSecurityProperties) : WebSec
                      .authenticated()
                      .and()
                      .oauth2ResourceServer().jwt()
-             NONE -> logger.info("Communication with YAAK is not secured, ${API_KEY} or ${OAUTH} YAAK security is recommended")
+             NONE -> logger.info { "Communication with YAAK is not secured, ${API_KEY} or ${OAUTH} YAAK security is recommended" }
          }
-    }
-
-    companion object {
-        private val logger: Logger = LoggerFactory.getLogger(ApiSecurityConfig::class.java)
     }
 }
 

@@ -2,8 +2,7 @@ package com.dietmap.yaak.api.appstore.subscription
 
 import com.dietmap.yaak.domain.appstore.AppStoreSubscriptionService
 import com.dietmap.yaak.domain.userapp.UserAppSubscriptionOrder
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import mu.KotlinLogging
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -19,26 +18,26 @@ import javax.validation.Valid
 @RequestMapping("/api/appstore/subscriptions")
 class SubscriptionController(private val subscriptionService: AppStoreSubscriptionService) {
 
-    val logger: Logger = LoggerFactory.getLogger(this.javaClass)
+    private val logger = KotlinLogging.logger { }
 
     @PostMapping("/purchase")
     fun handleInitialPurchase(@RequestBody @Valid subscriptionPurchaseRequest: SubscriptionPurchaseRequest): ResponseEntity<UserAppSubscriptionOrder?> {
-        logger.debug("handleInitialPurchase: $subscriptionPurchaseRequest")
+        logger.debug { "handleInitialPurchase: $subscriptionPurchaseRequest" }
 
         val subscriptionOrder = subscriptionService.handleInitialPurchase(subscriptionPurchaseRequest)
 
-        logger.debug("handleInitialPurchase: $subscriptionOrder")
+        logger.debug { "handleInitialPurchase: $subscriptionOrder" }
 
         return ResponseEntity.ok(subscriptionOrder !!)
     }
 
     @PostMapping("/renew")
     fun handleAutoRenewal(@RequestBody @Valid subscriptionRenewRequest: SubscriptionRenewRequest): ResponseEntity<UserAppSubscriptionOrder?> {
-        logger.debug("handleAutoRenewal: $subscriptionRenewRequest")
+        logger.debug { "handleAutoRenewal: $subscriptionRenewRequest" }
 
         val subscriptionOrder = subscriptionService.handleAutoRenewal(subscriptionRenewRequest)
 
-        logger.debug("handleAutoRenewal: $subscriptionOrder")
+        logger.debug { "handleAutoRenewal: $subscriptionOrder" }
 
         return ResponseEntity.ok(subscriptionOrder !!)
     }
@@ -48,16 +47,16 @@ class SubscriptionController(private val subscriptionService: AppStoreSubscripti
      */
     @PostMapping("/statusUpdateNotification")
     fun handleStatusUpdateNotification(@Valid @RequestBody statusUpdateNotification: StatusUpdateNotification): ResponseEntity<Any> {
-        logger.debug("handleStatusUpdateNotification: $statusUpdateNotification")
+        logger.debug { "handleStatusUpdateNotification: $statusUpdateNotification" }
 
         try {
             val subscriptionOrder = subscriptionService.handleSubscriptionNotification(statusUpdateNotification)
 
-            logger.debug("handleStatusUpdateNotification: $subscriptionOrder")
+            logger.debug { "handleStatusUpdateNotification: $subscriptionOrder" }
         } catch (ex : Exception) {
 
             // Send HTTP 50x or 40x to have the App Store retry the notification
-            logger.error("There was an error during handling server-2-server notification", ex)
+            logger.error(ex) { "There was an error during handling server-2-server notification" }
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         }
 
