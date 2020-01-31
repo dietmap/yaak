@@ -4,8 +4,12 @@ import com.dietmap.yaak.api.config.YaakSecurityProperties
 import com.dietmap.yaak.api.config.YaakSecurityType
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.security.oauth2.client.OAuth2AuthorizationContext
@@ -56,11 +60,21 @@ class UserAppClientConfiguration {
 
 
     @Bean
-    fun webClient(authorizedClientManager: OAuth2AuthorizedClientManager, securityProperties: YaakSecurityProperties): WebClient {
+    @ConditionalOnBean(OAuth2AuthorizedClientManager::class)
+    @Primary
+    fun oauth2AuthorizedWebClient(authorizedClientManager: OAuth2AuthorizedClientManager, securityProperties: YaakSecurityProperties): WebClient {
         val oauth2Client = ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager)
         return WebClient.builder()
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .apply(if (securityProperties.type == YaakSecurityType.OAUTH) TokenRelayingFilterFunction(oauth2Client).oauth2Configuration() else oauth2Client.oauth2Configuration())
+                .build()
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(WebClient::class)
+    fun unauthorizedWebClient(): WebClient {
+        return WebClient.builder()
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build()
     }
 
@@ -89,7 +103,7 @@ class UserAppClientConfiguration {
     }
 
     private val usernamePasswordAttributesMapper: (OAuth2AuthorizeRequest) -> Map<String, Any> by lazy {
-        { authorizeRequest: OAuth2AuthorizeRequest ->
+        { _: OAuth2AuthorizeRequest ->
             var contextAttributes: Map<String, Any> = Collections.emptyMap()
             if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
                 contextAttributes = HashMap()
@@ -103,8 +117,9 @@ class UserAppClientConfiguration {
     }
 
     @Bean
-    fun authorizedClientManager(clientRegistrationRepository: ClientRegistrationRepository,
-                                authorizedClientRepository: OAuth2AuthorizedClientRepository): OAuth2AuthorizedClientManager {
+    @ConditionalOnProperty("yaak.security.type", havingValue = "OAUTH")
+    fun oauth2AuthorizedClientManager(clientRegistrationRepository: ClientRegistrationRepository,
+                                      authorizedClientRepository: OAuth2AuthorizedClientRepository): OAuth2AuthorizedClientManager {
         val authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
                 .refreshToken()
                 .clientCredentials()

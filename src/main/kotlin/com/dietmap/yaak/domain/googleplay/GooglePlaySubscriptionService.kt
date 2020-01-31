@@ -26,11 +26,11 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
     private val PAYMENT_FREE_TRIAL_CODE = 2
     private val logger = KotlinLogging.logger { }
 
-    fun handlePurchase(purchaseRequest: PurchaseRequest, initalBuy: Boolean = true): SubscriptionPurchase? {
+    fun handlePurchase(purchaseRequest: PurchaseRequest, initialPurchase: Boolean = true): SubscriptionPurchase? {
         val subscription = androidPublisherApiClient.Purchases().Subscriptions().get(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken).execute()
         checkArgument(subscription.paymentState in listOf(PAYMENT_RECEIVED_CODE, PAYMENT_FREE_TRIAL_CODE)) { "Subscription has not been paid yet, paymentState=${subscription.paymentState}" }
         val notificationResponse = userAppClient.sendSubscriptionNotification(UserAppSubscriptionNotification(
-                notificationType = if (initalBuy) NotificationType.SUBSCRIPTION_PURCHASED else NotificationType.SUBSCRIPTION_RENEWED,
+                notificationType = if (initialPurchase) NotificationType.SUBSCRIPTION_PURCHASED else NotificationType.SUBSCRIPTION_RENEWED,
                 appMarketplace = AppMarketplace.GOOGLE_PLAY,
                 countryCode = subscription.countryCode,
                 price = BigDecimal(subscription.priceAmountMicros).divide(BigDecimal(1000 * 1000)),
@@ -38,7 +38,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
                 transactionId = subscription.orderId,
                 originalTransactionId = toInitialOrderId(subscription.orderId),
                 productId = purchaseRequest.subscriptionId,
-                description = "Google Play ${if (initalBuy) "initial" else "renewal"} subscription order",
+                description = "Google Play ${if (initialPurchase) "initial" else "renewal"} subscription order",
                 orderingUserId = purchaseRequest.orderingUserId,
                 discountCode = purchaseRequest.discountCode,
                 expiryTimeMillis = subscription.expiryTimeMillis
