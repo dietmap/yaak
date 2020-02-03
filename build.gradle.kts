@@ -3,11 +3,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
 	id("org.springframework.boot") version "2.2.4.RELEASE"
 	id("io.spring.dependency-management") version "1.0.9.RELEASE"
-	kotlin("jvm") version "1.3.31"
-	kotlin("plugin.spring") version "1.3.60"
-	id("com.google.cloud.tools.jib") version "1.6.1"
-	id("pl.allegro.tech.build.axion-release") version "1.10.2"
-	id("com.gorylenko.gradle-git-properties") version "1.4.21"
+	kotlin("jvm") version "1.3.61"
+	kotlin("plugin.spring") version "1.3.61"
+	id("com.google.cloud.tools.jib") version "1.8.0"
+	id("pl.allegro.tech.build.axion-release") version "1.11.0"
+	id("com.gorylenko.gradle-git-properties") version "2.2.0"
 }
 
 apply(plugin = "com.gorylenko.gradle-git-properties")
@@ -20,7 +20,7 @@ scmVersion {
 }
 
 group = "com.dietmap"
-java.sourceCompatibility = JavaVersion.VERSION_1_8
+java.sourceCompatibility = JavaVersion.VERSION_11
 version = scmVersion.version
 
 repositories {
@@ -59,7 +59,7 @@ dependencies {
 tasks.withType<KotlinCompile> {
 	kotlinOptions {
 		freeCompilerArgs = listOf("-Xjsr305=strict")
-		jvmTarget = "1.8"
+		jvmTarget = "11"
 	}
 }
 
