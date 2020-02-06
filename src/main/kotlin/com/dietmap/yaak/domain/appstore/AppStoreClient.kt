@@ -14,6 +14,7 @@ import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
+import java.time.Duration
 
 
 @Component
@@ -29,7 +30,10 @@ class AppStoreClient {
     constructor(restTemplateBuilder: RestTemplateBuilder,
                 @Value("\${yaak.app-store.base-url}") verifyReceiptUrlIn: String,
                 @Value("\${yaak.app-store.password}") passwordIn: String) {
-        restTemplate = restTemplateBuilder.rootUri(verifyReceiptUrlIn).build()
+        restTemplate = restTemplateBuilder.rootUri(verifyReceiptUrlIn)
+                .setConnectTimeout(Duration.ofSeconds(5))
+                .setReadTimeout(Duration.ofSeconds(5))
+                .build()
         verifyReceiptUrl = verifyReceiptUrlIn
         password = passwordIn
 
@@ -40,12 +44,12 @@ class AppStoreClient {
         restTemplate.messageConverters.add(converter)
     }
 
-    @Retryable(value = [RuntimeException::class], maxAttempts = 3, backoff = Backoff(delay = 2000))
+    @Retryable(value = [RuntimeException::class], maxAttempts = 3, backoff = Backoff(delay = 3000))
     fun verifyReceipt(receiptRequest: ReceiptRequest): ReceiptResponse {
         return processRequest(receiptRequest)
     }
 
-    @Retryable(value = [RuntimeException::class], maxAttempts = 3, backoff = Backoff(delay = 2000))
+    @Retryable(value = [RuntimeException::class], maxAttempts = 3, backoff = Backoff(delay = 3000))
     fun isVerified(receiptRequest: ReceiptRequest): Boolean {
         return processRequest(receiptRequest).status == 0
     }
