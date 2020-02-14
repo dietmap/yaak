@@ -4,7 +4,6 @@ import com.dietmap.yaak.api.config.YaakSecurityProperties
 import com.dietmap.yaak.api.config.YaakSecurityType
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
@@ -60,7 +59,7 @@ class UserAppClientConfiguration {
 
 
     @Bean
-    @ConditionalOnBean(OAuth2AuthorizedClientManager::class)
+    @ConditionalOnProperty("yaak.security.type", havingValue = "OAUTH")
     @Primary
     fun oauth2AuthorizedWebClient(authorizedClientManager: OAuth2AuthorizedClientManager, securityProperties: YaakSecurityProperties): WebClient {
         val oauth2Client = ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager)
