@@ -57,7 +57,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
     private fun toInitialOrderId(orderId: String?): String {
         return if (orderId != null) {
             val split = orderId.split("..")
-            return "${split[0]}..0"
+            return split[0]
         } else ""
     }
 
