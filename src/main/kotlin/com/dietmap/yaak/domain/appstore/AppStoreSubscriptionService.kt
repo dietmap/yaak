@@ -34,7 +34,8 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
                     transactionId = latestReceiptInfo.transactionId,
                     originalTransactionId = latestReceiptInfo.originalTransactionId,
                     appMarketplace = AppMarketplace.APP_STORE,
-                    expiryTimeMillis = latestReceiptInfo.expiresDateMs
+                    expiryTimeMillis = latestReceiptInfo.expiresDateMs,
+                    appStoreReceipt = subscriptionPurchaseRequest.receipt
             )
 
             return userAppClient.sendSubscriptionNotification(notification)
@@ -61,7 +62,8 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
                     appMarketplace = AppMarketplace.APP_STORE,
                     expiryTimeMillis = latestReceiptInfo.expiresDateMs,
                     countryCode = null,
-                    currencyCode = null
+                    currencyCode = null,
+                    appStoreReceipt = subscriptionRenewRequest.receipt
             )
 
             return userAppClient.sendSubscriptionNotification(notification)
@@ -155,7 +157,8 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
                 appMarketplace = AppMarketplace.APP_STORE,
                 expiryTimeMillis = latestReceiptInfo.expiresDateMs,
                 countryCode = null,
-                currencyCode = null
+                currencyCode = null,
+                appStoreReceipt = statusUpdateNotification.latestReceipt
         )
 
         logger.debug("Sending UserAppSubscriptionNotification: $notification")
