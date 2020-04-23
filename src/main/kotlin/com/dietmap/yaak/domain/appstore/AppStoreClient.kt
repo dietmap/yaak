@@ -2,6 +2,8 @@ package com.dietmap.yaak.domain.appstore
 
 import com.dietmap.yaak.api.appstore.receipt.ReceiptRequest
 import com.dietmap.yaak.api.appstore.receipt.ReceiptResponse
+import com.dietmap.yaak.api.appstore.receipt.ReceiptResponseStatus
+import com.dietmap.yaak.api.appstore.receipt.ResponseStatusCode
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -11,6 +13,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.retry.annotation.Backoff
+import org.springframework.retry.annotation.Recover
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
@@ -21,27 +24,36 @@ import java.time.Duration
 @ConditionalOnProperty("yaak.app-store.enabled", havingValue = "true")
 class AppStoreClient {
 
-    private val restTemplate: RestTemplate
-    private val verifyReceiptUrl: String
+    private val productionRestTemplate: RestTemplate
+    private val sandboxRestTemplate: RestTemplate
     private val password: String
 
     private val logger = KotlinLogging.logger { }
 
     constructor(restTemplateBuilder: RestTemplateBuilder,
-                @Value("\${yaak.app-store.base-url}") verifyReceiptUrlIn: String,
+                @Value("\${yaak.app-store.production-url}") productionUrl: String,
+                @Value("\${yaak.app-store.sandbox-url}") sandboxUrl: String,
                 @Value("\${yaak.app-store.password}") passwordIn: String) {
-        restTemplate = restTemplateBuilder.rootUri(verifyReceiptUrlIn)
+
+        productionRestTemplate = restTemplateBuilder.rootUri(productionUrl)
                 .setConnectTimeout(Duration.ofSeconds(5))
                 .setReadTimeout(Duration.ofSeconds(5))
                 .build()
-        verifyReceiptUrl = verifyReceiptUrlIn
+
+        sandboxRestTemplate = restTemplateBuilder.rootUri(sandboxUrl)
+                .setConnectTimeout(Duration.ofSeconds(5))
+                .setReadTimeout(Duration.ofSeconds(5))
+                .build()
+
         password = passwordIn
 
         val converter = MappingJackson2HttpMessageConverter()
         converter.supportedMediaTypes = listOf(
                 MediaType.APPLICATION_JSON,
                 MediaType.APPLICATION_OCTET_STREAM)
-        restTemplate.messageConverters.add(converter)
+
+        productionRestTemplate.messageConverters.add(converter)
+        sandboxRestTemplate.messageConverters.add(converter)
     }
 
     @Retryable(value = [RuntimeException::class], maxAttempts = 3, backoff = Backoff(delay = 3000))
@@ -54,13 +66,30 @@ class AppStoreClient {
         return processRequest(receiptRequest).status == 0
     }
 
+    @Recover
+    fun recoverVerifyReceipt(runtimeException: RuntimeException, receiptRequest: ReceiptRequest) : ReceiptResponse {
+
+        logger.debug { "Handling recovery ReceiptRequest $receiptRequest for exception $runtimeException" }
+
+        val receiptResponseStatus: ReceiptResponseStatus =
+                productionRestTemplate.postForObject("/verifyReceipt", prepareHttpHeaders(receiptRequest), ReceiptResponseStatus::class.java)!!
+
+        logger.debug { "Handling recovery ReceiptResponseStatus $receiptResponseStatus" }
+
+        if (receiptResponseStatus.responseStatusCode!! == ResponseStatusCode.CODE_21007) {
+            return sandboxRestTemplate.postForObject("/verifyReceipt", prepareHttpHeaders(receiptRequest), ReceiptResponse::class.java)!!
+        } else {
+            throw RuntimeException("Cannot process ReceiptRequest due to exception: ", runtimeException)
+        }
+    }
+
     private fun processRequest(receiptRequest: ReceiptRequest): ReceiptResponse {
         receiptRequest.password = password
 
         logger.debug { "Processing ReceiptRequest $receiptRequest" }
 
         val receiptResponse: ReceiptResponse =
-                restTemplate.postForObject("/verifyReceipt", prepareHttpHeaders(receiptRequest), ReceiptResponse::class.java)!!
+                productionRestTemplate.postForObject("/verifyReceipt", prepareHttpHeaders(receiptRequest), ReceiptResponse::class.java)!!
 
         logger.debug { "Getting ReceiptResponse $receiptResponse" }
 

@@ -53,6 +53,6 @@ yaak:
 
   app-store:
       enabled: true
-      base-url: https://sandbox.itunes.apple.com
+      production-url: https://buy.itunes.apple.com
+      sandbox-url: https://sandbox.itunes.apple.com
       password: MyPassword123
-

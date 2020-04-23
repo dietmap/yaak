@@ -34,6 +34,21 @@ data class ReceiptResponse(@get:JsonProperty("status") val status: Int,
 }
 
 /**
+ * This class represents status only response
+ **/
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class ReceiptResponseStatus(@get:JsonProperty("status") val status: Int
+): Serializable {
+
+    @JsonProperty("status_info")
+    val responseStatusCode : ResponseStatusCode? = ResponseStatusCode.getByCode(status)
+
+    override fun toString(): String {
+        return "ReceiptResponseStatus(status=$status, responseStatusCode=$responseStatusCode)"
+    }
+}
+
+/**
  * This class represents receipt as defined in https://developer.apple.com/documentation/appstorereceipts/responsebody/receipt
  **/
 @JsonInclude(JsonInclude.Include.NON_NULL)
