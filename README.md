@@ -1,8 +1,8 @@
 YAAK - Yet Another AppStore Kit
 ======
 
-[![Build Status](https://img.shields.io/github/workflow/status/dietmap/yaak/build)](https://img.shields.io/github/workflow/status/dietmap/yaak/build)
-[![Docker Image](https://img.shields.io/docker/v/dietmap/yaak)](https://img.shields.io/docker/v/dietmap/yaak)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dietmap/yaak/build)](https://github.com/dietmap/yaak/actions)
+[![Docker Image Version (latest semver)](https://img.shields.io/docker/v/dietmap/yaak)](https://hub.docker.com/r/dietmap/yaak/tags)
 
 ### YAAK is a simple server that by its API makes In-App Purchase receipt and Auto-Renewable subscription validation easy
 
