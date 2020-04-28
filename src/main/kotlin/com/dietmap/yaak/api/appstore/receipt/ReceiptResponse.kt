@@ -27,10 +27,6 @@ data class ReceiptResponse(@get:JsonProperty("status") val status: Int,
 
     @JsonIgnore
     fun shouldRetry() : Boolean = (status != 0 && isRetryable)
-
-    override fun toString(): String {
-        return "ReceiptResponse(status=$status, environment='$environment', responseStatusCode=$responseStatusCode)"
-    }
 }
 
 /**
