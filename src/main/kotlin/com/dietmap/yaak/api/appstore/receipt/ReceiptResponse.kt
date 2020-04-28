@@ -11,7 +11,7 @@ import java.io.Serializable
  **/
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class ReceiptResponse(@get:JsonProperty("status") val status: Int,
-                           @get:JsonProperty("environment") val environment: String,
+                           @get:JsonProperty("environment") val environment: String?,
                            @get:JsonProperty("receipt") val receipt: Receipt?,
                            @get:JsonProperty("latest_receipt") val latestReceipt: String?,
                            @get:JsonProperty("latest_receipt_info") val latestReceiptInfo: Collection<LatestReceiptInfo>?,
@@ -53,29 +53,29 @@ data class ReceiptResponseStatus(@get:JsonProperty("status") val status: Int
  **/
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class Receipt (
-        @get:JsonProperty("adam_id") val adamId: Int,
-        @get:JsonProperty("app_item_id") val appItemId: Int,
-        @get:JsonProperty("application_version") val applicationVersion: String,
-        @get:JsonProperty("bundle_id") val bundleId: String,
-        @get:JsonProperty("download_id") val downloadId: Int,
+        @get:JsonProperty("adam_id") val adamId: String?,
+        @get:JsonProperty("app_item_id") val appItemId: String?,
+        @get:JsonProperty("application_version") val applicationVersion: String?,
+        @get:JsonProperty("bundle_id") val bundleId: String?,
+        @get:JsonProperty("download_id") val downloadId: String?,
         @get:JsonProperty("expiration_date") val expirationDate: String?,
         @get:JsonProperty("expiration_date_ms") val expirationDateMs: Long?,
         @get:JsonProperty("expiration_date_pst") val expirationDatePst: String?,
-        @get:JsonProperty("original_application_version") val originalApplicationVersion: String,
-        @get:JsonProperty("original_purchase_date") val originalPurchaseDate: String,
-        @get:JsonProperty("original_purchase_date_ms") val originalPurchaseDateMs: Long,
-        @get:JsonProperty("original_purchase_date_pst") val originalPurchaseDatePst: String,
+        @get:JsonProperty("original_application_version") val originalApplicationVersion: String?,
+        @get:JsonProperty("original_purchase_date") val originalPurchaseDate: String?,
+        @get:JsonProperty("original_purchase_date_ms") val originalPurchaseDateMs: Long?,
+        @get:JsonProperty("original_purchase_date_pst") val originalPurchaseDatePst: String?,
         @get:JsonProperty("preorder_date") val preorderDate: String?,
         @get:JsonProperty("preorder_date_ms") val preorderDateMs: Long?,
         @get:JsonProperty("preorder_date_pst") val preorderDatePst: String?,
-        @get:JsonProperty("receipt_creation_date") val receiptCreationDate: String,
-        @get:JsonProperty("receipt_creation_date_ms") val receiptCreationDateMs: Long,
-        @get:JsonProperty("receipt_creation_date_pst") val receiptCreationDatePst: String,
-        @get:JsonProperty("receipt_type") val receiptType: String,
-        @get:JsonProperty("request_date") val requestDate: String,
-        @get:JsonProperty("request_date_ms") val requestDateMs: String,
-        @get:JsonProperty("request_date_pst") val requestDatePst: String,
-        @get:JsonProperty("version_external_identifier") val versionExternalIdentifier: String
+        @get:JsonProperty("receipt_creation_date") val receiptCreationDate: String?,
+        @get:JsonProperty("receipt_creation_date_ms") val receiptCreationDateMs: Long?,
+        @get:JsonProperty("receipt_creation_date_pst") val receiptCreationDatePst: String?,
+        @get:JsonProperty("receipt_type") val receiptType: String?,
+        @get:JsonProperty("request_date") val requestDate: String?,
+        @get:JsonProperty("request_date_ms") val requestDateMs: String?,
+        @get:JsonProperty("request_date_pst") val requestDatePst: String?,
+        @get:JsonProperty("version_external_identifier") val versionExternalIdentifier: String?
 ): Serializable {
 
 }
@@ -103,10 +103,10 @@ data class LatestReceiptInfo (
         @get:JsonProperty("purchase_date") val purchaseDate: String,
         @get:JsonProperty("purchase_date_ms") val purchaseDateMs: Long,
         @get:JsonProperty("purchase_date_pst") val purchaseDatePst: String?,
-        @get:JsonProperty("quantity") val quantity: String,
-        @get:JsonProperty("subscription_group_identifier") val subscriptionGroupIdentifier: String,
+        @get:JsonProperty("quantity") val quantity: String?,
+        @get:JsonProperty("subscription_group_identifier") val subscriptionGroupIdentifier: String?,
         @get:JsonProperty("transaction_id") val transactionId: String,
-        @get:JsonProperty("web_order_line_item_id") val webOrderLineItemId: String
+        @get:JsonProperty("web_order_line_item_id") val webOrderLineItemId: String?
 ): Serializable {
 
 }
@@ -117,16 +117,16 @@ data class LatestReceiptInfo (
  **/
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class PendingRenewalInfo (
-        @get:JsonProperty("auto_renew_product_id") val autoRenewProductId: String,
-        @get:JsonProperty("auto_renew_status") val autoRenewStatus: Int,
-        @get:JsonProperty("expiration_intent") val expirationIntent: Int,
+        @get:JsonProperty("auto_renew_product_id") val autoRenewProductId: String?,
+        @get:JsonProperty("auto_renew_status") val autoRenewStatus: String?,
+        @get:JsonProperty("expiration_intent") val expirationIntent: String?,
         @get:JsonProperty("grace_period_expires_date") val gracePeriodExpiresDate: String?,
         @get:JsonProperty("grace_period_expires_date_ms") val gracePeriodExpiresDateMs: String?,
         @get:JsonProperty("grace_period_expires_date_pst") val gracePeriodExpiresDatePst: String?,
-        @get:JsonProperty("original_transaction_id") val originalTransactionId: String,
-        @get:JsonProperty("is_in_billing_retry_period") val isInBillingRetryPeriod: Int,
+        @get:JsonProperty("original_transaction_id") val originalTransactionId: String?,
+        @get:JsonProperty("is_in_billing_retry_period") val isInBillingRetryPeriod: String?,
         @get:JsonProperty("price_consent_status") val priceConsentStatus: String?,
-        @get:JsonProperty("product_id") val productId: String
+        @get:JsonProperty("product_id") val productId: String?
 ): Serializable {
 
 }
