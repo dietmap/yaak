@@ -90,8 +90,12 @@ class AppStoreClient {
 
         logger.debug { "processRequest: ReceiptRequest $receiptRequest" }
 
-        val receiptResponse: ReceiptResponse =
+        var receiptResponse: ReceiptResponse =
                 productionRestTemplate.postForObject("/verifyReceipt", prepareHttpHeaders(receiptRequest), ReceiptResponse::class.java)!!
+
+        if (receiptResponse.responseStatusCode!! == ResponseStatusCode.CODE_21007) {
+            receiptResponse  = sandboxRestTemplate.postForObject("/verifyReceipt", prepareHttpHeaders(receiptRequest), ReceiptResponse::class.java)!!
+        }
 
         logger.debug { "processRequest: ReceiptResponse $receiptResponse" }
 
