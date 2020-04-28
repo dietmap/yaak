@@ -19,9 +19,10 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
     fun handleInitialPurchase(subscriptionPurchaseRequest: SubscriptionPurchaseRequest) : UserAppSubscriptionOrder? {
         val receiptResponse = appStoreClient.verifyReceipt(ReceiptRequest(subscriptionPurchaseRequest.receipt))
 
+        logger.debug { "handleInitialPurchase: ReceiptResponse: $receiptResponse" }
+
         if (receiptResponse.isValid()) {
 
-            // TODO find out which one of latestReceiptInfo
             val latestReceiptInfo = receiptResponse.latestReceiptInfo!!.stream().findFirst().get()
 
             val notification = UserAppSubscriptionNotification(
@@ -40,17 +41,19 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
 
             return userAppClient.sendSubscriptionNotification(notification)
         } else {
-            throw ReceiptValidationException("The ${receiptResponse.receipt} is not a valid receipt. " +
-                    "Response code ${receiptResponse.responseStatusCode}")
+            val message = "The ${receiptResponse.receipt} is not a valid receipt. Response code ${receiptResponse.responseStatusCode}"
+            logger.error { message }
+            throw ReceiptValidationException(message)
         }
     }
 
     fun handleAutoRenewal(subscriptionRenewRequest: SubscriptionRenewRequest) : UserAppSubscriptionOrder? {
         val receiptResponse = appStoreClient.verifyReceipt(ReceiptRequest(subscriptionRenewRequest.receipt))
 
+        logger.debug { "handleAutoRenewal: ReceiptResponse: $receiptResponse" }
+
         if (receiptResponse.isValid()) {
 
-            // TODO find out which one of latestReceiptInfo
             val latestReceiptInfo = receiptResponse.latestReceiptInfo!!.stream().findFirst().get()
 
             val notification = UserAppSubscriptionNotification(
@@ -68,8 +71,9 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
 
             return userAppClient.sendSubscriptionNotification(notification)
         } else {
-            throw ReceiptValidationException("The ${receiptResponse.receipt} is not a valid receipt. " +
-                    "Response code ${receiptResponse.responseStatusCode}")
+            val message = "The ${receiptResponse.receipt} is not a valid receipt. Response code ${receiptResponse.responseStatusCode}"
+            logger.error { message }
+            throw ReceiptValidationException(message)
         }
     }
 

@@ -69,33 +69,36 @@ class AppStoreClient {
     @Recover
     fun recoverVerifyReceipt(runtimeException: RuntimeException, receiptRequest: ReceiptRequest) : ReceiptResponse {
 
-        logger.debug { "Handling recovery ReceiptRequest $receiptRequest for exception $runtimeException" }
+        logger.debug { "recoverVerifyReceipt: ReceiptRequest $receiptRequest for exception $runtimeException" }
 
         val receiptResponseStatus: ReceiptResponseStatus =
                 productionRestTemplate.postForObject("/verifyReceipt", prepareHttpHeaders(receiptRequest), ReceiptResponseStatus::class.java)!!
 
-        logger.debug { "Handling recovery ReceiptResponseStatus $receiptResponseStatus" }
+        logger.debug { "recoverVerifyReceipt: ReceiptResponseStatus $receiptResponseStatus" }
 
         if (receiptResponseStatus.responseStatusCode!! == ResponseStatusCode.CODE_21007) {
             return sandboxRestTemplate.postForObject("/verifyReceipt", prepareHttpHeaders(receiptRequest), ReceiptResponse::class.java)!!
         } else {
-            throw RuntimeException("Cannot process ReceiptRequest due to exception: ", runtimeException)
+            val message = "Cannot process ReceiptRequest due to exception $runtimeException";
+            logger.error { message }
+            throw ReceiptValidationException(message)
         }
     }
 
     private fun processRequest(receiptRequest: ReceiptRequest): ReceiptResponse {
         receiptRequest.password = password
 
-        logger.debug { "Processing ReceiptRequest $receiptRequest" }
+        logger.debug { "processRequest: ReceiptRequest $receiptRequest" }
 
         val receiptResponse: ReceiptResponse =
                 productionRestTemplate.postForObject("/verifyReceipt", prepareHttpHeaders(receiptRequest), ReceiptResponse::class.java)!!
 
-        logger.debug { "Getting ReceiptResponse $receiptResponse" }
+        logger.debug { "processRequest: ReceiptResponse $receiptResponse" }
 
         if (receiptResponse.shouldRetry()) {
-            logger.warn { "Retrying due to ${receiptResponse.responseStatusCode} status code" }
-            throw RuntimeException("Retrying due to ${receiptResponse.responseStatusCode}")
+            val message = "Retrying due to ${receiptResponse.responseStatusCode} status code"
+            logger.warn { message }
+            throw RetryableException(message)
         }
         return receiptResponse
     }
