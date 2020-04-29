@@ -36,6 +36,7 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
                     originalTransactionId = latestReceiptInfo.originalTransactionId,
                     appMarketplace = AppMarketplace.APP_STORE,
                     expiryTimeMillis = latestReceiptInfo.expiresDateMs,
+                    discountCode = subscriptionPurchaseRequest.discountCode,
                     appStoreReceipt = subscriptionPurchaseRequest.receipt
             )
 
@@ -66,6 +67,7 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
                     expiryTimeMillis = latestReceiptInfo.expiresDateMs,
                     countryCode = null,
                     currencyCode = null,
+                    discountCode = subscriptionRenewRequest.discountCode,
                     appStoreReceipt = subscriptionRenewRequest.receipt
             )
 
@@ -103,9 +105,6 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
             // a customer downgrades
             AppStoreNotificationType.DID_CHANGE_RENEWAL_PREF -> {
                 // auto_renewal_product_id - product customer will auto renew at
-
-                // TODO clarify this notification
-                // Ignore?
 
                 // latest_receipt_info.original_transaction_id
             }
@@ -162,10 +161,11 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
                 expiryTimeMillis = latestReceiptInfo.expiresDateMs,
                 countryCode = null,
                 currencyCode = null,
+                discountCode = null,
                 appStoreReceipt = statusUpdateNotification.latestReceipt
         )
 
-        logger.debug("Sending UserAppSubscriptionNotification: $notification")
+        logger.debug {"Sending UserAppSubscriptionNotification: $notification" }
 
         return userAppClient.sendSubscriptionNotification(notification)
 
