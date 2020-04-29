@@ -1,6 +1,7 @@
 package com.dietmap.yaak.api.appstore.subscription
 
 import com.dietmap.yaak.domain.appstore.AppStoreSubscriptionService
+import com.dietmap.yaak.domain.checkArgument
 import com.dietmap.yaak.domain.userapp.UserAppSubscriptionOrder
 import mu.KotlinLogging
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -26,6 +27,8 @@ class SubscriptionController(private val subscriptionService: AppStoreSubscripti
 
         val subscriptionOrder = subscriptionService.handleInitialPurchase(subscriptionPurchaseRequest)
 
+        checkArgument(subscriptionOrder != null) { "Could not process SubscriptionPurchaseRequest $subscriptionPurchaseRequest in user app" }
+
         logger.debug { "handleInitialPurchase: $subscriptionOrder" }
 
         return ResponseEntity.ok(subscriptionOrder !!)
@@ -36,6 +39,8 @@ class SubscriptionController(private val subscriptionService: AppStoreSubscripti
         logger.debug { "handleAutoRenewal: $subscriptionRenewRequest" }
 
         val subscriptionOrder = subscriptionService.handleAutoRenewal(subscriptionRenewRequest)
+
+        checkArgument(subscriptionOrder != null) { "Could not process SubscriptionRenewRequest $subscriptionRenewRequest in user app" }
 
         logger.debug { "handleAutoRenewal: $subscriptionOrder" }
 
@@ -51,6 +56,8 @@ class SubscriptionController(private val subscriptionService: AppStoreSubscripti
 
         try {
             val subscriptionOrder = subscriptionService.handleSubscriptionNotification(statusUpdateNotification)
+
+            checkArgument(subscriptionOrder != null) { "Could not process StatusUpdateNotification ${statusUpdateNotification.notificationType} in user app" }
 
             logger.debug { "handleStatusUpdateNotification: $subscriptionOrder" }
         } catch (ex : Exception) {
