@@ -5,6 +5,7 @@ import com.dietmap.yaak.api.appstore.subscription.AppStoreNotificationType
 import com.dietmap.yaak.api.appstore.subscription.StatusUpdateNotification
 import com.dietmap.yaak.api.appstore.subscription.SubscriptionPurchaseRequest
 import com.dietmap.yaak.api.appstore.subscription.SubscriptionRenewRequest
+import com.dietmap.yaak.domain.checkArgument
 import com.dietmap.yaak.domain.userapp.*
 import mu.KotlinLogging
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -48,30 +49,35 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
         }
     }
 
-    fun handleAutoRenewal(subscriptionRenewRequest: SubscriptionRenewRequest) : UserAppSubscriptionOrder? {
+    fun handleAutoRenewal(subscriptionRenewRequest: SubscriptionRenewRequest) {
         val receiptResponse = appStoreClient.verifyReceipt(ReceiptRequest(subscriptionRenewRequest.receipt))
 
         logger.debug { "handleAutoRenewal: ReceiptResponse: $receiptResponse" }
 
         if (receiptResponse.isValid()) {
 
-            val latestReceiptInfo = receiptResponse.latestReceiptInfo!!.stream().findFirst().get()
+            if (receiptResponse.latestReceiptInfo != null) {
 
-            val notification = UserAppSubscriptionNotification(
-                    notificationType = NotificationType.SUBSCRIPTION_RENEWED,
-                    description = "Subscription renewal from AppStore",
-                    productId = latestReceiptInfo.productId,
-                    transactionId = latestReceiptInfo.transactionId,
-                    originalTransactionId = latestReceiptInfo.originalTransactionId,
-                    appMarketplace = AppMarketplace.APP_STORE,
-                    expiryTimeMillis = latestReceiptInfo.expiresDateMs,
-                    countryCode = null,
-                    currencyCode = null,
-                    discountCode = subscriptionRenewRequest.discountCode,
-                    appStoreReceipt = subscriptionRenewRequest.receipt
-            )
+                val latestReceiptInfo = receiptResponse.latestReceiptInfo.stream().findFirst().get()
 
-            return userAppClient.sendSubscriptionNotification(notification)
+                val notification = UserAppSubscriptionNotification(
+                        notificationType = NotificationType.SUBSCRIPTION_RENEWED,
+                        description = "Subscription renewal from AppStore",
+                        productId = latestReceiptInfo.productId,
+                        transactionId = latestReceiptInfo.transactionId,
+                        originalTransactionId = latestReceiptInfo.originalTransactionId,
+                        appMarketplace = AppMarketplace.APP_STORE,
+                        expiryTimeMillis = latestReceiptInfo.expiresDateMs,
+                        countryCode = null,
+                        currencyCode = null,
+                        discountCode = subscriptionRenewRequest.discountCode,
+                        appStoreReceipt = subscriptionRenewRequest.receipt
+                )
+
+                val subscriptionOrder = userAppClient.sendSubscriptionNotification(notification);
+
+                checkArgument(subscriptionOrder != null) { "Could not process SubscriptionRenewRequest $subscriptionRenewRequest in user app" }
+            }
         } else {
             val message = "The ${receiptResponse.receipt} is not a valid receipt. Response code ${receiptResponse.responseStatusCode}"
             logger.error { message }

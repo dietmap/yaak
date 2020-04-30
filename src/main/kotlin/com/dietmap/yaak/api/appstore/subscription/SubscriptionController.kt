@@ -35,16 +35,12 @@ class SubscriptionController(private val subscriptionService: AppStoreSubscripti
     }
 
     @PostMapping("/renew")
-    fun handleAutoRenewal(@RequestBody @Valid subscriptionRenewRequest: SubscriptionRenewRequest): ResponseEntity<UserAppSubscriptionOrder?> {
+    fun handleAutoRenewal(@RequestBody @Valid subscriptionRenewRequest: SubscriptionRenewRequest): ResponseEntity<Any> {
         logger.debug { "handleAutoRenewal: $subscriptionRenewRequest" }
 
-        val subscriptionOrder = subscriptionService.handleAutoRenewal(subscriptionRenewRequest)
+        subscriptionService.handleAutoRenewal(subscriptionRenewRequest)
 
-        checkArgument(subscriptionOrder != null) { "Could not process SubscriptionRenewRequest $subscriptionRenewRequest in user app" }
-
-        logger.debug { "handleAutoRenewal: $subscriptionOrder" }
-
-        return ResponseEntity.ok(subscriptionOrder !!)
+        return ResponseEntity.ok().build()
     }
 
     /**
