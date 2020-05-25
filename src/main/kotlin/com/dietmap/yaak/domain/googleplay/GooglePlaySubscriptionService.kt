@@ -5,11 +5,9 @@ import com.dietmap.yaak.api.googleplay.GooglePlayNotificationType.SUBSCRIPTION_R
 import com.dietmap.yaak.api.googleplay.GooglePlaySubscriptionNotification
 import com.dietmap.yaak.api.googleplay.PubSubDeveloperNotification
 import com.dietmap.yaak.api.googleplay.PurchaseRequest
+import com.dietmap.yaak.api.subscription.SubscriptionCancelRequest
 import com.dietmap.yaak.domain.checkArgument
-import com.dietmap.yaak.domain.userapp.AppMarketplace
-import com.dietmap.yaak.domain.userapp.NotificationType
-import com.dietmap.yaak.domain.userapp.UserAppClient
-import com.dietmap.yaak.domain.userapp.UserAppSubscriptionNotification
+import com.dietmap.yaak.domain.userapp.*
 import com.google.api.services.androidpublisher.AndroidPublisher
 import com.google.api.services.androidpublisher.model.SubscriptionPurchase
 import com.google.api.services.androidpublisher.model.SubscriptionPurchasesAcknowledgeRequest
@@ -41,7 +39,8 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
                 description = "Google Play ${if (initialPurchase) "initial" else "renewal"} subscription order",
                 orderingUserId = purchaseRequest.orderingUserId,
                 discountCode = purchaseRequest.discountCode,
-                expiryTimeMillis = subscription.expiryTimeMillis
+                expiryTimeMillis = subscription.expiryTimeMillis,
+                googlePlayPurchaseDetails = GooglePlayPurchaseDetails(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken)
         ))
 
         checkArgument(notificationResponse != null) { "Could not create subscription order ${subscription.orderId} in user app" }
@@ -52,6 +51,16 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
             androidPublisherApiClient.Purchases().Subscriptions().acknowledge(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken, content).execute()
         }
         return subscription;
+    }
+
+    fun cancelPurchase(cancelRequest: SubscriptionCancelRequest) {
+        logger.info { "Cancelling Google Play subscription: $cancelRequest" }
+        try {
+            androidPublisherApiClient.purchases().subscriptions().cancel(cancelRequest.packageName, cancelRequest.subscriptionId, cancelRequest.purchaseToken).execute()
+        } catch (e: Exception) {
+            logger.error(e) { "Error occurred during an attempt to cancel Google Play subscription: $cancelRequest" }
+            throw e
+        }
     }
 
     private fun toInitialOrderId(orderId: String?): String {
@@ -92,7 +101,8 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
                 transactionId = subscription.orderId,
                 originalTransactionId = toInitialOrderId(subscription.orderId),
                 appMarketplace = AppMarketplace.GOOGLE_PLAY,
-                expiryTimeMillis = subscription.expiryTimeMillis
+                expiryTimeMillis = subscription.expiryTimeMillis,
+                googlePlayPurchaseDetails = GooglePlayPurchaseDetails(packageName, notification.subscriptionId, notification.purchaseToken)
         )
         userAppClient.sendSubscriptionNotification(subscriptionUpdate)
         logger.info { "Google Play subscription notification has been sent to user app: $subscriptionUpdate" }

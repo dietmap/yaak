@@ -24,7 +24,8 @@ data class UserAppSubscriptionNotification(
         val expiryTimeMillis: Long? = 0,
         val orderingUserId: String? = String(),
         val discountCode: String? = String(),
-        val appStoreReceipt: String? = String()
+        val appStoreReceipt: String? = String(),
+        val googlePlayPurchaseDetails: GooglePlayPurchaseDetails? = null
 )
 
 enum class NotificationType {
@@ -91,6 +92,12 @@ data class UserAppSubscriptionOrder (
         val orderId: String,
         val transactionId: String,
         val status: String
+)
+
+data class GooglePlayPurchaseDetails(
+        val packageName: String,
+        val subscriptionId: String,
+        val purchaseToken: String
 )
 
 enum class AppMarketplace {

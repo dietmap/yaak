@@ -15,7 +15,7 @@ import javax.validation.Valid
 
 
 @ConditionalOnProperty("yaak.app-store.enabled", havingValue = "true")
-@RestController
+@RestController("appstoreSubscriptionController")
 @RequestMapping("/api/appstore/subscriptions")
 class SubscriptionController(private val subscriptionService: AppStoreSubscriptionService) {
 
