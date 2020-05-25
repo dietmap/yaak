@@ -1,16 +1,22 @@
 package com.dietmap.yaak.api.subscription
 
 import com.dietmap.yaak.SupportController
+import com.dietmap.yaak.domain.googleplay.AndroidPublisherClientConfiguration
 import com.dietmap.yaak.domain.googleplay.GooglePlaySubscriptionService
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.verify
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
+import org.springframework.test.context.TestPropertySource
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
+@TestPropertySource(properties = ["yaak.google-play.enabled = true"])
 internal class SubscriptionControllerTest : SupportController() {
+
+    @MockBean
+    lateinit var config: AndroidPublisherClientConfiguration
 
     @MockBean
     lateinit var subscriptionService: GooglePlaySubscriptionService
