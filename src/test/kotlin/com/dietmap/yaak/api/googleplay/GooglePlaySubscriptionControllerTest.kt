@@ -5,9 +5,8 @@ import com.dietmap.yaak.domain.googleplay.AndroidPublisherClientConfiguration
 import com.dietmap.yaak.domain.googleplay.GooglePlaySubscriptionService
 import com.nimbusds.jose.util.Base64
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers
-import org.mockito.ArgumentMatchers.*
 import org.mockito.BDDMockito.`when`
+import org.mockito.Mockito
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -66,4 +65,24 @@ internal class GooglePlaySubscriptionControllerTest : SupportController() {
                 .andDo(print())
                 .andExpect(status().isBadRequest)
     }
+
+    @Test
+    fun `should cancel subscription in Play Store`() {
+        val request = SubscriptionCancelRequest(
+                packageName = "app.package",
+                subscriptionId = "app.subscription.id",
+                purchaseToken = "purchase.token")
+
+        mockMvc.perform(
+                post("/api/googleplay/subscriptions/cancel")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                        .content(asJsonString(request))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk)
+
+        Mockito.verify(subscriptionService).cancelPurchase(request)
+    }
+
 }

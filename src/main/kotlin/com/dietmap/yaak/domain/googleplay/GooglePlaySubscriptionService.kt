@@ -5,7 +5,7 @@ import com.dietmap.yaak.api.googleplay.GooglePlayNotificationType.SUBSCRIPTION_R
 import com.dietmap.yaak.api.googleplay.GooglePlaySubscriptionNotification
 import com.dietmap.yaak.api.googleplay.PubSubDeveloperNotification
 import com.dietmap.yaak.api.googleplay.PurchaseRequest
-import com.dietmap.yaak.api.subscription.SubscriptionCancelRequest
+import com.dietmap.yaak.api.googleplay.SubscriptionCancelRequest
 import com.dietmap.yaak.domain.checkArgument
 import com.dietmap.yaak.domain.userapp.*
 import com.google.api.services.androidpublisher.AndroidPublisher

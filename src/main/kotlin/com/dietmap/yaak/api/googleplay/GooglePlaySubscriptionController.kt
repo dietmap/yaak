@@ -33,6 +33,12 @@ class GooglePlaySubscriptionController(val subscriptionService: GooglePlaySubscr
         }
     }
 
+    @PostMapping("/api/googleplay/subscriptions/cancel")
+    fun cancelSubscriptionPurchase(@RequestBody @Valid cancelRequest: SubscriptionCancelRequest) {
+        logger.info { "Received subscription purchase cancellation request: $cancelRequest" }
+        subscriptionService.cancelPurchase(cancelRequest)
+    }
+
     /**
      * Publicly accessible PubSub notification webhook
      */
@@ -41,6 +47,7 @@ class GooglePlaySubscriptionController(val subscriptionService: GooglePlaySubscr
         logger.info { "Received Google PubSub subscription notification: $pubsubRequest" }
         subscriptionService.handleSubscriptionNotification(pubsubRequest.message.developerNotification)
     }
+
 }
 
 data class PurchaseRequest(
@@ -52,6 +59,12 @@ data class PurchaseRequest(
         val purchaseToken: String,
         val orderingUserId: String? = null,
         val discountCode: String? = null
+)
+
+data class SubscriptionCancelRequest(
+        @NotBlank val packageName: String,
+        @NotBlank val subscriptionId: String,
+        @NotBlank val purchaseToken: String
 )
 
 data class PubSubRequest(
