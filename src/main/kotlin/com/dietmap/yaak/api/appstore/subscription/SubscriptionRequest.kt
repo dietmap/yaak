@@ -11,7 +11,7 @@ data class SubscriptionPurchaseRequest(
         @get:JsonProperty("currencyCode") @param:NotBlank val currencyCode: String,
         @get:JsonProperty("countryCode") @param:NotBlank val countryCode: String,
         @get:JsonProperty("discountCode") val discountCode: String?,
-        @get:JsonProperty("effectivePrice") @param:NotBlank val effectivePrice: BigDecimal?
+        @get:JsonProperty("effectivePrice") val effectivePrice: BigDecimal?
 ): Serializable {
 
     override fun toString(): String {
