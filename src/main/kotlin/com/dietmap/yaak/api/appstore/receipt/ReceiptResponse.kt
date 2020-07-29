@@ -87,7 +87,7 @@ data class LatestReceiptInfo (
         @get:JsonProperty("expires_date") val expiresDate: String,
         @get:JsonProperty("expires_date_ms") val expiresDateMs: Long,
         @get:JsonProperty("expires_date_pst") val expiresDatePst: String?,
-        @get:JsonProperty("is_in_intro_offer_period") val isInIntroOfferPeriod: String,
+        @get:JsonProperty("is_in_intro_offer_period") val isInIntroOfferPeriod: Boolean,
         @get:JsonProperty("is_trial_period") val isTrialPeriod: Boolean,
         @get:JsonProperty("is_upgraded") val isUpgraded: Boolean?,
         @get:JsonProperty("original_purchase_date") val originalPurchaseDate: String,

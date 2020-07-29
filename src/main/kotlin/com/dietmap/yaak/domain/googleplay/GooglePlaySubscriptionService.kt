@@ -27,11 +27,26 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
     fun handlePurchase(purchaseRequest: PurchaseRequest, initialPurchase: Boolean = true): SubscriptionPurchase? {
         val subscription = androidPublisherApiClient.Purchases().Subscriptions().get(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken).execute()
         checkArgument(subscription.paymentState in listOf(PAYMENT_RECEIVED_CODE, PAYMENT_FREE_TRIAL_CODE)) { "Subscription has not been paid yet, paymentState=${subscription.paymentState}" }
+
+        var effectivePrice = BigDecimal(subscription.priceAmountMicros).divide(BigDecimal(1000 * 1000))
+
+        // test purchase
+        if (subscription.purchaseType == 0) {
+            effectivePrice = BigDecimal(0.0)
+        }
+
+        // introductory price purchase
+        if (!subscription.orderId.contains("..")) {
+            if (subscription.introductoryPriceInfo != null) {
+                effectivePrice =  BigDecimal(subscription.introductoryPriceInfo.introductoryPriceAmountMicros).divide(BigDecimal(1000 * 1000))
+            }
+        }
+
         val notificationResponse = userAppClient.sendSubscriptionNotification(UserAppSubscriptionNotification(
                 notificationType = if (initialPurchase) NotificationType.SUBSCRIPTION_PURCHASED else NotificationType.SUBSCRIPTION_RENEWED,
                 appMarketplace = AppMarketplace.GOOGLE_PLAY,
                 countryCode = subscription.countryCode,
-                price = BigDecimal(subscription.priceAmountMicros).divide(BigDecimal(1000 * 1000)),
+                price = effectivePrice,
                 currencyCode = subscription.priceCurrencyCode,
                 transactionId = subscription.orderId,
                 originalTransactionId = toInitialOrderId(subscription.orderId),

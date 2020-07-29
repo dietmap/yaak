@@ -26,12 +26,17 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
 
             val latestReceiptInfo = receiptResponse.latestReceiptInfo!!.stream().findFirst().get()
 
+            var effectivePrice = subscriptionPurchaseRequest.price
+            if (latestReceiptInfo.isInIntroOfferPeriod) {
+                effectivePrice = subscriptionPurchaseRequest.effectivePrice!!
+            }
+
             val notification = UserAppSubscriptionNotification(
                     notificationType = NotificationType.SUBSCRIPTION_PURCHASED,
                     description = "Subscription purchase from AppStore",
                     productId = latestReceiptInfo.productId,
                     countryCode = subscriptionPurchaseRequest.countryCode,
-                    price = subscriptionPurchaseRequest.price,
+                    price = effectivePrice,
                     currencyCode = subscriptionPurchaseRequest.currencyCode,
                     transactionId = latestReceiptInfo.transactionId,
                     originalTransactionId = latestReceiptInfo.originalTransactionId,
