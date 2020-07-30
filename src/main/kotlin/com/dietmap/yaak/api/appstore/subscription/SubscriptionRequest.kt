@@ -10,14 +10,14 @@ data class SubscriptionPurchaseRequest(
         @get:JsonProperty("price") @param:NotBlank val price: BigDecimal,
         @get:JsonProperty("currencyCode") @param:NotBlank val currencyCode: String,
         @get:JsonProperty("countryCode") @param:NotBlank val countryCode: String,
-        @get:JsonProperty("discountCode") val discountCode: String?
+        @get:JsonProperty("discountCode") val discountCode: String?,
+        @get:JsonProperty("effectivePrice") val effectivePrice: BigDecimal?
 ): Serializable {
 
     override fun toString(): String {
         return "SubscriptionPurchaseRequest(receipt=${receipt.substring(IntRange(0,100))} price=$price, currencyCode=$currencyCode, countryCode=$countryCode)"
     }
 }
-
 
 data class SubscriptionRenewRequest(
         @get:JsonProperty("receipt") @param:NotBlank val receipt: String,
