@@ -37,7 +37,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
 
         // introductory price purchase
         if (!subscription.orderId.contains("..")) {
-            if (subscription.introductoryPriceInfo != null) {
+            if (subscription.introductoryPriceInfo?.introductoryPriceAmountMicros != null) {
                 effectivePrice =  BigDecimal(subscription.introductoryPriceInfo.introductoryPriceAmountMicros).divide(BigDecimal(1000 * 1000))
             }
         }
