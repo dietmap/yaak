@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.server.ResponseStatusException
+import java.nio.charset.StandardCharsets.UTF_8
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 
@@ -79,7 +80,7 @@ data class PubSubMessage(val messageId: String, val data: String) {
 
     init {
         val dataDecoded = Base64.decodeBase64(data)
-        logger.info { "Decoded PubSub message: $dataDecoded" };
+        logger.info { "Decoded PubSub message: ${String(dataDecoded, UTF_8)}" }
         val mapper = jacksonObjectMapper()
         this.developerNotification = mapper.readValue(dataDecoded, PubSubDeveloperNotification::class.java)
     }

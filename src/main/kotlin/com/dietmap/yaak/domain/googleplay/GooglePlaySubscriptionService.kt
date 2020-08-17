@@ -42,7 +42,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
             }
         }
 
-        logger.info { "Handling initial purchase: $subscription"}
+        logger.info { "Handling purchase: $subscription, initial: $initialPurchase" }
 
         val notificationResponse = userAppClient.sendSubscriptionNotification(UserAppSubscriptionNotification(
                 notificationType = if (initialPurchase) NotificationType.SUBSCRIPTION_PURCHASED else NotificationType.SUBSCRIPTION_RENEWED,
