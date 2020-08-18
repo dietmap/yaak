@@ -42,6 +42,8 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
             }
         }
 
+        logger.info { "Handling purchase: $subscription, initial: $initialPurchase" }
+
         val notificationResponse = userAppClient.sendSubscriptionNotification(UserAppSubscriptionNotification(
                 notificationType = if (initialPurchase) NotificationType.SUBSCRIPTION_PURCHASED else NotificationType.SUBSCRIPTION_RENEWED,
                 appMarketplace = AppMarketplace.GOOGLE_PLAY,
@@ -69,7 +71,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
     }
 
     fun cancelPurchase(cancelRequest: SubscriptionCancelRequest) {
-        logger.info { "Cancelling Google Play subscription: $cancelRequest" }
+        logger.info { "Cancelling subscription: $cancelRequest" }
         try {
             androidPublisherApiClient.purchases().subscriptions().cancel(cancelRequest.packageName, cancelRequest.subscriptionId, cancelRequest.purchaseToken).execute()
         } catch (e: Exception) {
