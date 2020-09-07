@@ -22,6 +22,7 @@ import java.math.BigDecimal
 class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublisher, val userAppClient: UserAppClient) {
     private val PAYMENT_RECEIVED_CODE = 1
     private val PAYMENT_FREE_TRIAL_CODE = 2
+    private val USER_ACCOUNT_ID_KEY = "obfuscatedExternalAccountId"
     private val logger = KotlinLogging.logger { }
 
     fun handlePurchase(purchaseRequest: PurchaseRequest, initialPurchase: Boolean = true): SubscriptionPurchase? {
@@ -54,7 +55,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
                 originalTransactionId = toInitialOrderId(subscription.orderId),
                 productId = purchaseRequest.subscriptionId,
                 description = "Google Play ${if (initialPurchase) "initial" else "renewal"} subscription order",
-                orderingUserId = purchaseRequest.orderingUserId,
+                orderingUserId = purchaseRequest.orderingUserId ?: subscription[USER_ACCOUNT_ID_KEY] as String?,
                 discountCode = purchaseRequest.discountCode,
                 expiryTimeMillis = subscription.expiryTimeMillis,
                 googlePlayPurchaseDetails = GooglePlayPurchaseDetails(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken)
