@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException
 import java.nio.charset.StandardCharsets.UTF_8
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
+import javax.validation.constraints.NotEmpty
 
 
 @ConditionalOnProperty("yaak.google-play.enabled", havingValue = "true")
@@ -40,6 +41,12 @@ class GooglePlaySubscriptionController(val subscriptionService: GooglePlaySubscr
         subscriptionService.cancelPurchase(cancelRequest)
     }
 
+    @PostMapping("/api/googleplay/subscriptions/orders/verify")
+    fun verifyOrders(@RequestBody @Valid ordersRequest: UserOrdersRequest) {
+        logger.info { "Received user orders for verification: ${ordersRequest.orders}" }
+        return subscriptionService.verifyOrders(ordersRequest.orders)
+    }
+
     /**
      * Publicly accessible PubSub notification webhook
      */
@@ -59,7 +66,13 @@ data class PurchaseRequest(
         @NotBlank
         val purchaseToken: String,
         val orderingUserId: String? = null,
-        val discountCode: String? = null
+        val discountCode: String? = null,
+        val purchaseTime: Long? = null
+)
+
+data class UserOrdersRequest(
+        @NotEmpty
+        val orders: Collection<PurchaseRequest>
 )
 
 data class SubscriptionCancelRequest(
