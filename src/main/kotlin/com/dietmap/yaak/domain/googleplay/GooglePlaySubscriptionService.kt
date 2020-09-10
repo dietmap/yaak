@@ -20,41 +20,29 @@ import java.math.BigDecimal
 @ConditionalOnBean(AndroidPublisher::class)
 @Service
 class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublisher, val userAppClient: UserAppClient) {
+
     private val PAYMENT_RECEIVED_CODE = 1
     private val PAYMENT_FREE_TRIAL_CODE = 2
     private val USER_ACCOUNT_ID_KEY = "obfuscatedExternalAccountId"
+    private val USER_APP_STATUS_ACTIVE = "ACTIVE"
     private val logger = KotlinLogging.logger { }
 
-    fun handlePurchase(purchaseRequest: PurchaseRequest, initialPurchase: Boolean = true): SubscriptionPurchase? {
-        val subscription = androidPublisherApiClient.Purchases().Subscriptions().get(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken).execute()
+    fun handlePurchase(purchaseRequest: PurchaseRequest): SubscriptionPurchase? {
+        val subscription = androidPublisherApiClient.purchases().subscriptions().get(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken).execute()
         checkArgument(subscription.paymentState in listOf(PAYMENT_RECEIVED_CODE, PAYMENT_FREE_TRIAL_CODE)) { "Subscription has not been paid yet, paymentState=${subscription.paymentState}" }
 
-        var effectivePrice = BigDecimal(subscription.priceAmountMicros).divide(BigDecimal(1000 * 1000))
-
-        // test purchase
-        if (subscription.purchaseType == 0) {
-            effectivePrice = BigDecimal(0.0)
-        }
-
-        // introductory price purchase
-        if (!subscription.orderId.contains("..")) {
-            if (subscription.introductoryPriceInfo?.introductoryPriceAmountMicros != null) {
-                effectivePrice =  BigDecimal(subscription.introductoryPriceInfo.introductoryPriceAmountMicros).divide(BigDecimal(1000 * 1000))
-            }
-        }
-
-        logger.info { "Handling purchase: $subscription, initial: $initialPurchase" }
+        logger.info { "Handling purchase: $subscription, initial: ${subscription.isInitialPurchase()}" }
 
         val notificationResponse = userAppClient.sendSubscriptionNotification(UserAppSubscriptionNotification(
-                notificationType = if (initialPurchase) NotificationType.SUBSCRIPTION_PURCHASED else NotificationType.SUBSCRIPTION_RENEWED,
+                notificationType = if (subscription.isInitialPurchase()) NotificationType.SUBSCRIPTION_PURCHASED else NotificationType.SUBSCRIPTION_RENEWED,
                 appMarketplace = AppMarketplace.GOOGLE_PLAY,
                 countryCode = subscription.countryCode,
-                price = effectivePrice,
+                price = subscription.calculateEffectivePrice(purchaseRequest.effectivePrice),
                 currencyCode = subscription.priceCurrencyCode,
                 transactionId = subscription.orderId,
-                originalTransactionId = toInitialOrderId(subscription.orderId),
+                originalTransactionId = subscription.getInitialOrderId(),
                 productId = purchaseRequest.subscriptionId,
-                description = "Google Play ${if (initialPurchase) "initial" else "renewal"} subscription order",
+                description = "Google Play ${if (subscription.isInitialPurchase()) "initial" else "renewal"} subscription order",
                 orderingUserId = purchaseRequest.orderingUserId ?: subscription[USER_ACCOUNT_ID_KEY] as String?,
                 discountCode = purchaseRequest.discountCode,
                 expiryTimeMillis = subscription.expiryTimeMillis,
@@ -68,7 +56,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
             val content = SubscriptionPurchasesAcknowledgeRequest().setDeveloperPayload("{ applicationOrderId: ${notificationResponse?.orderId}, orderingUserId: ${purchaseRequest.orderingUserId} }")
             androidPublisherApiClient.Purchases().Subscriptions().acknowledge(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken, content).execute()
         }
-        return subscription;
+        return subscription
     }
 
     fun cancelPurchase(cancelRequest: SubscriptionCancelRequest) {
@@ -81,20 +69,13 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
         }
     }
 
-    private fun toInitialOrderId(orderId: String?): String {
-        return if (orderId != null) {
-            val split = orderId.split("..")
-            return split[0]
-        } else ""
-    }
-
     fun handleSubscriptionNotification(pubsubNotification: PubSubDeveloperNotification) {
         pubsubNotification.subscriptionNotification?.let {
             logger.info { "Handling PubSub notification of type: ${it.notificationType}" }
             try {
                 when (it.notificationType) {
                     SUBSCRIPTION_PURCHASED -> handlePurchase(PurchaseRequest(pubsubNotification.packageName, it.subscriptionId, it.purchaseToken))
-                    SUBSCRIPTION_RENEWED -> handlePurchase(PurchaseRequest(pubsubNotification.packageName, it.subscriptionId, it.purchaseToken),false)
+                    SUBSCRIPTION_RENEWED -> handlePurchase(PurchaseRequest(pubsubNotification.packageName, it.subscriptionId, it.purchaseToken))
                     else -> handleStatusUpdate(pubsubNotification.packageName, it)
                 }
             } catch (e: Exception) {
@@ -102,6 +83,13 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
                 throw e
             }
         }
+    }
+
+    fun verifyOrders(orders: Collection<PurchaseRequest>): Boolean {
+        orders
+                .map(::handlePurchase)
+                .also { logger.info { "Verified ${it.size} user orders" } }
+        return userAppClient.checkSubscription()?.status == USER_APP_STATUS_ACTIVE
     }
 
     private fun handleStatusUpdate(packageName: String, notification: GooglePlaySubscriptionNotification) {
@@ -117,7 +105,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
                 price = BigDecimal(subscription.priceAmountMicros).divide(BigDecimal(1000 * 1000)),
                 currencyCode = subscription.priceCurrencyCode,
                 transactionId = subscription.orderId,
-                originalTransactionId = toInitialOrderId(subscription.orderId),
+                originalTransactionId = subscription.getInitialOrderId(),
                 appMarketplace = AppMarketplace.GOOGLE_PLAY,
                 expiryTimeMillis = subscription.expiryTimeMillis,
                 googlePlayPurchaseDetails = GooglePlayPurchaseDetails(packageName, notification.subscriptionId, notification.purchaseToken)
@@ -125,4 +113,22 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
         userAppClient.sendSubscriptionNotification(subscriptionUpdate)
         logger.info { "Google Play subscription notification has been sent to user app: $subscriptionUpdate" }
     }
+
+    private fun SubscriptionPurchase.calculateEffectivePrice(effectivePrice: Long?) = when {
+        effectivePrice != null -> effectivePrice
+        isTestPurchase() -> 0L
+        isIntroductoryPricePurchase() -> introductoryPriceInfo.introductoryPriceAmountMicros
+        else -> priceAmountMicros
+    }
+            .let(::BigDecimal)
+            .let { it.divide(BigDecimal(1000 * 1000)) }
+
+    private fun SubscriptionPurchase.isTestPurchase() = purchaseType == 0
+
+    private fun SubscriptionPurchase.isInitialPurchase() = !orderId.contains("..")
+
+    private fun SubscriptionPurchase.isIntroductoryPricePurchase() = isInitialPurchase() && introductoryPriceInfo?.introductoryPriceAmountMicros != null
+
+    private fun SubscriptionPurchase.getInitialOrderId() = orderId?.let { it.split("..")[0] } ?: ""
+
 }

@@ -94,6 +94,10 @@ data class UserAppSubscriptionOrder (
         val status: String
 )
 
+data class UserAppSubscriptionStatus(
+        val status: String
+)
+
 data class GooglePlayPurchaseDetails(
         val packageName: String,
         val subscriptionId: String,

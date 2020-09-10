@@ -54,7 +54,7 @@ internal class GooglePlaySubscriptionControllerTest : SupportController() {
                 orderingUserId = "1",
                 discountCode = "234"
         )
-        `when`(subscriptionService.handlePurchase(request, true)).thenThrow(ResponseStatusException(HttpStatus.BAD_REQUEST, "Error communicating with user app"))
+        `when`(subscriptionService.handlePurchase(request)).thenThrow(ResponseStatusException(HttpStatus.BAD_REQUEST, "Error communicating with user app"))
 
         mockMvc.perform(
                 post("/api/googleplay/subscriptions/purchases")
