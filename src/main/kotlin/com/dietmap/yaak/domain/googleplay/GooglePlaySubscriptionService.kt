@@ -24,6 +24,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
     private val PAYMENT_RECEIVED_CODE = 1
     private val PAYMENT_FREE_TRIAL_CODE = 2
     private val USER_ACCOUNT_ID_KEY = "obfuscatedExternalAccountId"
+    private val USER_APP_STATUS_ACTIVE = "ACTIVE"
     private val logger = KotlinLogging.logger { }
 
     fun handlePurchase(purchaseRequest: PurchaseRequest): SubscriptionPurchase? {
@@ -36,7 +37,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
                 notificationType = if (subscription.isInitialPurchase()) NotificationType.SUBSCRIPTION_PURCHASED else NotificationType.SUBSCRIPTION_RENEWED,
                 appMarketplace = AppMarketplace.GOOGLE_PLAY,
                 countryCode = subscription.countryCode,
-                price = subscription.calculateEffectivePrice(),
+                price = subscription.calculateEffectivePrice(purchaseRequest.effectivePrice),
                 currencyCode = subscription.priceCurrencyCode,
                 transactionId = subscription.orderId,
                 originalTransactionId = subscription.getInitialOrderId(),
@@ -84,10 +85,11 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
         }
     }
 
-    fun verifyOrders(orders: Collection<PurchaseRequest>) {
+    fun verifyOrders(orders: Collection<PurchaseRequest>): Boolean {
         orders
                 .map(::handlePurchase)
                 .also { logger.info { "Verified ${it.size} user orders" } }
+        return userAppClient.checkSubscription()?.status == USER_APP_STATUS_ACTIVE
     }
 
     private fun handleStatusUpdate(packageName: String, notification: GooglePlaySubscriptionNotification) {
@@ -112,7 +114,8 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
         logger.info { "Google Play subscription notification has been sent to user app: $subscriptionUpdate" }
     }
 
-    private fun SubscriptionPurchase.calculateEffectivePrice() = when {
+    private fun SubscriptionPurchase.calculateEffectivePrice(effectivePrice: Long?) = when {
+        effectivePrice != null -> effectivePrice
         isTestPurchase() -> 0L
         isIntroductoryPricePurchase() -> introductoryPriceInfo.introductoryPriceAmountMicros
         else -> priceAmountMicros

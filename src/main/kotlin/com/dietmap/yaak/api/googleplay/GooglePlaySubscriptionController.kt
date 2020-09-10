@@ -42,9 +42,9 @@ class GooglePlaySubscriptionController(val subscriptionService: GooglePlaySubscr
     }
 
     @PostMapping("/api/googleplay/subscriptions/orders/verify")
-    fun verifyOrders(@RequestBody @Valid ordersRequest: UserOrdersRequest) {
+    fun verifyOrders(@RequestBody @Valid ordersRequest: VerifyOrdersRequest): VerifyOrdersResponse {
         logger.info { "Received user orders for verification: ${ordersRequest.orders}" }
-        return subscriptionService.verifyOrders(ordersRequest.orders)
+        return VerifyOrdersResponse(subscriptionService.verifyOrders(ordersRequest.orders))
     }
 
     /**
@@ -67,12 +67,17 @@ data class PurchaseRequest(
         val purchaseToken: String,
         val orderingUserId: String? = null,
         val discountCode: String? = null,
-        val purchaseTime: Long? = null
+        val purchaseTime: Long? = null,
+        val effectivePrice: Long? = null
 )
 
-data class UserOrdersRequest(
+data class VerifyOrdersRequest(
         @NotEmpty
         val orders: Collection<PurchaseRequest>
+)
+
+data class VerifyOrdersResponse(
+        val hasActiveSubscription: Boolean
 )
 
 data class SubscriptionCancelRequest(

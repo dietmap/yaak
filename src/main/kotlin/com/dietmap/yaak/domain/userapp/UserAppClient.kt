@@ -31,9 +31,13 @@ import java.util.function.Consumer
 
 
 @Component
-class UserAppClient(val webClient: WebClient, @Value("\${yaak.user-app.subscription-webhook-url}") handleSubscriptionUpdateUrl: String) {
+class UserAppClient(
+        val webClient: WebClient,
+        @Value("\${yaak.user-app.subscription-webhook-url}") handleSubscriptionUpdateUrl: String,
+        @Value("\${yaak.user-app.subscription-check-url}") checkSubscriptionUrl: String) {
 
     private val subscriptionNotificationUrl: String = handleSubscriptionUpdateUrl
+    private val subscriptionCheckUrl: String = checkSubscriptionUrl
     private val logger = KotlinLogging.logger { }
 
     fun sendSubscriptionNotification(notification: UserAppSubscriptionNotification): UserAppSubscriptionOrder? {
@@ -47,6 +51,17 @@ class UserAppClient(val webClient: WebClient, @Value("\${yaak.user-app.subscript
                 .bodyToFlux(UserAppSubscriptionOrder::class.java)
                 .blockFirst()
     }
+
+    fun checkSubscription(): UserAppSubscriptionStatus? {
+        logger.debug { "Checking user subscription in user app" }
+        return webClient.get()
+                .uri(subscriptionCheckUrl)
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToFlux(UserAppSubscriptionStatus::class.java)
+                .blockFirst()
+    }
+
 }
 
 @Configuration
