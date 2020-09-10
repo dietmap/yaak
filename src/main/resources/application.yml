@@ -42,7 +42,8 @@ yaak:
     api-key: MyApiKey123
 
   user-app:
-    subscription-webhook-url: http://localhost:8080/subscriptions/notifications/yaak
+    subscription-webhook-url: http://localhost:8086/user-subscription/notifications/yaak
+    subscription-check-url: http://localhost:8086/user-subscription
 
   google-play:
     enabled: false
