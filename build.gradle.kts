@@ -70,7 +70,7 @@ tasks.withType<Test> {
 
 jib {
 	from {
-		image = "gcr.io/distroless/java:11"
+		image = "gcr.io/distroless/java:11-debug"
 	}
 	to {
 		image = "dietmap/yaak"
@@ -86,6 +86,6 @@ jib {
 		)
 		jvmFlags = listOf("-Xms512m", "-Djava.awt.headless=true")
 		mainClass = "com.dietmap.yaak.YaakApplicationKt"
-		ports = listOf("8080")
+		ports = listOf("8080", "9090")
 	}
 }
