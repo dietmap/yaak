@@ -87,9 +87,16 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
 
     fun verifyOrders(orders: Collection<PurchaseRequest>): Boolean {
         orders
-                .map(::handlePurchase)
+                .map(::tryToVerifyOrder)
                 .also { logger.info { "Verified ${it.size} user orders" } }
         return userAppClient.checkSubscription()?.status == USER_APP_STATUS_ACTIVE
+    }
+
+    private fun tryToVerifyOrder(purchaseRequest: PurchaseRequest) = try {
+        logger.debug { "About to verify user order: $purchaseRequest" }
+        handlePurchase(purchaseRequest)
+    } catch (e: Exception) {
+        logger.error(e) { "Error during verification of user order" }
     }
 
     private fun handleStatusUpdate(packageName: String, notification: GooglePlaySubscriptionNotification) {

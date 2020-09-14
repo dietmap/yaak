@@ -84,8 +84,8 @@ jib {
 		labels = mapOf(
 				"maintainer" to "Krzysztof Koziol"
 		)
-		jvmFlags = listOf("-Xms512m", "-Djava.awt.headless=true")
+		jvmFlags = listOf("-Djava.awt.headless=true")
 		mainClass = "com.dietmap.yaak.YaakApplicationKt"
-		ports = listOf("8080", "9090")
+		ports = listOf("8080", "8778", "9090")
 	}
 }
