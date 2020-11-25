@@ -109,7 +109,7 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
                 description = "Google Play subscription update: " + notification.notificationType,
                 productId = notification.subscriptionId,
                 countryCode = subscription.countryCode,
-                price = BigDecimal(subscription.priceAmountMicros).divide(BigDecimal(1000 * 1000)),
+                price = subscription.calculateEffectivePrice(null),
                 currencyCode = subscription.priceCurrencyCode,
                 transactionId = subscription.orderId,
                 originalTransactionId = subscription.getInitialOrderId(),
