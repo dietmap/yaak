@@ -122,8 +122,8 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
     }
 
     private fun SubscriptionPurchase.calculateEffectivePrice(effectivePrice: Long?) = when {
-        effectivePrice != null -> effectivePrice
         isTestPurchase() -> 0L
+        effectivePrice != null -> effectivePrice
         isIntroductoryPricePurchase() -> introductoryPriceInfo.introductoryPriceAmountMicros
         else -> priceAmountMicros
     }
