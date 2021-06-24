@@ -21,5 +21,6 @@ jobs:
         run: ./gradlew jib
       - name: Call post package webhook
         run: |
-          IMAGE_TAG=$(gradle cV -q -Prelease.quiet)
+          IMAGE_TAG=$(./gradlew cV -q -Prelease.quiet)
+          echo $IMAGE_TAG
           curl -s -o /dev/null -w "%{http_code}" -X POST -F token=${{ secrets.WEBHOOK_TOKEN }} -F "ref=master" -F "variables[IMAGE_TAG]=$IMAGE_TAG"  ${{ secrets.WEBHOOK_URL }}
