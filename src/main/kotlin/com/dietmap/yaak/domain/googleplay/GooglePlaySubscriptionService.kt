@@ -8,18 +8,17 @@ import com.dietmap.yaak.api.googleplay.PurchaseRequest
 import com.dietmap.yaak.api.googleplay.SubscriptionCancelRequest
 import com.dietmap.yaak.domain.checkArgument
 import com.dietmap.yaak.domain.userapp.*
-import com.google.api.services.androidpublisher.AndroidPublisher
 import com.google.api.services.androidpublisher.model.SubscriptionPurchase
 import com.google.api.services.androidpublisher.model.SubscriptionPurchasesAcknowledgeRequest
 import mu.KotlinLogging
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 
 
-@ConditionalOnBean(AndroidPublisher::class)
+@ConditionalOnProperty("yaak.google-play.enabled", havingValue = "true")
 @Service
-class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublisher, val userAppClient: UserAppClient) {
+class GooglePlaySubscriptionService(val androidPublisherService: AndroidPublisherService, val userAppClient: UserAppClient) {
 
     private val PAYMENT_RECEIVED_CODE = 1
     private val PAYMENT_FREE_TRIAL_CODE = 2
@@ -27,8 +26,9 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
     private val USER_APP_STATUS_ACTIVE = "ACTIVE"
     private val logger = KotlinLogging.logger { }
 
-    fun handlePurchase(purchaseRequest: PurchaseRequest): SubscriptionPurchase? {
-        val subscription = androidPublisherApiClient.purchases().subscriptions().get(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken).execute()
+    fun handlePurchase(purchaseRequest: PurchaseRequest, tenant: String? = null): SubscriptionPurchase? {
+        val subscription = androidPublisherService.tenant(tenant).purchases().subscriptions()
+            .get(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken).execute()
         checkArgument(subscription.paymentState in listOf(PAYMENT_RECEIVED_CODE, PAYMENT_FREE_TRIAL_CODE)) { "Subscription has not been paid yet, paymentState=${subscription.paymentState}" }
 
         logger.info { "Handling purchase: $subscription, initial: ${subscription.isInitialPurchase()}" }
@@ -54,29 +54,31 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
         if (subscription.acknowledgementState == 0) {
             logger.info { "Acknowledging Google Play subscription purchase of id=${subscription.orderId}, purchaseToken=${purchaseRequest.purchaseToken}" }
             val content = SubscriptionPurchasesAcknowledgeRequest().setDeveloperPayload("{ applicationOrderId: ${notificationResponse?.orderId}, orderingUserId: ${purchaseRequest.orderingUserId} }")
-            androidPublisherApiClient.Purchases().Subscriptions().acknowledge(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken, content).execute()
+            androidPublisherService.tenant(tenant).purchases().subscriptions()
+                .acknowledge(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken, content).execute()
         }
         return subscription
     }
 
-    fun cancelPurchase(cancelRequest: SubscriptionCancelRequest) {
+    fun cancelPurchase(cancelRequest: SubscriptionCancelRequest, tenant: String? = null) {
         logger.info { "Cancelling subscription: $cancelRequest" }
         try {
-            androidPublisherApiClient.purchases().subscriptions().cancel(cancelRequest.packageName, cancelRequest.subscriptionId, cancelRequest.purchaseToken).execute()
+            androidPublisherService.tenant(tenant).purchases().subscriptions()
+                .cancel(cancelRequest.packageName, cancelRequest.subscriptionId, cancelRequest.purchaseToken).execute()
         } catch (e: Exception) {
             logger.error(e) { "Error occurred during an attempt to cancel Google Play subscription: $cancelRequest" }
             throw e
         }
     }
 
-    fun handleSubscriptionNotification(pubsubNotification: PubSubDeveloperNotification) {
+    fun handleSubscriptionNotification(pubsubNotification: PubSubDeveloperNotification, tenant: String) {
         pubsubNotification.subscriptionNotification?.let {
             logger.info { "Handling PubSub notification of type: ${it.notificationType}" }
             try {
                 when (it.notificationType) {
-                    SUBSCRIPTION_PURCHASED -> handlePurchase(PurchaseRequest(pubsubNotification.packageName, it.subscriptionId, it.purchaseToken))
-                    SUBSCRIPTION_RENEWED -> handlePurchase(PurchaseRequest(pubsubNotification.packageName, it.subscriptionId, it.purchaseToken))
-                    else -> handleStatusUpdate(pubsubNotification.packageName, it)
+                    SUBSCRIPTION_PURCHASED -> handlePurchase(PurchaseRequest(pubsubNotification.packageName, it.subscriptionId, it.purchaseToken), tenant)
+                    SUBSCRIPTION_RENEWED -> handlePurchase(PurchaseRequest(pubsubNotification.packageName, it.subscriptionId, it.purchaseToken), tenant)
+                    else -> handleStatusUpdate(pubsubNotification.packageName, it, tenant)
                 }
             } catch (e: Exception) {
                 logger.error(e) { "Error handling PubSub notification" }
@@ -85,22 +87,23 @@ class GooglePlaySubscriptionService(val androidPublisherApiClient: AndroidPublis
         }
     }
 
-    fun verifyOrders(orders: Collection<PurchaseRequest>): Boolean {
+    fun verifyOrders(orders: Collection<PurchaseRequest>, tenant: String?): Boolean {
         orders
-                .map(::tryToVerifyOrder)
-                .also { logger.info { "Verified ${it.size} user orders" } }
+            .map { o -> tryToVerifyOrder(o, tenant) }
+            .also { logger.info { "Verified ${it.size} user orders" } }
         return userAppClient.checkSubscription()?.status == USER_APP_STATUS_ACTIVE
     }
 
-    private fun tryToVerifyOrder(purchaseRequest: PurchaseRequest) = try {
+    private fun tryToVerifyOrder(purchaseRequest: PurchaseRequest, tenant: String?) = try {
         logger.debug { "About to verify user order: $purchaseRequest" }
-        handlePurchase(purchaseRequest)
+        handlePurchase(purchaseRequest, tenant)
     } catch (e: Exception) {
         logger.error(e) { "Error during verification of user order" }
     }
 
-    private fun handleStatusUpdate(packageName: String, notification: GooglePlaySubscriptionNotification) {
-        val subscription = androidPublisherApiClient.Purchases().Subscriptions().get(packageName, notification.subscriptionId, notification.purchaseToken).execute()
+    private fun handleStatusUpdate(packageName: String, notification: GooglePlaySubscriptionNotification, tenant: String?) {
+        val subscription = androidPublisherService.tenant(tenant).purchases().subscriptions()
+            .get(packageName, notification.subscriptionId, notification.purchaseToken).execute()
         logger.debug { "Google Play subscription details: $subscription" }
         subscription.cancelReason?.let { logger.info { "Subscription cancel reason: $it" } }
         subscription.cancelSurveyResult?.let { logger.info { "Subscription cancel survey result: $it" } }
