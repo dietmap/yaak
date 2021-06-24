@@ -1,5 +1,6 @@
 package com.dietmap.yaak.api.googleplay
 
+import com.dietmap.yaak.api.config.ApiCommons.TENANT_HEADER
 import com.dietmap.yaak.domain.googleplay.GooglePlaySubscriptionService
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -7,9 +8,7 @@ import com.google.api.services.androidpublisher.model.SubscriptionPurchase
 import mu.KotlinLogging
 import org.apache.commons.codec.binary.Base64
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.server.ResponseStatusException
 import java.nio.charset.StandardCharsets.UTF_8
@@ -25,10 +24,13 @@ class GooglePlaySubscriptionController(val subscriptionService: GooglePlaySubscr
     private val logger = KotlinLogging.logger { }
 
     @PostMapping("/api/googleplay/subscriptions/purchases")
-    fun purchase(@RequestBody @Valid purchaseRequest: PurchaseRequest): SubscriptionPurchase? {
+    fun purchase(
+        @RequestHeader(TENANT_HEADER, required = false) tenant: String?,
+        @RequestBody @Valid purchaseRequest: PurchaseRequest
+    ): SubscriptionPurchase? {
         logger.info { "Received purchase request from Google Play: $purchaseRequest" }
         try {
-            return subscriptionService.handlePurchase(purchaseRequest)
+            return subscriptionService.handlePurchase(purchaseRequest, tenant)
         } catch (e: WebClientResponseException) {
             logger.error(e) { "Error sending notification to user app" }
             throw ResponseStatusException(e.statusCode, "Error sending notification to user app", e)
@@ -36,24 +38,33 @@ class GooglePlaySubscriptionController(val subscriptionService: GooglePlaySubscr
     }
 
     @PostMapping("/api/googleplay/subscriptions/cancel")
-    fun cancelSubscriptionPurchase(@RequestBody @Valid cancelRequest: SubscriptionCancelRequest) {
+    fun cancelSubscriptionPurchase(
+        @RequestHeader(TENANT_HEADER, required = false) tenant: String?,
+        @RequestBody @Valid cancelRequest: SubscriptionCancelRequest
+    ) {
         logger.info { "Received subscription purchase cancellation request: $cancelRequest" }
-        subscriptionService.cancelPurchase(cancelRequest)
+        subscriptionService.cancelPurchase(cancelRequest, tenant)
     }
 
     @PostMapping("/api/googleplay/subscriptions/orders/verify")
-    fun verifyOrders(@RequestBody @Valid ordersRequest: VerifyOrdersRequest): VerifyOrdersResponse {
+    fun verifyOrders(
+        @RequestHeader(TENANT_HEADER, required = false) tenant: String?,
+        @RequestBody @Valid ordersRequest: VerifyOrdersRequest
+    ): VerifyOrdersResponse {
         logger.info { "Received user orders for verification: ${ordersRequest.orders}" }
-        return VerifyOrdersResponse(subscriptionService.verifyOrders(ordersRequest.orders))
+        return VerifyOrdersResponse(subscriptionService.verifyOrders(ordersRequest.orders, tenant))
     }
 
     /**
      * Publicly accessible PubSub notification webhook
      */
-    @PostMapping("/public/api/googleplay/subscriptions/notifications")
-    fun update(@RequestBody pubsubRequest: PubSubRequest) {
+    @PostMapping("/public/api/googleplay/subscriptions/notifications/{tenant}")
+    fun update(
+        @PathVariable("tenant") tenant: String,
+        @RequestBody pubsubRequest: PubSubRequest
+    ) {
         logger.info { "Received Google PubSub subscription notification: $pubsubRequest" }
-        subscriptionService.handleSubscriptionNotification(pubsubRequest.message.developerNotification)
+        subscriptionService.handleSubscriptionNotification(pubsubRequest.message.developerNotification, tenant)
     }
 
 }

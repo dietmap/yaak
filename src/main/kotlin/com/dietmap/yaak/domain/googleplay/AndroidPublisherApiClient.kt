@@ -12,6 +12,7 @@ import com.google.common.base.Strings
 import mu.KotlinLogging
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Component
@@ -23,12 +24,25 @@ import java.util.*
 
 
 @Component
-@ConfigurationProperties(prefix = "yaak.googleplay")
+@ConstructorBinding
+@ConfigurationProperties(prefix = "yaak")
 class GoogleDeveloperApiClientProperties {
-    lateinit var serviceAccountApiKeyBase64: String
-    lateinit var serviceAccountEmail: String
-    lateinit var applicationName: String;
+    lateinit var googleplay: GooglePlayProperties
+    var multitenant: List<MultitenantGooglePlayProperties> = emptyList()
+}
 
+@ConstructorBinding
+class MultitenantGooglePlayProperties(
+    val tenant: String,
+    val googleplay: GooglePlayProperties
+)
+
+@ConstructorBinding
+class GooglePlayProperties(
+    val serviceAccountApiKeyBase64: String,
+    val serviceAccountEmail: String,
+    val applicationName: String
+) {
     fun getServiceAccountApiKeyInputStream(): InputStream {
         val decoded = Base64.getDecoder().decode(serviceAccountApiKeyBase64)
         return ByteArrayInputStream(decoded)
@@ -56,23 +70,27 @@ class AndroidPublisherClientConfiguration(val properties: GoogleDeveloperApiClie
     /** Global instance of the HTTP transport.  */
     private var HTTP_TRANSPORT: HttpTransport? = null
 
+    companion object {
+        const val DEFAULT_TENANT = "DEFAULT"
+    }
+
     @Bean
     @Throws(IOException::class, GeneralSecurityException::class)
-    fun androidPublisherApiClient(): AndroidPublisher {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(properties.applicationName),
-                "applicationName cannot be null or empty!")
-        // Authorization.
-        newTrustedTransport()
-        val credential = authorizeWithServiceAccount(properties.serviceAccountEmail)
+    fun androidPublishers() = properties.multitenant
+        .associate { m -> m.tenant to createAndroidPublisher(m.googleplay) }
+        .plus(DEFAULT_TENANT to createAndroidPublisher(properties.googleplay))
 
-        // Set up and return API client.
-        return AndroidPublisher.Builder(
-                HTTP_TRANSPORT!!, JSON_FACTORY, credential).setApplicationName(properties.applicationName)
-                .build()
+    private fun createAndroidPublisher(properties: GooglePlayProperties): AndroidPublisher {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(properties.applicationName), "applicationName cannot be null or empty!")
+        newTrustedTransport()
+        return AndroidPublisher
+            .Builder(HTTP_TRANSPORT!!, JSON_FACTORY, authorizeWithServiceAccount(properties.serviceAccountEmail, properties))
+            .setApplicationName(properties.applicationName)
+            .build()
     }
 
     @Throws(GeneralSecurityException::class, IOException::class)
-    private fun authorizeWithServiceAccount(serviceAccountEmail: String): Credential {
+    private fun authorizeWithServiceAccount(serviceAccountEmail: String, properties: GooglePlayProperties): Credential {
         logger.info { "Authorizing using Service Account: $serviceAccountEmail" }
         // Build service account credential.
         return GoogleCredential.fromStream(properties.getServiceAccountApiKeyInputStream(), HTTP_TRANSPORT, JSON_FACTORY)

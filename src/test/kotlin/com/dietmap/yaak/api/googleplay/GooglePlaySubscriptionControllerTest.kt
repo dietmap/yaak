@@ -1,11 +1,15 @@
 package com.dietmap.yaak.api.googleplay
 
 import com.dietmap.yaak.SupportController
+import com.dietmap.yaak.api.config.ApiCommons
 import com.dietmap.yaak.domain.googleplay.AndroidPublisherClientConfiguration
 import com.dietmap.yaak.domain.googleplay.GooglePlaySubscriptionService
 import com.nimbusds.jose.util.Base64
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentCaptor
 import org.mockito.BDDMockito.`when`
+import org.mockito.Captor
 import org.mockito.Mockito
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpStatus
@@ -18,10 +22,15 @@ import org.springframework.web.server.ResponseStatusException
 
 @TestPropertySource(properties = ["yaak.google-play.enabled = true"])
 internal class GooglePlaySubscriptionControllerTest : SupportController() {
+
     @MockBean
     lateinit var config: AndroidPublisherClientConfiguration
+
     @MockBean
     lateinit var subscriptionService: GooglePlaySubscriptionService
+
+    @Captor
+    lateinit var tenantCaptor: ArgumentCaptor<String?>
 
     @Test
     fun `should handle PubSub requests`() {
@@ -36,7 +45,7 @@ internal class GooglePlaySubscriptionControllerTest : SupportController() {
         val request = PubSubRequest("app.subscription", PubSubMessage("message.id", base64Data.toString()))
 
         mockMvc.perform(
-                post("/public/api/googleplay/subscriptions/notifications")
+                post("/public/api/googleplay/subscriptions/notifications/sample-tenant")
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("UTF-8")
                         .content(asJsonString(request))
@@ -85,4 +94,31 @@ internal class GooglePlaySubscriptionControllerTest : SupportController() {
         Mockito.verify(subscriptionService).cancelPurchase(request)
     }
 
+    @Test
+    fun `should handle multiple tenants`() {
+        val request = PurchaseRequest(
+            packageName = "app.package",
+            subscriptionId = "app.subscription.id",
+            purchaseToken = "purchase.token",
+            orderingUserId = "1",
+            discountCode = "234"
+        )
+        `when`(subscriptionService.handlePurchase(any(), capture(tenantCaptor))).thenReturn(null)
+
+        mockMvc.perform(
+            post("/api/googleplay/subscriptions/purchases")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(ApiCommons.TENANT_HEADER, "sample-tenant")
+                .characterEncoding("UTF-8")
+                .content(asJsonString(request))
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk)
+
+        assertThat(tenantCaptor.value).isEqualTo("sample-tenant")
+    }
+
 }
+
+inline fun <reified T> any(): T = Mockito.any(T::class.java)
+
+fun <T> capture(argumentCaptor: ArgumentCaptor<T>): T = argumentCaptor.capture()
