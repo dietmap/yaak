@@ -20,11 +20,13 @@ import java.math.BigDecimal
 @Service
 class GooglePlaySubscriptionService(val androidPublisherService: AndroidPublisherService, val userAppClient: UserAppClient) {
 
-    private val PAYMENT_RECEIVED_CODE = 1
-    private val PAYMENT_FREE_TRIAL_CODE = 2
-    private val USER_ACCOUNT_ID_KEY = "obfuscatedExternalAccountId"
-    private val USER_APP_STATUS_ACTIVE = "ACTIVE"
-    private val logger = KotlinLogging.logger { }
+    companion object {
+        private const val PAYMENT_RECEIVED_CODE = 1
+        private const val PAYMENT_FREE_TRIAL_CODE = 2
+        private const val USER_ACCOUNT_ID_KEY = "obfuscatedExternalAccountId"
+        private const val USER_APP_STATUS_ACTIVE = "ACTIVE"
+        private val logger = KotlinLogging.logger { }
+    }
 
     fun handlePurchase(purchaseRequest: PurchaseRequest, tenant: String? = null): SubscriptionPurchase? {
         val subscription = androidPublisherService.tenant(tenant).purchases().subscriptions()

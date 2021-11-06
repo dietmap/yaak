@@ -5,12 +5,14 @@ import com.dietmap.yaak.api.appstore.receipt.ReceiptResponse
 import com.dietmap.yaak.api.appstore.receipt.ReceiptResponseStatus
 import com.dietmap.yaak.api.appstore.receipt.ResponseStatusCode
 import mu.KotlinLogging
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.boot.web.client.RestTemplateBuilder
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpHeaders.CONTENT_TYPE
+import org.springframework.http.MediaType.*
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Recover
@@ -19,41 +21,68 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 import java.time.Duration
 
-
 @Component
+@ConstructorBinding
+@ConfigurationProperties(prefix = "yaak")
+class AppStoreClientProperties {
+    var appstore: AppStoreProperties = AppStoreProperties.empty()
+    var multitenant: Map<String, AppStoreClientProperties> = emptyMap()
+}
+
+@ConstructorBinding
+class AppStoreProperties(
+    val password: String? = null,
+    val productionUrl: String? = null,
+    val sandboxUrl: String? = null
+) {
+    companion object {
+        fun empty() = AppStoreProperties()
+    }
+}
+
+@Configuration
 @ConditionalOnProperty("yaak.app-store.enabled", havingValue = "true")
-class AppStoreClient {
+class AppStoreClientConfiguration {
 
-    private val productionRestTemplate: RestTemplate
-    private val sandboxRestTemplate: RestTemplate
-    private val password: String
+    companion object {
+        const val DEFAULT_TENANT = "DEFAULT"
+        const val TIMEOUT_IN_SECS = 5L
+    }
 
-    private val logger = KotlinLogging.logger { }
+    @Bean
+    fun appStoreClients(properties: AppStoreClientProperties, builder: RestTemplateBuilder) =
+        properties.multitenant
+            .mapValues { t -> createAppStoreClient(builder, t.value.appstore, properties.appstore) }
+            .plus(DEFAULT_TENANT to createAppStoreClient(builder, properties.appstore))
 
-    constructor(restTemplateBuilder: RestTemplateBuilder,
-                @Value("\${yaak.app-store.production-url}") productionUrl: String,
-                @Value("\${yaak.app-store.sandbox-url}") sandboxUrl: String,
-                @Value("\${yaak.app-store.password}") passwordIn: String) {
-
-        productionRestTemplate = restTemplateBuilder.rootUri(productionUrl)
-                .setConnectTimeout(Duration.ofSeconds(5))
-                .setReadTimeout(Duration.ofSeconds(5))
-                .build()
-
-        sandboxRestTemplate = restTemplateBuilder.rootUri(sandboxUrl)
-                .setConnectTimeout(Duration.ofSeconds(5))
-                .setReadTimeout(Duration.ofSeconds(5))
-                .build()
-
-        password = passwordIn
-
+    private fun createAppStoreClient(
+        builder: RestTemplateBuilder,
+        tenantProperties: AppStoreProperties,
+        defaults: AppStoreProperties = AppStoreProperties.empty()
+    ): AppStoreClient {
         val converter = MappingJackson2HttpMessageConverter()
-        converter.supportedMediaTypes = listOf(
-                MediaType.APPLICATION_JSON,
-                MediaType.APPLICATION_OCTET_STREAM)
+        converter.supportedMediaTypes = listOf(APPLICATION_JSON, APPLICATION_OCTET_STREAM)
+        val productionTemplate = builder.rootUri((tenantProperties.productionUrl ?: defaults.productionUrl)!!)
+            .setConnectTimeout(Duration.ofSeconds(TIMEOUT_IN_SECS))
+            .setReadTimeout(Duration.ofSeconds(TIMEOUT_IN_SECS))
+            .messageConverters(converter)
+            .defaultHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+            .build()
+        val sandboxTemplate = builder.rootUri((tenantProperties.sandboxUrl ?: defaults.sandboxUrl)!!)
+            .setConnectTimeout(Duration.ofSeconds(TIMEOUT_IN_SECS))
+            .setReadTimeout(Duration.ofSeconds(TIMEOUT_IN_SECS))
+            .messageConverters(converter)
+            .defaultHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+            .build()
+        return AppStoreClient(productionTemplate, sandboxTemplate, (tenantProperties.password ?: defaults.password)!!)
+    }
 
-        productionRestTemplate.messageConverters.add(converter)
-        sandboxRestTemplate.messageConverters.add(converter)
+}
+
+class AppStoreClient(private val productionTemplate: RestTemplate, private val sandboxTemplate: RestTemplate, private val password: String) {
+
+    companion object {
+        private val logger = KotlinLogging.logger { }
     }
 
     @Retryable(value = [RuntimeException::class], maxAttempts = 3, backoff = Backoff(delay = 3000))
@@ -67,19 +96,14 @@ class AppStoreClient {
     }
 
     @Recover
-    fun recoverVerifyReceipt(runtimeException: RuntimeException, receiptRequest: ReceiptRequest) : ReceiptResponse {
-
+    fun recoverVerifyReceipt(runtimeException: RuntimeException, receiptRequest: ReceiptRequest): ReceiptResponse {
         logger.debug { "recoverVerifyReceipt: ReceiptRequest $receiptRequest for exception $runtimeException" }
-
-        val receiptResponseStatus: ReceiptResponseStatus =
-                productionRestTemplate.postForObject("/verifyReceipt", prepareHttpHeaders(receiptRequest), ReceiptResponseStatus::class.java)!!
-
+        val receiptResponseStatus = productionTemplate.postForObject("/verifyReceipt", receiptRequest, ReceiptResponseStatus::class.java)!!
         logger.debug { "recoverVerifyReceipt: ReceiptResponseStatus $receiptResponseStatus" }
-
         if (receiptResponseStatus.responseStatusCode!! == ResponseStatusCode.CODE_21007) {
-            return sandboxRestTemplate.postForObject("/verifyReceipt", prepareHttpHeaders(receiptRequest), ReceiptResponse::class.java)!!
+            return sandboxTemplate.postForObject("/verifyReceipt", receiptRequest, ReceiptResponse::class.java)!!
         } else {
-            val message = "Cannot process ReceiptRequest due to exception $runtimeException";
+            val message = "Cannot process ReceiptRequest due to exception $runtimeException"
             logger.error { message }
             throw ReceiptValidationException(message)
         }
@@ -87,30 +111,18 @@ class AppStoreClient {
 
     private fun processRequest(receiptRequest: ReceiptRequest): ReceiptResponse {
         receiptRequest.password = password
-
         logger.debug { "processRequest: ReceiptRequest $receiptRequest" }
-
-        var receiptResponse: ReceiptResponse =
-                productionRestTemplate.postForObject("/verifyReceipt", prepareHttpHeaders(receiptRequest), ReceiptResponse::class.java)!!
-
+        var receiptResponse = productionTemplate.postForObject("/verifyReceipt", receiptRequest, ReceiptResponse::class.java)!!
         if (receiptResponse.responseStatusCode!! == ResponseStatusCode.CODE_21007) {
-            receiptResponse  = sandboxRestTemplate.postForObject("/verifyReceipt", prepareHttpHeaders(receiptRequest), ReceiptResponse::class.java)!!
+            receiptResponse = sandboxTemplate.postForObject("/verifyReceipt", receiptRequest, ReceiptResponse::class.java)!!
         }
-
         logger.debug { "processRequest: ReceiptResponse $receiptResponse" }
-
         if (receiptResponse.shouldRetry()) {
             val message = "Retrying due to ${receiptResponse.responseStatusCode} status code"
             logger.warn { message }
             throw RetryableException(message)
         }
         return receiptResponse
-    }
-
-    private fun prepareHttpHeaders(receiptRequest: ReceiptRequest): HttpEntity<ReceiptRequest> {
-        val headers = HttpHeaders()
-        headers.contentType = MediaType.APPLICATION_JSON
-        return HttpEntity(receiptRequest, headers)
     }
 
 }

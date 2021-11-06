@@ -28,14 +28,8 @@ import java.util.*
 @ConfigurationProperties(prefix = "yaak")
 class GoogleDeveloperApiClientProperties {
     lateinit var googleplay: GooglePlayProperties
-    var multitenant: List<MultitenantGooglePlayProperties> = emptyList()
+    var multitenant: Map<String, GoogleDeveloperApiClientProperties> = emptyMap()
 }
-
-@ConstructorBinding
-class MultitenantGooglePlayProperties(
-    val tenant: String,
-    val googleplay: GooglePlayProperties
-)
 
 @ConstructorBinding
 class GooglePlayProperties(
@@ -61,7 +55,7 @@ class GooglePlayProperties(
  */
 @ConditionalOnProperty("yaak.google-play.enabled", havingValue = "true")
 @Configuration
-class AndroidPublisherClientConfiguration(val properties: GoogleDeveloperApiClientProperties) {
+class AndroidPublisherClientConfiguration {
     private val logger = KotlinLogging.logger { }
 
     /** Global instance of the JSON factory.  */
@@ -76,8 +70,8 @@ class AndroidPublisherClientConfiguration(val properties: GoogleDeveloperApiClie
 
     @Bean
     @Throws(IOException::class, GeneralSecurityException::class)
-    fun androidPublishers() = properties.multitenant
-        .associate { m -> m.tenant to createAndroidPublisher(m.googleplay) }
+    fun androidPublishers(properties: GoogleDeveloperApiClientProperties) = properties.multitenant
+        .mapValues { t -> createAndroidPublisher(t.value.googleplay) }
         .plus(DEFAULT_TENANT to createAndroidPublisher(properties.googleplay))
 
     private fun createAndroidPublisher(properties: GooglePlayProperties): AndroidPublisher {
