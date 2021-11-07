@@ -5,6 +5,7 @@ import com.dietmap.yaak.api.appstore.subscription.AppStoreNotificationType
 import com.dietmap.yaak.api.appstore.subscription.StatusUpdateNotification
 import com.dietmap.yaak.api.appstore.subscription.SubscriptionPurchaseRequest
 import com.dietmap.yaak.api.appstore.subscription.SubscriptionRenewRequest
+import com.dietmap.yaak.domain.appstore.AppStoreClientConfiguration.Companion.DEFAULT_TENANT
 import com.dietmap.yaak.domain.checkArgument
 import com.dietmap.yaak.domain.userapp.*
 import mu.KotlinLogging
@@ -13,12 +14,14 @@ import org.springframework.stereotype.Service
 
 @Service
 @ConditionalOnProperty("yaak.app-store.enabled", havingValue = "true")
-class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStoreClient: AppStoreClient) {
+class AppStoreSubscriptionService(private val userAppClient: UserAppClient, private val appStoreClients: Map<String, AppStoreClient>) {
 
-    private val logger = KotlinLogging.logger { }
+    companion object {
+        private val logger = KotlinLogging.logger { }
+    }
 
-    fun handleInitialPurchase(subscriptionPurchaseRequest: SubscriptionPurchaseRequest) : UserAppSubscriptionOrder? {
-        val receiptResponse = appStoreClient.verifyReceipt(ReceiptRequest(subscriptionPurchaseRequest.receipt))
+    fun handleInitialPurchase(tenant: String?, subscriptionPurchaseRequest: SubscriptionPurchaseRequest) : UserAppSubscriptionOrder? {
+        val receiptResponse = appStoreClient(tenant).verifyReceipt(ReceiptRequest(subscriptionPurchaseRequest.receipt))
 
         logger.debug { "handleInitialPurchase: ReceiptResponse: $receiptResponse" }
 
@@ -56,8 +59,8 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
         }
     }
 
-    fun handleAutoRenewal(subscriptionRenewRequest: SubscriptionRenewRequest) {
-        val receiptResponse = appStoreClient.verifyReceipt(ReceiptRequest(subscriptionRenewRequest.receipt))
+    fun handleAutoRenewal(tenant: String?, subscriptionRenewRequest: SubscriptionRenewRequest) {
+        val receiptResponse = appStoreClient(tenant).verifyReceipt(ReceiptRequest(subscriptionRenewRequest.receipt))
 
         logger.debug { "handleAutoRenewal: ReceiptResponse: $receiptResponse" }
 
@@ -181,6 +184,11 @@ class AppStoreSubscriptionService(val userAppClient: UserAppClient, val appStore
         logger.debug {"Sending UserAppSubscriptionNotification: $notification" }
 
         return userAppClient.sendSubscriptionNotification(notification)
-
     }
+
+    fun verifyReceipt(tenant: String?, receiptRequest: ReceiptRequest) = appStoreClient(tenant).verifyReceipt(receiptRequest)
+
+    private fun appStoreClient(tenant: String?) =
+        appStoreClients.getOrDefault(tenant?.toUpperCase() ?: DEFAULT_TENANT, appStoreClients[DEFAULT_TENANT])!!
+
 }
