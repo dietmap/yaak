@@ -38,15 +38,16 @@ dependencies {
 	implementation("org.springframework.security:spring-security-oauth2-resource-server")
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation("org.springframework:spring-webflux")
-	implementation("org.springframework.retry:spring-retry:1.2.4.RELEASE")
-	implementation("net.logstash.logback:logstash-logback-encoder:6.2")
+	implementation("org.springframework.retry:spring-retry:1.3.3")
+	implementation("net.logstash.logback:logstash-logback-encoder:7.2")
 
 	implementation("org.projectreactor:reactor-spring:1.0.1.RELEASE")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-	implementation("com.google.apis:google-api-services-androidpublisher:v3-rev130-1.25.0")
-	implementation("io.github.microutils:kotlin-logging:1.7.8")
+	implementation("com.google.apis:google-api-services-androidpublisher:v3-rev142-1.25.0")
+	implementation("io.github.microutils:kotlin-logging:3.0.0")
+	implementation("org.zalando:logbook-spring-boot-starter:2.14.0")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(module = "junit")
