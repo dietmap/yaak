@@ -8,7 +8,7 @@ import java.io.Serializable
 
 data class StatusUpdateNotification(
         @get:JsonProperty("environment") val environment: String?,
-        @get:JsonProperty("notification_type") val notificationType: AppStoreNotificationType,
+        @get:JsonProperty("notification_type") val notificationType: String?,
         @get:JsonProperty("latest_receipt") val latestReceipt: String?,
         @get:JsonProperty("latest_receipt_info") val latestReceiptInfo: LatestReceiptInfo,
         @get:JsonProperty("expiration_intent") val expirationIntent: String?,
@@ -80,7 +80,34 @@ enum class AppStoreNotificationType(private val code: Int) {
     /**
      * User has entered a price increase flow
      */
-    PRICE_INCREASE_CONSENT(8);
+    PRICE_INCREASE_CONSENT(8),
+
+    /**
+     * Indicates that the customer initiated a refund request for a consumable in-app purchase,
+     * and the App Store is requesting that you provide consumption data
+     */
+    CONSUMPTION_REQUEST(9),
+
+    /**
+     * Indicates that a customer’s subscription has successfully auto-renewed for a new transaction period.
+     * Provide the customer with access to the subscription’s content or service.
+     */
+    DID_RENEW(10),
+
+    /**
+     * Indicates that the App Store successfully refunded a transaction for a consumable in-app purchase,
+     * a non-consumable in-app purchase, or a non-renewing subscription. The cancellation_date_ms contains
+     * the timestamp of the refunded transaction. The original_transaction_id and product_id identify
+     * the original transaction and product. The cancellation_reason contains the reason.
+     */
+    REFUND(11),
+
+    /**
+     * Indicates that an in-app purchase the user was entitled to through Family Sharing is no longer
+     * available through sharing. StoreKit sends this notification when a purchaser disabled Family Sharing
+     * for a product, the purchaser (or family member) left the family group, or the purchaser asked for and received a refund.
+     */
+    REVOKE(12);
 
     companion object {
         private val codes = values().associateBy(AppStoreNotificationType::code)
