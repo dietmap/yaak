@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
 
 data class StatusUpdateNotification(
-        @get:JsonProperty("environment") val environment: String,
+        @get:JsonProperty("environment") val environment: String?,
         @get:JsonProperty("notification_type") val notificationType: AppStoreNotificationType,
         @get:JsonProperty("latest_receipt") val latestReceipt: String?,
         @get:JsonProperty("latest_receipt_info") val latestReceiptInfo: LatestReceiptInfo,
@@ -23,7 +23,7 @@ data class StatusUpdateNotification(
 
 
 data class UnifiedReceipt(
-        @get:JsonProperty("environment") val environment: String,
+        @get:JsonProperty("environment") val environment: String?,
         @get:JsonProperty("latest_receipt") val latestReceipt: String?,
         @get:JsonProperty("latest_receipt_info") val latestReceiptInfo: Collection<LatestReceiptInfo>?,
         @get:JsonProperty("pending_renewal_info") val pendingRenewalInfo: Collection<PendingRenewalInfo>?,
