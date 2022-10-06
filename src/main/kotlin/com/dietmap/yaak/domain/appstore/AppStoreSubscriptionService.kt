@@ -101,7 +101,7 @@ class AppStoreSubscriptionService(private val userAppClient: UserAppClient, priv
         var notificationType = NotificationType.SUBSCRIPTION_PURCHASED
         val latestReceiptInfo = statusUpdateNotification.latestReceiptInfo
 
-        when (statusUpdateNotification.notificationType) {
+        when (val appStoreNotificationType = parseAppStoreNotificationTypeEnum(statusUpdateNotification.notificationType)) {
 
             // A subscription is first purchased
             AppStoreNotificationType.INITIAL_BUY -> {
@@ -119,14 +119,14 @@ class AppStoreSubscriptionService(private val userAppClient: UserAppClient, priv
             }
 
             // a customer downgrades
-            AppStoreNotificationType.DID_CHANGE_RENEWAL_PREF -> {
+            AppStoreNotificationType.DID_CHANGE_RENEWAL_PREF, AppStoreNotificationType.DID_CHANGE_RENEWAL_STATUS -> {
                 // auto_renewal_product_id - product customer will auto renew at
-
+                // skipping it
                 // latest_receipt_info.original_transaction_id
             }
 
             // customer support issues a refund
-            AppStoreNotificationType.CANCEL -> {
+            AppStoreNotificationType.CANCEL, AppStoreNotificationType.REVOKE, AppStoreNotificationType.REFUND -> {
                 // suspend service with a cancellation date?
 
                 notificationType = NotificationType.SUBSCRIPTION_CANCELED
@@ -158,12 +158,20 @@ class AppStoreSubscriptionService(private val userAppClient: UserAppClient, priv
                 // latest_receipt_info.expires_date_ms - date when the subscription will expire
             }
 
-            AppStoreNotificationType.DID_CHANGE_RENEWAL_STATUS -> {
-                // skipping it
+            AppStoreNotificationType.DID_RENEW -> {
+                // restore service for a renewed subscription
+                // update customer's subscription to active / subscribe
+
+                notificationType = NotificationType.SUBSCRIPTION_RENEWED;
             }
 
-            AppStoreNotificationType.PRICE_INCREASE_CONSENT -> {
-                // skipping it
+            null -> {
+                throw IllegalStateException("Missing or not recognised notification type.")
+            }
+
+            else -> {
+                logger.warn { "Notification type $appStoreNotificationType is not supported." }
+                return null
             }
         }
 
@@ -185,6 +193,9 @@ class AppStoreSubscriptionService(private val userAppClient: UserAppClient, priv
 
         return userAppClient.sendSubscriptionNotification(notification)
     }
+
+    private fun parseAppStoreNotificationTypeEnum(appStoreNotificationValue: String?): AppStoreNotificationType? =
+        AppStoreNotificationType.values().find { it.name.equals(appStoreNotificationValue, ignoreCase = true) }
 
     fun verifyReceipt(tenant: String?, receiptRequest: ReceiptRequest) = appStoreClient(tenant).verifyReceipt(receiptRequest)
 
