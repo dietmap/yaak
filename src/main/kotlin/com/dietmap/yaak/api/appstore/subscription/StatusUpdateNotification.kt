@@ -7,18 +7,20 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
 
 data class StatusUpdateNotification(
-        @get:JsonProperty("environment") val environment: String?,
-        @get:JsonProperty("notification_type") val notificationType: String?,
-        @get:JsonProperty("latest_receipt") val latestReceipt: String?,
-        @get:JsonProperty("latest_receipt_info") val latestReceiptInfo: LatestReceiptInfo,
-        @get:JsonProperty("expiration_intent") val expirationIntent: String?,
         @get:JsonProperty("auto_renew_adam_id") val autoRenewAdamId: String?,
-        @get:JsonProperty("auto_renew_status") val autoRenewStatus: Boolean?,
         @get:JsonProperty("auto_renew_product_id") val autoRenewProductId: String?,
+        @get:JsonProperty("auto_renew_status") val autoRenewStatus: Boolean?,
         @get:JsonProperty("auto_renew_status_change_date") val autoRenewStatusChangeDate: String?,
-        @get:JsonProperty("auto_renew_status_change_date_pst") val autoRenewStatusChangeDatePst: String?,
         @get:JsonProperty("auto_renew_status_change_date_ms") val autoRenewStatusChangeDateMs: Long?,
-        @get:JsonProperty("unified_receipt") val unifiedReceipt: UnifiedReceipt?
+        @get:JsonProperty("auto_renew_status_change_date_pst") val autoRenewStatusChangeDatePst: String?,
+        @get:JsonProperty("bid") val bid: String?,
+        @get:JsonProperty("bvrs") val bvrs: String?,
+        @get:JsonProperty("environment") val environment: String?,
+        @get:JsonProperty("expiration_intent") val expirationIntent: String?,
+        @get:JsonProperty("notification_type") val notificationType: String?,
+        @get:JsonProperty("original_transaction_id") val originalTransactionId: String?,
+        @get:JsonProperty("password") val password: String?,
+        @get:JsonProperty("unified_receipt") val unifiedReceipt: UnifiedReceipt
 ) : Serializable
 
 
@@ -27,7 +29,7 @@ data class UnifiedReceipt(
         @get:JsonProperty("latest_receipt") val latestReceipt: String?,
         @get:JsonProperty("latest_receipt_info") val latestReceiptInfo: Collection<LatestReceiptInfo>?,
         @get:JsonProperty("pending_renewal_info") val pendingRenewalInfo: Collection<PendingRenewalInfo>?,
-        @get:JsonProperty("status") val latestExpiredReceiptInfo: String?
+        @get:JsonProperty("status") val status: String?
 ) : Serializable
 
 

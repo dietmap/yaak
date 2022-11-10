@@ -48,7 +48,8 @@ class GooglePlaySubscriptionService(val androidPublisherService: AndroidPublishe
                 orderingUserId = purchaseRequest.orderingUserId ?: subscription[USER_ACCOUNT_ID_KEY] as String?,
                 discountCode = purchaseRequest.discountCode,
                 expiryTimeMillis = subscription.expiryTimeMillis,
-                googlePlayPurchaseDetails = GooglePlayPurchaseDetails(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken)
+                googlePlayPurchaseDetails = GooglePlayPurchaseDetails(purchaseRequest.packageName, purchaseRequest.subscriptionId, purchaseRequest.purchaseToken),
+                isTrialPeriod = subscription.paymentState == PAYMENT_FREE_TRIAL_CODE
         ))
 
         checkArgument(notificationResponse != null) { "Could not create subscription order ${subscription.orderId} in user app" }

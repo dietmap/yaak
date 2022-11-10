@@ -19,26 +19,25 @@ internal class SubscriptionControllerTest : SupportController() {
     private lateinit var userAppClient: UserAppClient
 
     @Mock
-    private lateinit var latestReceiptInfo: LatestReceiptInfo
-
-    @Mock
     private lateinit var unifiedReceipt: UnifiedReceipt
 
 
     private val testStatusUpdateNotification: StatusUpdateNotification = StatusUpdateNotification(
-            "sandbox", "CANCEL", "cancellationDate", latestReceiptInfo, "",
-             "latestExpiredReceipt", true, "", "autoRenewProductId",
-            "autoRenewStatusChangeDate", 12323230, unifiedReceipt)
+        "adamId", "sandbox", true, "cancellationDate", 1,
+        "latestExpiredReceipt", "1", "", "autoRenewProductId",
+        "autoRenewStatusChangeDate", "CANEL", "123", "123", unifiedReceipt
+    )
 
     @Test
     fun `simulate subscription status update notification`() {
         this.mockMvc.perform(
-                MockMvcRequestBuilders.post("/api/appstore/subscriptions/statusUpdateNotification")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(testStatusUpdateNotification))
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk)
+            MockMvcRequestBuilders.post("/api/appstore/subscriptions/statusUpdateNotification")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(testStatusUpdateNotification))
+                .accept(MediaType.APPLICATION_JSON)
+        )
+            .andDo(MockMvcResultHandlers.print())
+            .andExpect(MockMvcResultMatchers.status().isOk)
     }
 
 }
