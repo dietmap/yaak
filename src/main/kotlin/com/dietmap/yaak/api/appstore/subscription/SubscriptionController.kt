@@ -44,7 +44,7 @@ class SubscriptionController(private val subscriptionService: AppStoreSubscripti
     }
 
     /**
-     * Handler for Server 2 Server notifications
+     * Handler for Server 2 Server notifications in version 1
      */
     @PostMapping("/statusUpdateNotification")
     fun handleStatusUpdateNotification(@Valid @RequestBody statusUpdateNotification: StatusUpdateNotification): ResponseEntity<Any> {

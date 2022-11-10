@@ -22,15 +22,10 @@ class AppStoreSubscriptionService(private val userAppClient: UserAppClient, priv
 
     fun handleInitialPurchase(tenant: String?, subscriptionPurchaseRequest: SubscriptionPurchaseRequest) : UserAppSubscriptionOrder? {
         val receiptResponse = appStoreClient(tenant).verifyReceipt(ReceiptRequest(subscriptionPurchaseRequest.receipt))
-
         logger.debug { "handleInitialPurchase: ReceiptResponse: $receiptResponse" }
-
         if (receiptResponse.isValid()) {
-
             val latestReceiptInfo = receiptResponse.latestReceiptInfo!!.stream().findFirst().get()
-
             var effectivePrice = subscriptionPurchaseRequest.price
-
             // intro offer period purchase
             if (latestReceiptInfo.isInIntroOfferPeriod && subscriptionPurchaseRequest.effectivePrice != null) {
                 effectivePrice = subscriptionPurchaseRequest.effectivePrice
@@ -48,7 +43,8 @@ class AppStoreSubscriptionService(private val userAppClient: UserAppClient, priv
                     appMarketplace = AppMarketplace.APP_STORE,
                     expiryTimeMillis = latestReceiptInfo.expiresDateMs,
                     discountCode = subscriptionPurchaseRequest.discountCode,
-                    appStoreReceipt = subscriptionPurchaseRequest.receipt
+                    appStoreReceipt = subscriptionPurchaseRequest.receipt,
+                    isTrialPeriod = latestReceiptInfo.isTrialPeriod
             )
 
             return userAppClient.sendSubscriptionNotification(notification)
@@ -61,15 +57,10 @@ class AppStoreSubscriptionService(private val userAppClient: UserAppClient, priv
 
     fun handleAutoRenewal(tenant: String?, subscriptionRenewRequest: SubscriptionRenewRequest) {
         val receiptResponse = appStoreClient(tenant).verifyReceipt(ReceiptRequest(subscriptionRenewRequest.receipt))
-
         logger.debug { "handleAutoRenewal: ReceiptResponse: $receiptResponse" }
-
         if (receiptResponse.isValid()) {
-
             if (receiptResponse.latestReceiptInfo != null) {
-
                 val latestReceiptInfo = receiptResponse.latestReceiptInfo.stream().findFirst().get()
-
                 val notification = UserAppSubscriptionNotification(
                         notificationType = NotificationType.SUBSCRIPTION_RENEWED,
                         description = "Subscription renewal from AppStore",
@@ -81,11 +72,11 @@ class AppStoreSubscriptionService(private val userAppClient: UserAppClient, priv
                         countryCode = null,
                         currencyCode = null,
                         discountCode = subscriptionRenewRequest.discountCode,
-                        appStoreReceipt = subscriptionRenewRequest.receipt
+                        appStoreReceipt = subscriptionRenewRequest.receipt,
+                        isTrialPeriod = latestReceiptInfo.isTrialPeriod
                 )
 
                 val subscriptionOrder = userAppClient.sendSubscriptionNotification(notification);
-
                 checkArgument(subscriptionOrder != null) { "Could not process SubscriptionRenewRequest $subscriptionRenewRequest in user app" }
             }
         } else {
@@ -99,7 +90,7 @@ class AppStoreSubscriptionService(private val userAppClient: UserAppClient, priv
         logger.debug { "Processing StatusUpdateNotification: ${statusUpdateNotification.notificationType}" }
 
         var notificationType = NotificationType.SUBSCRIPTION_PURCHASED
-        val latestReceiptInfo = statusUpdateNotification.latestReceiptInfo
+        val latestReceiptInfo = statusUpdateNotification.unifiedReceipt.latestReceiptInfo?.maxBy { it.purchaseDateMs }!!
 
         when (val appStoreNotificationType = parseAppStoreNotificationTypeEnum(statusUpdateNotification.notificationType)) {
 
@@ -119,7 +110,7 @@ class AppStoreSubscriptionService(private val userAppClient: UserAppClient, priv
             }
 
             // a customer downgrades
-            AppStoreNotificationType.DID_CHANGE_RENEWAL_PREF, AppStoreNotificationType.DID_CHANGE_RENEWAL_STATUS -> {
+            AppStoreNotificationType.DID_CHANGE_RENEWAL_PREF -> {
                 // auto_renewal_product_id - product customer will auto renew at
                 // skipping it
                 // latest_receipt_info.original_transaction_id
@@ -158,7 +149,7 @@ class AppStoreSubscriptionService(private val userAppClient: UserAppClient, priv
                 // latest_receipt_info.expires_date_ms - date when the subscription will expire
             }
 
-            AppStoreNotificationType.DID_RENEW -> {
+            AppStoreNotificationType.DID_RENEW, AppStoreNotificationType.DID_CHANGE_RENEWAL_STATUS -> {
                 // restore service for a renewed subscription
                 // update customer's subscription to active / subscribe
 
@@ -186,7 +177,8 @@ class AppStoreSubscriptionService(private val userAppClient: UserAppClient, priv
                 countryCode = null,
                 currencyCode = null,
                 discountCode = null,
-                appStoreReceipt = statusUpdateNotification.latestReceipt
+                appStoreReceipt = statusUpdateNotification.unifiedReceipt.latestReceipt,
+                isTrialPeriod = latestReceiptInfo.isTrialPeriod
         )
 
         logger.debug {"Sending UserAppSubscriptionNotification: $notification" }

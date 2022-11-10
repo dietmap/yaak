@@ -25,7 +25,8 @@ data class UserAppSubscriptionNotification(
         val orderingUserId: String? = String(),
         val discountCode: String? = String(),
         val appStoreReceipt: String? = String(),
-        val googlePlayPurchaseDetails: GooglePlayPurchaseDetails? = null
+        val googlePlayPurchaseDetails: GooglePlayPurchaseDetails? = null,
+        val isTrialPeriod: Boolean? = false
 )
 
 enum class NotificationType {
