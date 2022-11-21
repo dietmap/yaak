@@ -176,7 +176,7 @@ class AppStoreSubscriptionService(private val userAppClient: UserAppClient, priv
                 expiryTimeMillis = latestReceiptInfo.expiresDateMs,
                 countryCode = null,
                 currencyCode = null,
-                discountCode = null,
+                discountCode = latestReceiptInfo.offerCodeRefName,
                 appStoreReceipt = statusUpdateNotification.unifiedReceipt.latestReceipt,
                 isTrialPeriod = latestReceiptInfo.isTrialPeriod
         )
