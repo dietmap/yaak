@@ -102,7 +102,8 @@ data class LatestReceiptInfo (
         @get:JsonProperty("quantity") val quantity: String?,
         @get:JsonProperty("subscription_group_identifier") val subscriptionGroupIdentifier: String?,
         @get:JsonProperty("transaction_id") val transactionId: String,
-        @get:JsonProperty("web_order_line_item_id") val webOrderLineItemId: String?
+        @get:JsonProperty("web_order_line_item_id") val webOrderLineItemId: String?,
+        @get:JsonProperty("offer_code_ref_name") val offerCodeRefName: String?
 ): Serializable {
 
 }

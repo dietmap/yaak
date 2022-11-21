@@ -42,7 +42,7 @@ class AppStoreSubscriptionService(private val userAppClient: UserAppClient, priv
                     originalTransactionId = latestReceiptInfo.originalTransactionId,
                     appMarketplace = AppMarketplace.APP_STORE,
                     expiryTimeMillis = latestReceiptInfo.expiresDateMs,
-                    discountCode = subscriptionPurchaseRequest.discountCode,
+                    discountCode = latestReceiptInfo.offerCodeRefName,
                     appStoreReceipt = subscriptionPurchaseRequest.receipt,
                     isTrialPeriod = latestReceiptInfo.isTrialPeriod
             )
@@ -71,7 +71,7 @@ class AppStoreSubscriptionService(private val userAppClient: UserAppClient, priv
                         expiryTimeMillis = latestReceiptInfo.expiresDateMs,
                         countryCode = null,
                         currencyCode = null,
-                        discountCode = subscriptionRenewRequest.discountCode,
+                        discountCode = latestReceiptInfo.offerCodeRefName,
                         appStoreReceipt = subscriptionRenewRequest.receipt,
                         isTrialPeriod = latestReceiptInfo.isTrialPeriod
                 )
@@ -176,7 +176,7 @@ class AppStoreSubscriptionService(private val userAppClient: UserAppClient, priv
                 expiryTimeMillis = latestReceiptInfo.expiresDateMs,
                 countryCode = null,
                 currencyCode = null,
-                discountCode = null,
+                discountCode = latestReceiptInfo.offerCodeRefName,
                 appStoreReceipt = statusUpdateNotification.unifiedReceipt.latestReceipt,
                 isTrialPeriod = latestReceiptInfo.isTrialPeriod
         )
