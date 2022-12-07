@@ -25,10 +25,10 @@ import org.springframework.util.StringUtils
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 import org.springframework.web.reactive.function.client.*
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
 import java.util.function.Consumer
-
 
 @Component
 class UserAppClient(
@@ -49,8 +49,12 @@ class UserAppClient(
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToFlux(UserAppSubscriptionOrder::class.java)
+                .onErrorResume(WebClientResponseException::class.java, this::handleNotFoundResponse)
                 .blockFirst()
     }
+
+    private fun handleNotFoundResponse(exception: WebClientResponseException) =
+        if (exception.rawStatusCode == 404) Flux.empty<UserAppSubscriptionOrder>() else Mono.error<UserAppSubscriptionOrder>(exception)
 
     fun checkSubscription(): UserAppSubscriptionStatus? {
         logger.debug { "Checking user subscription in user app" }
@@ -68,6 +72,7 @@ class UserAppClient(
 class UserAppClientConfiguration {
     @Value("\${spring.security.oauth2.client.registration.user-app-client.username:''}")
     lateinit var username: String;
+
     @Value("\${spring.security.oauth2.client.registration.user-app-client.password:''}")
     lateinit var password: String;
 
