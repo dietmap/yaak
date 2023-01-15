@@ -1,11 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	id("org.springframework.boot") version "2.2.4.RELEASE"
-	id("io.spring.dependency-management") version "1.0.9.RELEASE"
-	kotlin("jvm") version "1.3.61"
-	kotlin("plugin.spring") version "1.3.61"
-	id("com.google.cloud.tools.jib") version "1.8.0"
+	id("org.springframework.boot") version "2.3.12.RELEASE"
+	id("io.spring.dependency-management") version "1.1.0"
+	kotlin("jvm") version "1.6.21"
+	kotlin("plugin.spring") version "1.6.21"
+	id("com.google.cloud.tools.jib") version "2.8.0"
 	id("pl.allegro.tech.build.axion-release") version "1.11.0"
 	id("com.gorylenko.gradle-git-properties") version "2.2.0"
 }
@@ -38,6 +38,7 @@ dependencies {
 	implementation("org.springframework.security:spring-security-oauth2-resource-server")
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
 	implementation("org.springframework:spring-webflux")
+	implementation("javax.validation:validation-api:2.0.1.Final")
 	implementation("org.springframework.retry:spring-retry:1.3.3")
 	implementation("net.logstash.logback:logstash-logback-encoder:7.2")
 
@@ -88,6 +89,6 @@ jib {
 		)
 		jvmFlags = listOf("-Djava.awt.headless=true")
 		mainClass = "com.dietmap.yaak.YaakApplicationKt"
-		ports = listOf("8080", "8778", "9090")
+		ports = listOf("8080", "8081")
 	}
 }

@@ -14,13 +14,19 @@ import org.springframework.stereotype.Service
 
 @Service
 @ConditionalOnProperty("yaak.app-store.enabled", havingValue = "true")
-class AppStoreSubscriptionService(private val userAppClient: UserAppClient, private val appStoreClients: Map<String, AppStoreClient>) {
+class AppStoreSubscriptionService(
+    private val userAppClient: UserAppClient,
+    private val appStoreClients: Map<String, AppStoreClient>
+) {
 
     companion object {
         private val logger = KotlinLogging.logger { }
     }
 
-    fun handleInitialPurchase(tenant: String?, subscriptionPurchaseRequest: SubscriptionPurchaseRequest) : UserAppSubscriptionOrder? {
+    fun handleInitialPurchase(
+        tenant: String?,
+        subscriptionPurchaseRequest: SubscriptionPurchaseRequest
+    ): UserAppSubscriptionOrder? {
         val receiptResponse = appStoreClient(tenant).verifyReceipt(ReceiptRequest(subscriptionPurchaseRequest.receipt))
         logger.debug { "handleInitialPurchase: ReceiptResponse: $receiptResponse" }
         if (receiptResponse.isValid()) {
@@ -32,24 +38,25 @@ class AppStoreSubscriptionService(private val userAppClient: UserAppClient, priv
             }
 
             val notification = UserAppSubscriptionNotification(
-                    notificationType = NotificationType.SUBSCRIPTION_PURCHASED,
-                    description = "Subscription purchase from AppStore",
-                    productId = latestReceiptInfo.productId,
-                    countryCode = subscriptionPurchaseRequest.countryCode,
-                    price = effectivePrice,
-                    currencyCode = subscriptionPurchaseRequest.currencyCode,
-                    transactionId = latestReceiptInfo.transactionId,
-                    originalTransactionId = latestReceiptInfo.originalTransactionId,
-                    appMarketplace = AppMarketplace.APP_STORE,
-                    expiryTimeMillis = latestReceiptInfo.expiresDateMs,
-                    discountCode = subscriptionPurchaseRequest.discountCode,
-                    appStoreReceipt = subscriptionPurchaseRequest.receipt,
-                    isTrialPeriod = latestReceiptInfo.isTrialPeriod
+                notificationType = NotificationType.SUBSCRIPTION_PURCHASED,
+                description = "Subscription purchase from AppStore",
+                productId = latestReceiptInfo.productId,
+                countryCode = subscriptionPurchaseRequest.countryCode,
+                price = effectivePrice,
+                currencyCode = subscriptionPurchaseRequest.currencyCode,
+                transactionId = latestReceiptInfo.transactionId,
+                originalTransactionId = latestReceiptInfo.originalTransactionId,
+                appMarketplace = AppMarketplace.APP_STORE,
+                expiryTimeMillis = latestReceiptInfo.expiresDateMs,
+                discountCode = subscriptionPurchaseRequest.discountCode,
+                appStoreReceipt = subscriptionPurchaseRequest.receipt,
+                isTrialPeriod = latestReceiptInfo.isTrialPeriod
             )
 
             return userAppClient.sendSubscriptionNotification(notification)
         } else {
-            val message = "The ${receiptResponse.receipt} is not a valid receipt. Response code ${receiptResponse.responseStatusCode}"
+            val message =
+                "The ${receiptResponse.receipt} is not a valid receipt. Response code ${receiptResponse.responseStatusCode}"
             logger.error { message }
             throw ReceiptValidationException(message)
         }
@@ -62,37 +69,40 @@ class AppStoreSubscriptionService(private val userAppClient: UserAppClient, priv
             if (receiptResponse.latestReceiptInfo != null) {
                 val latestReceiptInfo = receiptResponse.latestReceiptInfo.stream().findFirst().get()
                 val notification = UserAppSubscriptionNotification(
-                        notificationType = NotificationType.SUBSCRIPTION_RENEWED,
-                        description = "Subscription renewal from AppStore",
-                        productId = latestReceiptInfo.productId,
-                        transactionId = latestReceiptInfo.transactionId,
-                        originalTransactionId = latestReceiptInfo.originalTransactionId,
-                        appMarketplace = AppMarketplace.APP_STORE,
-                        expiryTimeMillis = latestReceiptInfo.expiresDateMs,
-                        countryCode = null,
-                        currencyCode = null,
-                        discountCode = subscriptionRenewRequest.discountCode,
-                        appStoreReceipt = subscriptionRenewRequest.receipt,
-                        isTrialPeriod = latestReceiptInfo.isTrialPeriod
+                    notificationType = NotificationType.SUBSCRIPTION_RENEWED,
+                    description = "Subscription renewal from AppStore",
+                    productId = latestReceiptInfo.productId,
+                    transactionId = latestReceiptInfo.transactionId,
+                    originalTransactionId = latestReceiptInfo.originalTransactionId,
+                    appMarketplace = AppMarketplace.APP_STORE,
+                    expiryTimeMillis = latestReceiptInfo.expiresDateMs,
+                    countryCode = null,
+                    currencyCode = null,
+                    discountCode = subscriptionRenewRequest.discountCode,
+                    appStoreReceipt = subscriptionRenewRequest.receipt,
+                    isTrialPeriod = latestReceiptInfo.isTrialPeriod
                 )
 
                 val subscriptionOrder = userAppClient.sendSubscriptionNotification(notification);
                 checkArgument(subscriptionOrder != null) { "Could not process SubscriptionRenewRequest $subscriptionRenewRequest in user app" }
             }
         } else {
-            val message = "The ${receiptResponse.receipt} is not a valid receipt. Response code ${receiptResponse.responseStatusCode}"
+            val message =
+                "The ${receiptResponse.receipt} is not a valid receipt. Response code ${receiptResponse.responseStatusCode}"
             logger.error { message }
             throw ReceiptValidationException(message)
         }
     }
 
-    fun handleSubscriptionNotification(statusUpdateNotification: StatusUpdateNotification) : UserAppSubscriptionOrder? {
+    fun handleSubscriptionNotification(statusUpdateNotification: StatusUpdateNotification): UserAppSubscriptionOrder? {
         logger.debug { "Processing StatusUpdateNotification: ${statusUpdateNotification.notificationType}" }
 
         var notificationType = NotificationType.SUBSCRIPTION_PURCHASED
-        val latestReceiptInfo = statusUpdateNotification.unifiedReceipt.latestReceiptInfo?.maxBy { it.purchaseDateMs }!!
+        val latestReceiptInfo =
+            statusUpdateNotification.unifiedReceipt.latestReceiptInfo?.maxByOrNull { it.purchaseDateMs }!!
 
-        when (val appStoreNotificationType = parseAppStoreNotificationTypeEnum(statusUpdateNotification.notificationType)) {
+        when (val appStoreNotificationType =
+            parseAppStoreNotificationTypeEnum(statusUpdateNotification.notificationType)) {
 
             // A subscription is first purchased
             AppStoreNotificationType.INITIAL_BUY -> {
@@ -167,21 +177,21 @@ class AppStoreSubscriptionService(private val userAppClient: UserAppClient, priv
         }
 
         val notification = UserAppSubscriptionNotification(
-                notificationType = notificationType,
-                description = "Subscription update from AppStore: ${statusUpdateNotification.notificationType}",
-                productId = latestReceiptInfo.productId,
-                transactionId = latestReceiptInfo.transactionId,
-                originalTransactionId = latestReceiptInfo.originalTransactionId,
-                appMarketplace = AppMarketplace.APP_STORE,
-                expiryTimeMillis = latestReceiptInfo.expiresDateMs,
-                countryCode = null,
-                currencyCode = null,
-                discountCode = latestReceiptInfo.offerCodeRefName,
-                appStoreReceipt = statusUpdateNotification.unifiedReceipt.latestReceipt,
-                isTrialPeriod = latestReceiptInfo.isTrialPeriod
+            notificationType = notificationType,
+            description = "Subscription update from AppStore: ${statusUpdateNotification.notificationType}",
+            productId = latestReceiptInfo.productId,
+            transactionId = latestReceiptInfo.transactionId,
+            originalTransactionId = latestReceiptInfo.originalTransactionId,
+            appMarketplace = AppMarketplace.APP_STORE,
+            expiryTimeMillis = latestReceiptInfo.expiresDateMs,
+            countryCode = null,
+            currencyCode = null,
+            discountCode = latestReceiptInfo.offerCodeRefName,
+            appStoreReceipt = statusUpdateNotification.unifiedReceipt.latestReceipt,
+            isTrialPeriod = latestReceiptInfo.isTrialPeriod
         )
 
-        logger.debug {"Sending UserAppSubscriptionNotification: $notification" }
+        logger.debug { "Sending UserAppSubscriptionNotification: $notification" }
 
         return userAppClient.sendSubscriptionNotification(notification)
     }
@@ -189,9 +199,10 @@ class AppStoreSubscriptionService(private val userAppClient: UserAppClient, priv
     private fun parseAppStoreNotificationTypeEnum(appStoreNotificationValue: String?): AppStoreNotificationType? =
         AppStoreNotificationType.values().find { it.name.equals(appStoreNotificationValue, ignoreCase = true) }
 
-    fun verifyReceipt(tenant: String?, receiptRequest: ReceiptRequest) = appStoreClient(tenant).verifyReceipt(receiptRequest)
+    fun verifyReceipt(tenant: String?, receiptRequest: ReceiptRequest) =
+        appStoreClient(tenant).verifyReceipt(receiptRequest)
 
     private fun appStoreClient(tenant: String?) =
-        appStoreClients.getOrDefault(tenant?.toUpperCase() ?: DEFAULT_TENANT, appStoreClients[DEFAULT_TENANT])!!
+        appStoreClients.getOrDefault(tenant?.uppercase() ?: DEFAULT_TENANT, appStoreClients[DEFAULT_TENANT])!!
 
 }

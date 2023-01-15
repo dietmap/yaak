@@ -117,13 +117,13 @@ enum class AppStoreNotificationType(private val code: Int) {
 
         @JvmStatic
         @JsonCreator
-        fun fromName(value: String) = names[value.toUpperCase()]
+        fun fromName(value: String) = names[value.uppercase()]
 
         @JvmStatic
         fun fromCode(value: Int) = codes[value]
     }
 
     fun getCode() : Int{
-        return code;
+        return code
     }
 }
