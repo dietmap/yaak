@@ -9,6 +9,6 @@ import org.springframework.stereotype.Service
 @Service
 class AndroidPublisherService(private val androidPublishers: Map<String, AndroidPublisher>) {
 
-    fun tenant(tenant: String?) = androidPublishers.getOrDefault(tenant?.toUpperCase() ?: DEFAULT_TENANT, androidPublishers[DEFAULT_TENANT])!!
+    fun tenant(tenant: String?) = androidPublishers.getOrDefault(tenant?.uppercase() ?: DEFAULT_TENANT, androidPublishers[DEFAULT_TENANT])!!
 
 }
