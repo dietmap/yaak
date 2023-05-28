@@ -48,6 +48,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("com.google.apis:google-api-services-androidpublisher:v3-rev142-1.25.0")
 	implementation("io.github.microutils:kotlin-logging:3.0.0")
+	implementation("io.springfox:springfox-boot-starter:3.0.0")
 	implementation("org.zalando:logbook-spring-boot-starter:2.14.0")
 	implementation("org.zalando:logbook-spring-boot-autoconfigure:2.14.0")
 
